@@ -7,16 +7,22 @@
 <meta name="full-screen" content="yes">
 <meta name="theme-color" content="#317EFB" />
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
-<meta property="og:type" content="website">
-<meta property="og:title" content="PHJ233のBlog">
-<meta property="og:url" content="http://example.com/archives/2023/01/index.html">
+<meta name="description" content="提交描述信息格式: &lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;    类型 描述    add 新增功能   update 更新功能   delete 删除功能   fix 修复 BUG   refactor 代码重构   revert 撤销上次commit   style 代码风格更改   docs 修改文档相关内容   scope: 影响范围 用于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git提交简易规范">
+<meta property="og:url" content="http://example.com/2023/01/19/git%E6%8F%90%E4%BA%A4%E7%AE%80%E6%98%93%E8%A7%84%E8%8C%83/index.html">
 <meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="提交描述信息格式: &lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;    类型 描述    add 新增功能   update 更新功能   delete 删除功能   fix 修复 BUG   refactor 代码重构   revert 撤销上次commit   style 代码风格更改   docs 修改文档相关内容   scope: 影响范围 用于">
 <meta property="og:locale">
+<meta property="article:published_time" content="2023-01-19T22:41:28.000Z">
+<meta property="article:modified_time" content="2023-01-19T15:07:27.737Z">
 <meta property="article:author" content="phj233">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="git">
 <meta name="twitter:card" content="summary">
 
 
-<title >PHJ233のBlog</title>
+<title >git提交简易规范</title>
 
 <!-- Favicon -->
 
@@ -192,7 +198,8 @@
             <!-- top bar end -->
 
             <!-- body -->
-            <div class="trm-content-start">
+            
+<div class="trm-content-start">
     <!-- banner -->
     <div class="trm-banner" data-scroll data-scroll-direction="vertical">
     
@@ -213,10 +220,10 @@
                     <!-- banner title -->
                     <div class="trm-banner-text ">
                         <div class="trm-label trm-mb-20">
-                            The article archive
+                            NEWS LETTER
                         </div>
                         <h1 class="trm-mb-30 trm-hsmb-font">
-                            云间连下榻，<br>天上接行杯。
+                            git提交简易规范
                         </h1>
 
                         
@@ -226,7 +233,7 @@
                                 </li>
                                 <li>
                                     <span>
-                                        archives
+                                        2023
                                     </span
                                 ></li>
                             </ul>
@@ -326,99 +333,125 @@
                 <div class="trm-content" id="trm-content">
                     <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
 
-                    <div class="row">
-    <div class="col-lg-12">
-        <div class="trm-card">
-            <div style="padding: 0 20px;">
-                
-                    <ul class="row trm-list" style="margin-bottom: 0px;"><li class="col-lg-4 trm-list-item" style="margin: 6px 0;"><a class="archive-list-link" href="/archives/2023/">2023</a><span class="archive-list-count">（2）</span></li></ul>
-                
-            </div>
+                    <div id="post-info" class="row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            01/19
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            22:41
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
         </div>
     </div>
 </div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>提交描述信息格式: <code>&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;</code></p>
+<table>
+<thead>
+<tr>
+<th align="left">类型</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">add</td>
+<td align="left">新增功能</td>
+</tr>
+<tr>
+<td align="left">update</td>
+<td align="left">更新功能</td>
+</tr>
+<tr>
+<td align="left">delete</td>
+<td align="left">删除功能</td>
+</tr>
+<tr>
+<td align="left">fix</td>
+<td align="left">修复 BUG</td>
+</tr>
+<tr>
+<td align="left">refactor</td>
+<td align="left">代码重构</td>
+</tr>
+<tr>
+<td align="left">revert</td>
+<td align="left">撤销上次commit</td>
+</tr>
+<tr>
+<td align="left">style</td>
+<td align="left">代码风格更改</td>
+</tr>
+<tr>
+<td align="left">docs</td>
+<td align="left">修改文档相关内容</td>
+</tr>
+</tbody></table>
+<p><strong>scope: 影响范围</strong></p>
+<p>用于说明本次 commit 的影响范围，比如: <strong>具体功能或模块</strong>，控制器层，业务层，模型层等，视项目不同而不同</p>
+<p><strong>subject: 简单描述</strong></p>
+<p>本次 commit 的简单描述，一般不超过 50 个字符。推荐以动词开头: 新增，修改，设置撤销等等</p>
+<p><strong>规范的提交信息示例:</strong></p>
+<blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">add</span>(用户模块):新增用户编辑个人资料功能</span><br><span class="line"><span class="title function_">update</span>(用户模块):修改用户编辑个人资料不需要上传头像</span><br><span class="line"><span class="title function_">delete</span>(购物车模块):删除购物车批量删除商品功能</span><br><span class="line"><span class="title function_">fix</span>(购物车模块):修复购物车商品数量可以为负数</span><br><span class="line"><span class="title function_">refactor</span>(全部):初始化系统架构</span><br><span class="line"><span class="title function_">revert</span>(用户模块):撤销修改用户编辑个人资料不需要上传头</span><br><span class="line"><span class="title function_">style</span>(会员中心):格式化代码 </span><br><span class="line"><span class="title function_">docs</span>(api):更新<span class="variable constant_">API</span>文档</span><br></pre></td></tr></table></figure>
+</blockquote>
 
-<!-- history -->
-
-<div class="row">
+</article>
+    
+    
+</div>
+<div id="post-next-prev" class="row">
     <div class="col-lg-12">
         <!-- title -->
         <h5 class="trm-title-with-divider">
-            
-                2023 年的归档
-            
-            <span data-number="01"></span>
+            其他文章
+            <span data-number="02"></span>
         </h5>
     </div>
-    <div class="col-lg-12">
-        <!-- timeline -->
-        <div class="trm-timeline">
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/01/19/git%E6%8F%90%E4%BA%A4%E7%AE%80%E6%98%93%E8%A7%84%E8%8C%83/" class="trm-anima-link">
-                                        git提交简易规范
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">01/19</li>
-                                        <li class="trm-accent-color">22:41</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/01/16/Java-%E7%AC%94%E8%AE%B0/" class="trm-anima-link">
-                                        Java 笔记
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">01/16</li>
-                                        <li class="trm-accent-color">16:00</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
+    
+    
+        <div class="col-lg-6">
+            <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+    <a href="/2023/01/16/Java-%E7%AC%94%E8%AE%B0/" class="trm-cover-frame trm-anima-link">
+        
+        
+            <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+        
+    </a>
+    <div class="trm-card-descr">
+        <div class="trm-label trm-category trm-mb-20">
+            <a href=" /categories/Program/">
+                Program
+            </a>
         </div>
-        <!-- timeline end -->
+        <h5>
+            <a href="/2023/01/16/Java-%E7%AC%94%E8%AE%B0/" class="trm-anima-link">
+                Java 笔记
+            </a>
+        </h5>
+        <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+        <ul class="trm-card-data trm-label">
+            <li>23/01/16</li>
+            <li>16:00</li>
+            
+            
+        </ul>
     </div>
 </div>
+        </div>
+    
+</div>
 
-<!-- history end -->
-
-
-    <div class="trm-pagination">
-        <span class="page-number current">1</span>
-    </div>
-
-
+    
 
 
 
@@ -478,6 +511,10 @@
             <!-- body -->
             <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
     
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
     
 </div>
             <!-- body end -->
@@ -520,6 +557,9 @@
 
 
     <!-- 评论插件 -->
+    
+        
+        
     
 
 
