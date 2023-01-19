@@ -19,7 +19,7 @@ jobs:
       run: |
         npm install -g hexo-cli
         npm i hexo-theme-async@latest
-        npm install --save hexo-renderer-less hexo-renderer-ejs
+        npm install --save hexo-renderer-less hexo-renderer-ejs hexo-wordcount
         npm install
         hexo clean
         hexo generate

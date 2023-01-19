@@ -60,3 +60,9 @@ top_bars:
 rightside:
   readmode: true
   aside: true
+
+# Post wordcount
+# https://github.com/willin/hexo-wordcount
+wordcount:
+  enable: true
+  count: true
