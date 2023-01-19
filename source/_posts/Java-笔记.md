@@ -1,7 +1,12 @@
 ---
 title: Java 笔记
 date: 2023-01-16 16:00:48
+categories:
+- Program
 tags:
+- 笔记
+- git
+- Java
 ---
 
 ## 1.stream filter map结果集相关
