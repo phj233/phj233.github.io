@@ -34,7 +34,7 @@ sidebar:
   typedText: ['Developer']
   info: 
     - key: sidebar.residence
-      val: Mars
+      val: Earth
   social:
     - name: Github
       icon: fab fa-github
@@ -46,3 +46,17 @@ toc:
   list_number: false
   max_depth: 8
   min_depth: 1
+
+# Top navigation menu
+top_bars:
+  - title: menu.home
+    url: /
+  - title: menu.archives
+    url: /archives/
+  - title: menu.about
+    url: /about/
+
+# Lower right button
+rightside:
+  readmode: true
+  aside: true
