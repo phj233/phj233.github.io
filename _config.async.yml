@@ -1,0 +1,48 @@
+user:
+  name: phj233
+  first_name: 233
+  last_name: phj
+  email: 2780990934@qq.com
+  domain: phj233.github.io
+  avatar: /img/avatar.jpg
+  describe: 记录笔记...
+  ruleText: 暂不接受个人博客以外的友链申请...
+
+# Footer settings
+footer:
+  # Hexo link (Powered by Hexo).
+  powered:
+    enable: true
+  # Beian icp information for Chinese users. In China, every legal website should have a beian icp in website footer.
+  # https://beian.miit.gov.cn/
+  beian:
+    enable: false
+    icp: 
+  # Copyright date
+  copyrightYear:
+  # 
+  live_time:
+    enable: true
+    prefix: footer.tips
+    start_time: 01/17/2023 17:00:00
+  #
+  custom_text:
+
+# Sidebar settings
+sidebar:
+  typedTextPrefix: I`m
+  typedText: ['Developer']
+  info: 
+    - key: sidebar.residence
+      val: Mars
+  social:
+    - name: Github
+      icon: fab fa-github
+      url: https://github.com/phj233
+
+# Article table of contents
+toc:
+  enable: true
+  list_number: false
+  max_depth: 8
+  min_depth: 1
