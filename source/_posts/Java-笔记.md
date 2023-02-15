@@ -5,7 +5,6 @@ categories:
 - Program
 tags:
 - 笔记
-- git
 - Java
 ---
 
