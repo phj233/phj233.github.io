@@ -7,22 +7,22 @@
 <meta name="full-screen" content="yes">
 <meta name="theme-color" content="#317EFB" />
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
-<meta name="description" content="1.stream filter map结果集相关stream流的filter()和map()返回的结果集是一个新的集合。 对结果集进行新增或删除元素，都不会改变原有集合。但对结果集中的元素进行修改，会改变原有集合中元素，因为结果集中的元素和原有集合中的元素是同一引用地址，也就是同一个对象 2.实现Java不可变集合List.of(x,x,x)或List.copyOf(list)">
+<meta name="description" content="Spring Security的配置Spring Security 5.7开始实现WebSecurityConfigurerAdapter来配置的方式已经被废弃了。可直接在配置类上打@Configuration注解，并直接注入SecurityFilterChain及其他相关的方法。 1234567891011121314151617181920212223242526272829303132333">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java 笔记">
-<meta property="og:url" content="http://example.com/2023/01/16/Java-%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:title" content="Spring Security相关">
+<meta property="og:url" content="http://example.com/2023/02/21/Spring-Security%E7%9B%B8%E5%85%B3/index.html">
 <meta property="og:site_name" content="PHJ233のBlog">
-<meta property="og:description" content="1.stream filter map结果集相关stream流的filter()和map()返回的结果集是一个新的集合。 对结果集进行新增或删除元素，都不会改变原有集合。但对结果集中的元素进行修改，会改变原有集合中元素，因为结果集中的元素和原有集合中的元素是同一引用地址，也就是同一个对象 2.实现Java不可变集合List.of(x,x,x)或List.copyOf(list)">
+<meta property="og:description" content="Spring Security的配置Spring Security 5.7开始实现WebSecurityConfigurerAdapter来配置的方式已经被废弃了。可直接在配置类上打@Configuration注解，并直接注入SecurityFilterChain及其他相关的方法。 1234567891011121314151617181920212223242526272829303132333">
 <meta property="og:locale">
-<meta property="article:published_time" content="2023-01-16T16:00:48.000Z">
+<meta property="article:published_time" content="2023-02-21T18:10:07.000Z">
 <meta property="article:modified_time" content="2023-02-21T13:59:17.818Z">
 <meta property="article:author" content="phj233">
 <meta property="article:tag" content="笔记">
-<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring Security">
 <meta name="twitter:card" content="summary">
 
 
-<title >Java 笔记</title>
+<title >Spring Security相关</title>
 
 <!-- Favicon -->
 
@@ -223,7 +223,7 @@
                             NEWS LETTER
                         </div>
                         <h1 class="trm-mb-30 trm-hsmb-font">
-                            Java 笔记
+                            Spring Security相关
                         </h1>
 
                         
@@ -335,7 +335,7 @@
             </div>
             <div name="tabs-toc" class="trm-tabs-item active">
                 <div class="post-toc">
-    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#1-stream-filter-map结果集相关"  data-scroll-to="#1-stream-filter-map结果集相关"><span class="toc-text">1.stream filter map结果集相关</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#2-实现Java不可变集合"  data-scroll-to="#2-实现Java不可变集合"><span class="toc-text">2.实现Java不可变集合</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Spring-Security的配置"  data-scroll-to="#Spring-Security的配置"><span class="toc-text">Spring Security的配置</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#关于CSRF"  data-scroll-to="#关于CSRF"><span class="toc-text">关于CSRF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#Spring-Security对CSRF的检查机制。"  data-scroll-to="#Spring-Security对CSRF的检查机制。"><span class="toc-text">Spring Security对CSRF的检查机制。</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#方法级别的注解支持"  data-scroll-to="#方法级别的注解支持"><span class="toc-text">方法级别的注解支持</span></a></li></ol>
 </div>
             </div>
         </div>
@@ -353,13 +353,13 @@
     <div class="col-sm-4">
         <div class="trm-card trm-label trm-label-light text-center">
             <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
-            01/16
+            02/21
         </div>
     </div>
     <div class="col-sm-4">
         <div class="trm-card trm-label trm-label-light text-center">
             <i class="iconfont far fa-clock trm-icon"></i><br>
-            16:00
+            18:10
         </div>
     </div>
     <div class="col-sm-4">
@@ -371,9 +371,17 @@
 </div>
 <div class="trm-card ">
     <article id="article-container" class="trm-publication">
-    <h2 id="1-stream-filter-map结果集相关"><a href="#1-stream-filter-map结果集相关" class="headerlink" title="1.stream filter map结果集相关"></a>1.stream filter map结果集相关</h2><p>stream流的<code>filter()</code>和<code>map()</code>返回的结果集是一个<strong>新的</strong>集合。</p>
-<p>对结果集进行新增或删除元素，都不会改变原有集合。但对结果集中的元素进行修改，会改变原有集合中元素，因为结果集中的元素和原有集合中的元素是同一引用地址，也就是同一个对象</p>
-<h2 id="2-实现Java不可变集合"><a href="#2-实现Java不可变集合" class="headerlink" title="2.实现Java不可变集合"></a>2.实现Java不可变集合</h2><p><code>List.of(x,x,x)</code>或<code>List.copyOf(list)</code></p>
+    <h2 id="Spring-Security的配置"><a href="#Spring-Security的配置" class="headerlink" title="Spring Security的配置"></a>Spring Security的配置</h2><p><code>Spring Security 5.7</code>开始实现<code>WebSecurityConfigurerAdapter</code>来配置的方式已经被废弃了。可直接在配置类上打@Configuration注解，并直接注入SecurityFilterChain及其他相关的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebSecurity</span>	<span class="comment">// 添加 security 过滤器</span></span><br><span class="line"><span class="comment">//@EnableGlobalMethodSecurity(prePostEnabled = true)	// 启用方法级别的权限认证</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SecurityConfig</span>&#123;</span><br><span class="line">    <span class="comment">//Spring Security 5.7开始WebSecurityConfigurerAdapter已经被废弃了</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 配置安全拦截策略</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> http</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    SecurityFilterChain <span class="title function_">filterChain</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//链式配置拦截策略</span></span><br><span class="line">        http.csrf().disable()<span class="comment">//关闭csrg跨域检查</span></span><br><span class="line">                .authorizeRequests(auth -&gt; auth</span><br><span class="line">                        .antMatchers(<span class="string">&quot;/index.html&quot;</span>,<span class="string">&quot;/css/**&quot;</span>,<span class="string">&quot;/img/**&quot;</span>,<span class="string">&quot;/js/**&quot;</span>).permitAll() <span class="comment">//index.html直接通过</span></span><br><span class="line">                        .antMatchers(<span class="string">&quot;/mobile/**&quot;</span>).hasAuthority(<span class="string">&quot;mobile&quot;</span>) <span class="comment">//配置资源权限</span></span><br><span class="line">                        .antMatchers(<span class="string">&quot;/salary/**&quot;</span>).hasAuthority(<span class="string">&quot;salary&quot;</span>)<span class="comment">//hasXx方法有很多，有什么权限</span></span><br><span class="line">                        .antMatchers(<span class="string">&quot;/common/**&quot;</span>).permitAll() <span class="comment">//common下的请求直接通过</span></span><br><span class="line">                        .anyRequest().authenticated() <span class="comment">//其他请求需要登录)</span></span><br><span class="line">                )<span class="comment">//开启请求认证</span></span><br><span class="line">                .formLogin(login -&gt; &#123;</span><br><span class="line">                            <span class="keyword">try</span> &#123;</span><br><span class="line">                                login</span><br><span class="line"><span class="comment">//                                        .loginPage(&quot;/index.html&quot;).loginProcessingUrl(&quot;/login&quot;)//实现自定义的登录页面,页面源码 DefaultLoginPageGeneratingFilter</span></span><br><span class="line">                                        .usernameParameter(<span class="string">&quot;username&quot;</span>).passwordParameter(<span class="string">&quot;password&quot;</span>)<span class="comment">//自定义登录参数</span></span><br><span class="line">                                        .defaultSuccessUrl(<span class="string">&quot;/main.html&quot;</span>)<span class="comment">//可从默认的login页面登录，并且登录后跳转到main.html)</span></span><br><span class="line">                                        .failureUrl(<span class="string">&quot;/common/loginFailed&quot;</span>)</span><br><span class="line">                                        .and()</span><br><span class="line">                                        .rememberMe();<span class="comment">//开启记住我功能 具体实现RememberMeAuthenticationFilter</span></span><br><span class="line">                            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                );</span><br><span class="line">        <span class="keyword">return</span> http.build();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//配置密码加密方式</span></span><br><span class="line"><span class="comment">//    @Bean</span></span><br><span class="line"><span class="comment">//    public PasswordEncoder passwordEncoder() &#123;</span></span><br><span class="line"><span class="comment">//        return new BCryptPasswordEncoder();</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//配置内存用户</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">configureGlobal</span><span class="params">(AuthenticationManagerBuilder auth)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"><span class="comment">//        auth</span></span><br><span class="line"><span class="comment">//                .inMemoryAuthentication().passwordEncoder(new BCryptPasswordEncoder())</span></span><br><span class="line"><span class="comment">//                .withUser(&quot;worker&quot;).password(new BCryptPasswordEncoder().encode(&quot;worker&quot;)).roles(&quot;worker&quot;).authorities(&quot;mobile&quot;,&quot;salary&quot;)</span></span><br><span class="line"><span class="comment">//                .and()</span></span><br><span class="line"><span class="comment">//                .withUser(&quot;admin&quot;).password(new BCryptPasswordEncoder().encode(&quot;admin&quot;)).roles(&quot;admin&quot;).authorities(&quot;mobile&quot;,&quot;salary&quot;);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="关于CSRF"><a href="#关于CSRF" class="headerlink" title="关于CSRF"></a>关于CSRF</h2><p><code>csrf</code>全称是<strong>Cross—Site Request Forgery</strong> 跨站点请求伪造，这是一种安全攻击手段。利用存在客户端的信息伪造成正常用户来进行攻击。</p>
+<blockquote>
+<p>例如你访问网站A登录后，未退出又打开一个tab页访问网站B，这时候网站B就可以利用保存在浏览器中的sessionId伪造成你的身份访问网站 A。</p>
+</blockquote>
+<h3 id="Spring-Security对CSRF的检查机制。"><a href="#Spring-Security对CSRF的检查机制。" class="headerlink" title="Spring Security对CSRF的检查机制。"></a>Spring Security对CSRF的检查机制。</h3><p>他的思想就是在后台的session中加入一个csrf的token值，向后端发送请求时，对于GET、HEAD、TRACE、OPTIONS以外的请求，例如POST、PUT、DELETE等，会要求带上这个token值进行比对。</p>
+<p>我们访问默认的登录页时，可在登录form看到有一个name为csrf的隐藏字段，这个就是csrf的token。</p>
+<p>Spring Security后台有一个CsrfFilter专门负责对Csrf参数进行检查。他会调用 HttpSessionCsrfTokenRepository生成一个CsrfToken，并将值保存到Session中。</p>
+<h2 id="方法级别的注解支持"><a href="#方法级别的注解支持" class="headerlink" title="方法级别的注解支持"></a>方法级别的注解支持</h2><p>可直接在Controller中进行权限控制。在Configuration配置类中打<code>@EnableGlobalMethodSecurity()</code>注解，参数有<code>prePostEnabled、securedEnabled、jsr250Enabled</code>，分别对应<code>@PreAuthorize、@Secured、@RolesAllowed(等价于@Secured)</code>，使用时在Controller的方法上打对应注解并配置权限就行。</p>
 
 </article>
     
@@ -388,9 +396,10 @@
         </h5>
     </div>
     
+    
         <div class="col-lg-6">
     <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
-        <a href="/2023/01/19/git%E6%8F%90%E4%BA%A4%E7%AE%80%E6%98%93%E8%A7%84%E8%8C%83/" class="trm-cover-frame trm-anima-link">
+        <a href="/2023/02/15/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E5%BC%80%E6%94%BE%E6%8E%88%E6%9D%83%E5%B9%B3%E5%8F%B0/" class="trm-cover-frame trm-anima-link">
             
             
                 <img alt="cover" class="no-fancybox" src="/img/block.jpg">
@@ -404,16 +413,16 @@
                 </a>
             </div>
             <h5>
-                <a href="/2023/01/19/git%E6%8F%90%E4%BA%A4%E7%AE%80%E6%98%93%E8%A7%84%E8%8C%83/" class="trm-anima-link">
-                    git提交简易规范
+                <a href="/2023/02/15/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E5%BC%80%E6%94%BE%E6%8E%88%E6%9D%83%E5%B9%B3%E5%8F%B0/" class="trm-anima-link">
+                    如何设计一个开放授权平台
                 </a>
             </h5>
             <div class="trm-divider trm-mb-20 trm-mt-20"></div>
             <ul class="trm-card-data trm-label">
-                <li>23/01/19</li>
-                <li>22:41</li>
+                <li>23/02/15</li>
+                <li>15:46</li>
                 
-                    <li>288</li>
+                    <li>216</li>
                 
                 
                     <li>1</li>
@@ -422,7 +431,6 @@
         </div>
     </div>
 </div>
-    
     
 </div>
 
