@@ -15,7 +15,7 @@
 <meta property="og:description" content="Spring Security的配置Spring Security 5.7开始实现WebSecurityConfigurerAdapter来配置的方式已经被废弃了。可直接在配置类上打@Configuration注解，并直接注入SecurityFilterChain及其他相关的方法。 1234567891011121314151617181920212223242526272829303132333">
 <meta property="og:locale">
 <meta property="article:published_time" content="2023-02-21T18:10:07.000Z">
-<meta property="article:modified_time" content="2023-02-21T13:59:17.818Z">
+<meta property="article:modified_time" content="2023-02-22T02:42:05.509Z">
 <meta property="article:author" content="phj233">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="Spring Security">
@@ -64,7 +64,7 @@
 
 <!-- Variable -->
 <script>window.ASYNC_CONFIG = {"hostname":"example.com","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.0.2","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":false}};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-02-21 13:59:17"};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-02-22 02:42:05"};</script>
 
 <!-- Theme mode css -->
 <link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.2" id="trm-switch-style">
@@ -335,7 +335,7 @@
             </div>
             <div name="tabs-toc" class="trm-tabs-item active">
                 <div class="post-toc">
-    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Spring-Security的配置"  data-scroll-to="#Spring-Security的配置"><span class="toc-text">Spring Security的配置</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#关于CSRF"  data-scroll-to="#关于CSRF"><span class="toc-text">关于CSRF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#Spring-Security对CSRF的检查机制。"  data-scroll-to="#Spring-Security对CSRF的检查机制。"><span class="toc-text">Spring Security对CSRF的检查机制。</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#方法级别的注解支持"  data-scroll-to="#方法级别的注解支持"><span class="toc-text">方法级别的注解支持</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Spring-Security的配置"  data-scroll-to="#Spring-Security的配置"><span class="toc-text">Spring Security的配置</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#关于CSRF"  data-scroll-to="#关于CSRF"><span class="toc-text">关于CSRF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#Spring-Security对CSRF的检查机制。"  data-scroll-to="#Spring-Security对CSRF的检查机制。"><span class="toc-text">Spring Security对CSRF的检查机制。</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#方法级别的注解支持"  data-scroll-to="#方法级别的注解支持"><span class="toc-text">方法级别的注解支持</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#认证流程"  data-scroll-to="#认证流程"><span class="toc-text">认证流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#AuthenticationProvider接口：认证处理器"  data-scroll-to="#AuthenticationProvider接口：认证处理器"><span class="toc-text">AuthenticationProvider接口：认证处理器</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#Authentication接口：认证信息"  data-scroll-to="#Authentication接口：认证信息"><span class="toc-text">Authentication接口：认证信息</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#UserDetailsService接口-获取用户信息"  data-scroll-to="#UserDetailsService接口-获取用户信息"><span class="toc-text">UserDetailsService接口: 获取用户信息</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#UserDetails-用户信息实体"  data-scroll-to="#UserDetails-用户信息实体"><span class="toc-text">UserDetails: 用户信息实体</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#PasswordEncoder-密码解析器"  data-scroll-to="#PasswordEncoder-密码解析器"><span class="toc-text">PasswordEncoder 密码解析器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#BCryptPasswordEncoder"  data-scroll-to="#BCryptPasswordEncoder"><span class="toc-text">BCryptPasswordEncoder</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#授权流程"  data-scroll-to="#授权流程"><span class="toc-text">授权流程</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#决策流程"  data-scroll-to="#决策流程"><span class="toc-text">决策流程</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#会话控制"  data-scroll-to="#会话控制"><span class="toc-text">会话控制</span></a></li></ol>
 </div>
             </div>
         </div>
@@ -382,6 +382,170 @@
 <p>我们访问默认的登录页时，可在登录form看到有一个name为csrf的隐藏字段，这个就是csrf的token。</p>
 <p>Spring Security后台有一个CsrfFilter专门负责对Csrf参数进行检查。他会调用 HttpSessionCsrfTokenRepository生成一个CsrfToken，并将值保存到Session中。</p>
 <h2 id="方法级别的注解支持"><a href="#方法级别的注解支持" class="headerlink" title="方法级别的注解支持"></a>方法级别的注解支持</h2><p>可直接在Controller中进行权限控制。在Configuration配置类中打<code>@EnableGlobalMethodSecurity()</code>注解，参数有<code>prePostEnabled、securedEnabled、jsr250Enabled</code>，分别对应<code>@PreAuthorize、@Secured、@RolesAllowed(等价于@Secured)</code>，使用时在Controller的方法上打对应注解并配置权限就行。</p>
+<h2 id="认证流程"><a href="#认证流程" class="headerlink" title="认证流程"></a>认证流程</h2><ol>
+<li><p>用户提交用户名、密码被<code>SecurityFilterChain</code>中的<code>UsernamePasswordAuthenticationFilter</code> <strong>过滤器</strong>获取到，封装为请求 <code>Authentication</code>，通常情况下是<code>UsernamePasswordAuthenticationToken</code>这个实 现类。</p>
+</li>
+<li><p>然后过滤器将<code>Authentication</code>提交至<strong>认证管理器</strong><code>（AuthenticationManager）</code> 进行认证。</p>
+</li>
+<li><p>认证成功后，<code>AuthenticationManager</code> <strong>身份管理器</strong>返回一个被填充满了信息的 （包括上面提到的权限信息，身份信息，细节信息，但密码通常会被移除） <strong>Authentication 实例</strong>。</p>
+</li>
+<li><p><code>SecurityContextHolder</code> 安全上下文容器将第3步填充了信息的 <code>Authentication</code> ，通过<code>SecurityContextHolder.getContext().setAuthentication()</code>方法，设置到其中。</p>
+<p>可以看出AuthenticationManager接口（认证管理器）是认证相关的核心接 口，也是发起认证的出发点，它的实现类为ProviderManager。而Spring Security 支持多种认证方式，因此ProviderManager维护着一个List 列表，存放多种认证方 式，最终实际的认证工作是由AuthenticationProvider完成的。咱们知道web表单 的对应的AuthenticationProvider实现类为DaoAuthenticationProvider，它的内 部又维护着一个UserDetailsService负责UserDetails的获取。最终 AuthenticationProvider将UserDetails填充至Authentication。</p>
+<blockquote>
+<p>调试代码从<code>UsernamePasswordAuthenticationFilter</code> 开始跟踪。 最后的认证流程在<code>AbstractUserDetailsAuthenticationProvider</code>的 <code>authenticate</code>方法中。获取用户在<code>retrieveUser</code>方法。密码比较在 <code>additionalAuthenticationChecks</code>方法</p>
+</blockquote>
+</li>
+</ol>
+<h3 id="AuthenticationProvider接口：认证处理器"><a href="#AuthenticationProvider接口：认证处理器" class="headerlink" title="AuthenticationProvider接口：认证处理器"></a>AuthenticationProvider接口：认证处理器</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">AuthenticationProvider</span> &#123;</span><br><span class="line">    <span class="comment">//认证的方法</span></span><br><span class="line">    Authentication <span class="title function_">authenticate</span><span class="params">(Authentication authentication)</span> <span class="keyword">throws</span> AuthenticationException;</span><br><span class="line">	<span class="comment">//支持哪种认证</span></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(Class&lt;?&gt; authentication)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//AbstractUserDetailsAuthenticationProvider</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(Class&lt;?&gt; authentication)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里对于<code>AbstractUserDetailsAuthenticationProvider</code>，他的<code>support</code>方法就表明他可以处理用户名密码这样的认证。</p>
+<h3 id="Authentication接口：认证信息"><a href="#Authentication接口：认证信息" class="headerlink" title="Authentication接口：认证信息"></a>Authentication接口：认证信息</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Authentication</span> <span class="keyword">extends</span> <span class="title class_">Principal</span>, Serializable &#123;</span><br><span class="line"><span class="comment">//获取权限信息列表</span></span><br><span class="line">Collection&lt;? <span class="keyword">extends</span> <span class="title class_">GrantedAuthority</span>&gt; getAuthorities();</span><br><span class="line"><span class="comment">//获取凭证信息。用户输入的密码字符串，在认证过后通常会被移除，用于保障安全。</span></span><br><span class="line">Object <span class="title function_">getCredentials</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">//细节信息，web应用中的实现接口通常为 WebAuthenticationDetails，它记录了访问者的ip地 址和sessionId的值。</span></span><br><span class="line">Object <span class="title function_">getDetails</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">//身份信息，大部分情况下返回的是UserDetails接口的实现类</span></span><br><span class="line">Object <span class="title function_">getPrincipal</span><span class="params">()</span>;</span><br><span class="line"><span class="type">boolean</span> <span class="title function_">isAuthenticated</span><span class="params">()</span>;</span><br><span class="line"><span class="keyword">void</span> <span class="title function_">setAuthenticated</span><span class="params">(<span class="type">boolean</span> var1)</span> <span class="keyword">throws</span> IllegalArgumentException;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>继承自<code>Principal</code>类，代表一个抽象主体身份。继承了一个getName()方法来表示主 体的名称。</p>
+<h3 id="UserDetailsService接口-获取用户信息"><a href="#UserDetailsService接口-获取用户信息" class="headerlink" title="UserDetailsService接口: 获取用户信息"></a>UserDetailsService接口: 获取用户信息</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserDetailsService</span> &#123;</span><br><span class="line">    UserDetails <span class="title function_">loadUserByUsername</span><span class="params">(String username)</span> <span class="keyword">throws</span> UsernameNotFoundException;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>获取用户信息的接口，只有根据用户名获取用户信息的方法。</p>
+<blockquote>
+<p>在<code>DaoAuthenticationProvider</code>的<code>retrieveUser</code>方法中，会获取spring容器中的 <code>UserDetailsService</code>。如果我们没有自己注入UserDetailsService对象，那么在 <code>UserDetailsServiceAutoConfiguration</code>类中，会在启动时默认注入一个带user用户 的<code>UserDetailsService</code>。 我们可以通过注入自己的UserDetailsService来实现加载自己的数据。</p>
+</blockquote>
+<h3 id="UserDetails-用户信息实体"><a href="#UserDetails-用户信息实体" class="headerlink" title="UserDetails: 用户信息实体"></a>UserDetails: 用户信息实体</h3><p>代表了一个用户实体，包括用户、密码、权限列表、账号过期、认证过期、是否启用、是否锁定。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserDetails</span> <span class="keyword">extends</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">Collection&lt;? <span class="keyword">extends</span> <span class="title class_">GrantedAuthority</span>&gt; getAuthorities();</span><br><span class="line">String <span class="title function_">getPassword</span><span class="params">()</span>;</span><br><span class="line">String <span class="title function_">getUsername</span><span class="params">()</span>;</span><br><span class="line"><span class="type">boolean</span> <span class="title function_">isAccountNonExpired</span><span class="params">()</span>;</span><br><span class="line"><span class="type">boolean</span> <span class="title function_">isAccountNonLocked</span><span class="params">()</span>;</span><br><span class="line"><span class="type">boolean</span> <span class="title function_">isCredentialsNonExpired</span><span class="params">()</span>;</span><br><span class="line"><span class="type">boolean</span> <span class="title function_">isEnabled</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="PasswordEncoder-密码解析器"><a href="#PasswordEncoder-密码解析器" class="headerlink" title="PasswordEncoder 密码解析器"></a>PasswordEncoder 密码解析器</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">PasswordEncoder</span> &#123;</span><br><span class="line">    String <span class="title function_">encode</span><span class="params">(CharSequence rawPassword)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">matches</span><span class="params">(CharSequence rawPassword, String encodedPassword)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">default</span> <span class="type">boolean</span> <span class="title function_">upgradeEncoding</span><span class="params">(String encodedPassword)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>对密码进行加密解密</p>
+<blockquote>
+<p><code>DaoAuthenticationProvider</code>在<code>additionalAuthenticationChecks</code>方法中会获取 Spring容器中的<strong>PasswordEncode</strong>r来对用户输入的密码进行比较。</p>
+</blockquote>
+<h4 id="BCryptPasswordEncoder"><a href="#BCryptPasswordEncoder" class="headerlink" title="BCryptPasswordEncoder"></a>BCryptPasswordEncoder</h4><blockquote>
+<p><code>SpringSecurity</code>中最常用的密码解析器。他使用<strong>BCrypt</strong>算法。他的特点是加密可以加<strong>盐sault</strong>，但是解密不需要盐。因为盐就在密文当中。这样可以通过每次添加不同的盐，而给同样的字符串加密出不同的密文。 密文形如： <code>$2a$10$vTUDYhjnVb52iM3qQgi2Du31sq6PRea6xZbIsKIsmOVDnEuGb/.7K</code> </p>
+<p>$是分割符，无意义；2a是bcrypt加密版本号；10是cost的值；而后的前22 位是salt值；再然后的字符串就是密码的密文了</p>
+</blockquote>
+<h2 id="授权流程"><a href="#授权流程" class="headerlink" title="授权流程"></a>授权流程</h2><p>在用户认证通过后，对访问资源的权限进行检查的过程。</p>
+<p>Spring Security通过http.authorizeRequests()对web请求进行授权保护，使用 标准Filter建立对web请求的拦截，实现对资源的授权访问。</p>
+<ol>
+<li><p><strong>拦截请求</strong>，已认证用户访问受保护的web资源将被<code>SecurityFilterChain</code>中(实现类为<code>DefaultSecurityFilterChain</code>)的 <code>FilterSecurityInterceptor</code> 的子类拦截。</p>
+</li>
+<li><p><strong>获取资源访问策略</strong>，<code>FilterSecurityInterceptor</code>会从 <code>SecurityMetadataSource</code> 的子类<code>DefaultFilterInvocationSecurityMetadataSource</code> 获取要访问当前资源所需要的权限<code>Collection</code>。</p>
+<blockquote>
+<p><code>SecurityMetadataSource</code>其实就是读取访问策略的抽象，读取的内容是在配置类中对<code>SecurityFilterChain filterChain(HttpSecurity http)</code>的配置</p>
+</blockquote>
+</li>
+<li><p><strong>最后</strong>，<code>FilterSecurityInterceptor</code>调用<code>AccessDecisionManager</code>进行授权决策，若决策通过，则允许访问资源，否则将禁止访问。关于AccessDecisionManager接口，最核心的就是其中的<code>decide</code>方法。这个方法用来鉴定当前用户是否有访问对应受保护资源的权限。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">AccessDecisionManager</span> &#123;</span><br><span class="line">    <span class="comment">//通过传递的参数来决定用户是否有访问对应受保护资源的权限</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">decide</span><span class="params">(Authentication authentication, Object object, Collection&lt;ConfigAttribute&gt; configAttributes)</span> <span class="keyword">throws</span> AccessDeniedException, InsufficientAuthenticationException;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(ConfigAttribute attribute)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(Class&lt;?&gt; clazz)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>authentication</strong>：要访问资源的访问者的身份</p>
+<p><strong>object</strong>：要访问的受保护资源，web请求对应<code>FilterInvocation</code></p>
+<p><strong>configAttributes</strong>：是受保护资源的访问策略，通过<code>SecurityMetadataSource</code>获取。</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="决策流程"><a href="#决策流程" class="headerlink" title="决策流程"></a>决策流程</h2><p>在<code>AccessDecisionManager</code>的实现类<code>ConsensusBased</code>中，使用投票的方式来确定是否能访问受保护的资源。</p>
+<p><code>AccessDecisionManager</code>中包含了一系列的<code>AccessDecisionVoter</code>讲会被用来对 <code>Authentication</code>是否有权访问受保护对象进行投票，<code>AccessDecisionManager</code>根据投票结果，做出最终角色。</p>
+<blockquote>
+<p>投票是因为权限可以从多个方面来进行配置，有角色但是没有资源，这就需要有不同的处理策略</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">AccessDecisionVoter</span>&lt;S&gt; &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">ACCESS_GRANTED</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">ACCESS_ABSTAIN</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> <span class="variable">ACCESS_DENIED</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(ConfigAttribute attribute)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">supports</span><span class="params">(Class&lt;?&gt; clazz)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="title function_">vote</span><span class="params">(Authentication authentication, S object, Collection&lt;ConfigAttribute&gt; attributes)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>vote()</code>是进行投票的方法。投票可以表示赞成、拒绝、弃权。</p>
+<p><strong>Spring Security</strong>内置了三个基于投票的实现类，分别是 <code>AffirmativeBased</code>,<code>ConsensusBasesd</code>,<code>UnanimaousBased</code></p>
+<ul>
+<li><p><strong>AffirmativeBased</strong>的逻辑：只要有一 个投票通过，就表示通过。 </p>
+<p>1、只要有一个投票通过了，就表示通过。 </p>
+<p>2、如果全部弃权也表示通过。</p>
+<p>3、如果没有人投赞成票，但是有人投反对票，则抛出<code>AccessDeniedException</code>。</p>
+</li>
+<li><p><strong>ConsensusBased</strong>的逻辑：多数赞成就通过。</p>
+<p>1、赞成票多于反对票则表示通过。</p>
+<p>2、反对票多于赞成票则抛出<code>AccessDeniedException</code>。</p>
+<p>3、赞成票与反对票相同且不等于0，并且属性 <code>allowIfEqualGrantedDeniedDecisions</code>为<code>true</code>，则表示通过，否则抛出 <code>AccessDeniedException</code>。参数<code>allowIfEqualGrantedDeniedDecisions</code>的值默认<code>true</code>。 </p>
+<p>4、如果所有的<code>AccessDecisionVoter</code>都弃权，则视参数<code>allowIfAllAbstainDecisions</code>的值而定，如果该值为<code>true</code>则通过，否则抛出异常<code>AccessDeniedException</code>。参数<code>allowIfAllAbstainDecisions</code>的值默认<code>false</code></p>
+</li>
+<li><p><strong>UnanimousBased</strong>相当于一票否决。</p>
+<p>1、受保护对象配置的某一个<code>ConfigAttribute</code>被任意的 <code>AccessDecisionVoter</code>反对了，则将抛出<code>AccessDeniedException</code>。</p>
+</li>
+</ul>
+<p>  2、没有反对票，但是有赞成票，则表示通过。 </p>
+<p>  3、如果全部弃权了，则将视参数<code>allowIfAllAbstainDecisions</code>的值而定，<code>true</code>通过，<code>false</code>抛出<code>AccessDeniedException</code>。</p>
+<blockquote>
+<p><strong>Spring Security</strong>默认使用<code>AffirmativeBased</code>投票器，我们同样可以通过往 Spring容器里注入的方式来选择投票决定器</p>
+</blockquote>
+<h2 id="会话控制"><a href="#会话控制" class="headerlink" title="会话控制"></a>会话控制</h2><p>用户认证通过后，为避免用户的每次操作都认证，可将用户的信息保存在会话中。<strong>Spring security</strong>提供会话管理，认证通过后将身份信息放入<strong>SecurityContextHolder</strong>上下文，<strong>SecurityContext</strong>与当前线程进行绑定，方便获取用户身份。</p>
+<ul>
+<li><p><code>SecurityContextHolder.getContext().getAuthentication()</code>获取当前登录用户信息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/getLoginUser&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">getLoginUser</span><span class="params">()</span>&#123;</span><br><span class="line"><span class="type">Principal</span> <span class="variable">principal</span> <span class="operator">=</span></span><br><span class="line">(Principal)SecurityContextHolder.getContext().getAuthentication().getPrincipal();</span><br><span class="line"><span class="keyword">return</span> principal.getName();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>可通过配置<code>sessonCreationPolicy</code>参数来了控制如何管理Session。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">http.sessionManagement()</span><br><span class="line">.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>always</td>
+<td>如果没有Session就创建一个</td>
+</tr>
+<tr>
+<td>ifRequired</td>
+<td>如果需要就在登录时创建一个</td>
+</tr>
+<tr>
+<td>never</td>
+<td>SpringSecurity将不会创建Session。但是如果应用中其他地方创建了 Session，那么Spring Security就会使用。</td>
+</tr>
+<tr>
+<td>stateless</td>
+<td>SpringSecurity将绝对不创建Session，也不使用。适合于一些REST API 的无状态场景。</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>会话超时时间可以通过spring boot的配置读取。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">session:</span></span><br><span class="line">      <span class="attr">timeout:</span> </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>session超时后，可以通过SpringSecurity的http配置跳转地址</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.sessionManagement(session -&gt; session</span><br><span class="line">                        .invalidSessionUrl(<span class="string">&quot;/common/invalidSession&quot;</span>)<span class="comment">//session失效后跳转到这个页面</span></span><br><span class="line">                        .maximumSessions(<span class="number">1</span>)<span class="comment">//最大session数</span></span><br><span class="line">                        .maxSessionsPreventsLogin(<span class="literal">true</span>)<span class="comment">//当达到最大值时，是否阻止新的登录</span></span><br><span class="line">                        .expiredUrl(<span class="string">&quot;/common/invalidSession&quot;</span>)<span class="comment">//session失效后跳转到这个页面</span></span><br><span class="line">                );</span><br></pre></td></tr></table></figure>
+
+<p>expired是指session过期，invalidSession指传入的sessionId失效。</p>
+</li>
+<li><p>我们可以使用httpOnly和secure标签来保护我们的会话cookie</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">servlet:</span></span><br><span class="line">    <span class="attr">session:</span></span><br><span class="line">      <span class="attr">cookie:</span></span><br><span class="line">        <span class="attr">http-only:</span> <span class="literal">true</span></span><br><span class="line">        <span class="attr">secure:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>httpOnly</strong>：如果为true，那么浏览器脚本将无法访问cookie <strong>secure</strong>：如果为true，则cookie将仅通过HTTPS连接发送</p>
+</li>
+<li><p>Spring Security默认实现了logout退出，直接访问&#x2F;logout就会跳转到登出页面，而ajax访问&#x2F;logout就可以直接退出。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.logout(logout-&gt;logout</span><br><span class="line">                        .logoutUrl(<span class="string">&quot;/logout&quot;</span>)</span><br><span class="line">                        .logoutSuccessUrl(<span class="string">&quot;/index.html&quot;</span>)<span class="comment">//退出登录后跳转到这个页面</span></span><br><span class="line">                        .invalidateHttpSession(<span class="literal">true</span>)<span class="comment">//清除session 默认为true</span></span><br><span class="line">                );<span class="comment">//配置退出登录)</span></span><br></pre></td></tr></table></figure>
+
+<p>在退出操作时，会做以下几件事情：</p>
+<ol>
+<li>使HTTP Session失效。</li>
+<li>清除SecurityContextHolder </li>
+<li>跳转到定义的地址。</li>
+</ol>
+</li>
+<li><p><strong>logoutHandler</strong> </p>
+<p>一般LogoutHandler 的实现类被用来执行必要的清理，因而他们不应该抛出异常。</p>
+</li>
+</ul>
+<p><strong>下面是Spring Security提供的一些实现</strong></p>
+<ul>
+<li>PersistentTokenBasedRememberMeServices 基于持久化token的 <strong>RememberMe</strong>功能的相关清理</li>
+<li>TokenBasedRememberMeService 基于token的<strong>RememberMe</strong>功能的相关清理</li>
+<li>CookieClearingLogoutHandler 退出时<strong>Cookie</strong>的相关清理</li>
+<li>CsrfLogoutHandler 负责在退出时移除<strong>csrfToken</strong></li>
+<li>CecurityContextLogoutHandler 退出时<strong>SecurityContext</strong>的相关清理</li>
+</ul>
+<p>链式API提供了调用相应的 LogoutHandler 实现的快捷方式，比如 deleteCookies()。</p>
 
 </article>
     
