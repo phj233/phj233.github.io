@@ -7,16 +7,27 @@
 <meta name="full-screen" content="yes">
 <meta name="theme-color" content="#317EFB" />
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
-<meta property="og:type" content="website">
-<meta property="og:title" content="PHJ233のBlog">
-<meta property="og:url" content="http://example.com/categories/Program/index.html">
+<meta name="description" content="OAuth（开放授权）是一个开放标准，允许用户授权第三方应用访问他们存储在另外的服务上的信息，而不需要将用户名和密码供给第三方应用或分享他们数 据的所有内容。 OAuth2.0流程示例​	OAuth认证流程，就是允许我们将之前实现的认证和授权的过程交由一个独立的第三方来进行担保。而OAuth协议就是用来定义如何让这个第三方的担保有效且双方可信。  用户希望登录百度，访问登录百度后的资源。而用户可以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OAuth2.0相关">
+<meta property="og:url" content="http://example.com/2023/02/22/OAuth2-0%E7%9B%B8%E5%85%B3/index.html">
 <meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="OAuth（开放授权）是一个开放标准，允许用户授权第三方应用访问他们存储在另外的服务上的信息，而不需要将用户名和密码供给第三方应用或分享他们数 据的所有内容。 OAuth2.0流程示例​	OAuth认证流程，就是允许我们将之前实现的认证和授权的过程交由一个独立的第三方来进行担保。而OAuth协议就是用来定义如何让这个第三方的担保有效且双方可信。  用户希望登录百度，访问登录百度后的资源。而用户可以">
 <meta property="og:locale">
+<meta property="og:image" content="http://example.com/img/404.jpg">
+<meta property="og:image" content="http://example.com/img/404.jpg">
+<meta property="article:published_time" content="2023-02-22T17:48:19.000Z">
+<meta property="article:modified_time" content="2023-02-22T10:19:25.916Z">
 <meta property="article:author" content="phj233">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="OAuth2.0">
+<meta property="article:tag" content="SSO">
+<meta property="article:tag" content="Token">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/404.jpg">
 
 
-<title >PHJ233のBlog</title>
+<title >OAuth2.0相关</title>
 
 <!-- Favicon -->
 
@@ -58,7 +69,7 @@
 
 <!-- Variable -->
 <script>window.ASYNC_CONFIG = {"hostname":"example.com","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.0.2","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":false}};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":false,"isHome":false,"postUpdate":"2023-02-22 10:19:46"};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-02-22 10:19:25"};</script>
 
 <!-- Theme mode css -->
 <link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.2" id="trm-switch-style">
@@ -192,7 +203,8 @@
             <!-- top bar end -->
 
             <!-- body -->
-            <div class="trm-content-start">
+            
+<div class="trm-content-start">
     <!-- banner -->
     <div class="trm-banner" data-scroll data-scroll-direction="vertical">
     
@@ -213,10 +225,10 @@
                     <!-- banner title -->
                     <div class="trm-banner-text ">
                         <div class="trm-label trm-mb-20">
-                            The article archive
+                            NEWS LETTER
                         </div>
                         <h1 class="trm-mb-30 trm-hsmb-font">
-                            云间连下榻，<br>天上接行杯。
+                            OAuth2.0相关
                         </h1>
 
                         
@@ -226,7 +238,7 @@
                                 </li>
                                 <li>
                                     <span>
-                                        categories
+                                        2023
                                     </span
                                 ></li>
                             </ul>
@@ -258,7 +270,17 @@
 <div class="trm-main-card-frame trm-sidebar">
     <div class="trm-main-card" data-scroll data-scroll-repeat data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="60"> 
     
-        <!-- card header -->
+        <div class="trm-user-tabs" id="sidebar-tabs">
+           <div class="trm-tabs-nav trm-mb-40" id="trm-tabs-nav">
+                <div data-to="tabs-user" class="trm-tabs-nav-item">
+                    <i class="iconfont fas fa-user-alt"></i>
+                </div>
+                <div data-to="tabs-toc" class="trm-tabs-nav-item active">
+                    <i class="iconfont fas fa-th-list"></i>
+                </div>
+           </div>
+            <div name="tabs-user" class="trm-tabs-item">
+                <!-- card header -->
 <div class="trm-mc-header">
     <div class="trm-avatar-frame trm-mb-20">
         <img alt="Avatar" class="trm-avatar" src="/img/avatar.jpg">
@@ -276,7 +298,7 @@
     
 </div>
 <!-- card header end -->
-        <!-- sidebar social -->
+                <!-- sidebar social -->
 
 <div class="trm-divider trm-mb-40 trm-mt-40"></div>
 <div class="trm-social">
@@ -288,7 +310,7 @@
 </div>
 
 <!-- sidebar social end -->
-        <!-- info -->
+                <!-- info -->
 <div class="trm-divider trm-mb-40 trm-mt-40"></div>
 <ul class="trm-table trm-mb-20">
     
@@ -304,7 +326,7 @@
 </ul>
 <!-- info end -->
 
-        
+                
     <div class="trm-divider trm-mb-40 trm-mt-40"></div>
     <!-- action button -->
     <div class="text-center">
@@ -315,6 +337,13 @@
     </div>
     <!-- action button end -->
 
+            </div>
+            <div name="tabs-toc" class="trm-tabs-item active">
+                <div class="post-toc">
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#OAuth2-0流程示例"  data-scroll-to="#OAuth2-0流程示例"><span class="toc-text">OAuth2.0流程示例</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#OAuth2-0协议"  data-scroll-to="#OAuth2-0协议"><span class="toc-text">OAuth2.0协议</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#什么是SSO，与OAuth2-0有什么关系"  data-scroll-to="#什么是SSO，与OAuth2-0有什么关系"><span class="toc-text">什么是SSO，与OAuth2.0有什么关系</span></a></li></ol>
+</div>
+            </div>
+        </div>
     
     </div>
 </div>
@@ -325,243 +354,121 @@
                 <div class="trm-content" id="trm-content">
                     <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
 
-                    <div class="row">
-    <div class="col-lg-12">
-        <div class="trm-card">
-            <div style="padding: 0 20px;">
-                
-                    <ul class="row trm-list"><li class="col-lg-4 trm-list-item " style="margin: 6px 0;"><a class="category-list-link" href="/categories/Program/">Program</a><span class="category-list-count">（7）</span></li></ul>
-                
-            </div>
+                    <div id="post-info" class="row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            02/22
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            17:48
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
         </div>
     </div>
 </div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p><code>OAuth</code>（开放授权）是一个开放标准，允许用户授权第三方应用访问他们存储在另外的服务上的信息，而不需要将用户名和密码供给第三方应用或分享他们数 据的所有内容。</p>
+<h2 id="OAuth2-0流程示例"><a href="#OAuth2-0流程示例" class="headerlink" title="OAuth2.0流程示例"></a>OAuth2.0流程示例</h2><p>​	OAuth认证流程，就是允许我们将之前实现的认证和授权的过程交由一个独立的第三方来进行担保。而OAuth协议就是用来定义如何让这个第三方的担保有效且双方可信。</p>
+<ol>
+<li>用户希望登录百度，访问登录百度后的资源。而用户可以选择使用微信账号进行登录，实际是将授权认证的流程交由微信(独立第三方)来进行担保。</li>
+<li>用户以扫描二维码的方式，在微信完成登录认证。</li>
+<li>在微信选择同意后，进入百度的流程。这时，百度会获取用户的微信身份信息，与百度自己的一个注册账号完成绑定。绑定完成了之后，就会用这个绑定后的账号完成百度的登录流程。</li>
+</ol>
+<blockquote>
+<p>在这个登录认证的过程中，实际上只有用户和百度之间有<strong>资源</strong>访问的关系，而微信作为一个独立的第三方，使用用户在微信里的身份信息，来对用户的身份进行了一次担保认证。 认证完成后，百度获取到用户的微信身份信息，进入自己的后续流程，与百度内部的一个用户信息完成绑定及登录。</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/phj233/img/main/md/OAuth2.0baiduLoginWechat.png" alt="image-20230222180328186" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h2 id="OAuth2-0协议"><a href="#OAuth2-0协议" class="headerlink" title="OAuth2.0协议"></a>OAuth2.0协议</h2><p><img src="https://raw.githubusercontent.com/phj233/img/main/md/OAuth2.0.png" alt="image-20230222180701505" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<p><code>OAuth2.0</code>协议包含以下几个角色：</p>
+<ol>
+<li><p><strong>客户端</strong> - 示例中的浏览器、微信客户端</p>
+<p>本身不存储资源，需要通过资源拥有者的授权去请求资源服务器的资源</p>
+</li>
+<li><p><strong>资源拥有者</strong> - 示例中的用户(拥有微信账号) </p>
+<p>通常是用户，也可以是应用程序，即该资源的拥有者。</p>
+</li>
+<li><p><strong>授权服务器(也称为认证服务器)</strong> - 示例中的微信</p>
+<p>用于服务提供者对资源拥有的身份进行认证，对访问资源进行授权，认证成功后会 给客户端发放令牌(access_token)，作为客户端访问资源服务器的凭据。</p>
+</li>
+<li><p><strong>资源服务器</strong> - 示例中的微信 和 百度</p>
+<p>存储资源的服务器。本示例中，微信通过OAuth协议让百度可以获取到自己存储的用户信息，而百度则通过OAuth协议，让用户可以访问自己的受保护资源。</p>
+<ul>
+<li>**clientDetails(client_id)**：客户信息。代表百度在微信中的唯一索引。 在微信中用appid区分</li>
+<li><strong>secret</strong>：秘钥。代表百度获取微信信息需要提供的一个加密字段。这跟微信采用的加密算法有关。</li>
+<li><strong>scope</strong>：授权作用域。代表百度可以获取到的微信的信息范围。例如登录范围的凭证无法获取用户信息范围的信息。</li>
+<li><strong>access_token</strong>：授权码。百度获取微信用户信息的凭证。微信中叫做接口调用凭证。</li>
+<li><strong>grant_type</strong>： 授权类型。例如微信目前仅支持基于授权码的 authorization_code模式。而OAuth2.0还可以有其他的授权方式，例如输入微信的用户名和密码的方式。</li>
+<li>**userDetails(user_id)**：授权用户标识。在示例中代表用户的微信号。 在微信中用openid区分.</li>
+</ul>
+</li>
+</ol>
+<h2 id="什么是SSO，与OAuth2-0有什么关系"><a href="#什么是SSO，与OAuth2-0有什么关系" class="headerlink" title="什么是SSO，与OAuth2.0有什么关系"></a>什么是SSO，与OAuth2.0有什么关系</h2><p><code>OAuto2.0</code>使用场景通常为<strong>联合登陆</strong>。一处注册，多处使用。</p>
+<p><code>SSO</code>使用场景为<strong>单点登录</strong>。一处登录，多处同时使用。eg：淘宝登录&#x2F;退出后，天猫同时登陆退出。</p>
+<blockquote>
+<p><code>SSO</code>的实现关键是将Session信息集中存储。</p>
+</blockquote>
 
-<!-- history -->
-
-<div class="row">
+</article>
+    
+    
+</div>
+<div id="post-next-prev" class="row">
     <div class="col-lg-12">
         <!-- title -->
         <h5 class="trm-title-with-divider">
-            
-                Program
-            
-            <span data-number="01"></span>
+            其他文章
+            <span data-number="02"></span>
         </h5>
     </div>
-    <div class="col-lg-12">
-        <!-- timeline -->
-        <div class="trm-timeline">
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+        <a href="/2023/02/22/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%A4%E8%AF%81/" class="trm-cover-frame trm-anima-link">
             
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/02/22/OAuth2-0%E7%9B%B8%E5%85%B3/" class="trm-anima-link">
-                                        OAuth2.0相关
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">02/22</li>
-                                        <li class="trm-accent-color">17:48</li>
-                                        
-                                        <li>968</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
             </div>
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/02/22/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%A4%E8%AF%81/" class="trm-anima-link">
-                                        分布式系统认证
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">02/22</li>
-                                        <li class="trm-accent-color">15:12</li>
-                                        
-                                        <li>1k</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/02/21/Spring-Security%E7%9B%B8%E5%85%B3/" class="trm-anima-link">
-                                        Spring Security相关
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">02/21</li>
-                                        <li class="trm-accent-color">18:10</li>
-                                        
-                                        <li>3.1k</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/02/15/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E5%BC%80%E6%94%BE%E6%8E%88%E6%9D%83%E5%B9%B3%E5%8F%B0/" class="trm-anima-link">
-                                        如何设计一个开放授权平台
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">02/15</li>
-                                        <li class="trm-accent-color">15:46</li>
-                                        
-                                        <li>216</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/02/13/VUE-%E7%AC%94%E8%AE%B0/" class="trm-anima-link">
-                                        VUE笔记
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">02/13</li>
-                                        <li class="trm-accent-color">11:21</li>
-                                        
-                                        <li>0</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/01/19/git%E6%8F%90%E4%BA%A4%E7%AE%80%E6%98%93%E8%A7%84%E8%8C%83/" class="trm-anima-link">
-                                        git提交简易规范
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">01/19</li>
-                                        <li class="trm-accent-color">22:41</li>
-                                        
-                                        <li>288</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
-            <div class="trm-timeline-item trm-scroll-animation" data-scroll data-scroll-offset="40">
-                <div class="trm-timeline-mark-light"></div>
-                <div class="trm-timeline-mark"></div>
-                <div class="trm-a trm-timeline-content more">
-                    
-                        <div class="trm-card-header">
-                            <div class="trm-left-side">
-                                <h6>
-                                    <a href="/2023/01/16/Java-%E7%AC%94%E8%AE%B0/" class="trm-anima-link">
-                                        Java 笔记
-                                    </a>
-                                </h6>
-                                <div class="trm-text-sm trm-accent-color trm-mt-15">
-                                    <ul class="trm-card-data trm-label ">
-                                        <li class="trm-accent-color">01/16</li>
-                                        <li class="trm-accent-color">16:00</li>
-                                        
-                                        <li>121</li>
-                                        
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                    
-                </div>
-            </div>
-            
+            <h5>
+                <a href="/2023/02/22/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E8%AE%A4%E8%AF%81/" class="trm-anima-link">
+                    分布式系统认证
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>23/02/22</li>
+                <li>15:12</li>
+                
+                    <li>1k</li>
+                
+                
+                    <li>3</li>
+                
+            </ul>
         </div>
-        <!-- timeline end -->
     </div>
 </div>
+    
+</div>
 
-<!-- history end -->
-
-
-    <div class="trm-pagination">
-        <span class="page-number current">1</span>
-    </div>
-
-
+    
 
 
 
@@ -620,6 +527,10 @@
 
             <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
     
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
     
         <div class="trm-fixed-btn" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
             <i class="iconfont fas fa-arrows-alt-h"></i>
@@ -662,6 +573,10 @@
     
 
     <!-- 评论插件 -->
+    
+        
+
+        
     
 
 
