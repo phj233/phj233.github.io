@@ -213,5 +213,198 @@ public interface PasswordEncoder {
 
 ## 授权流程
 
+在用户认证通过后，对访问资源的权限进行检查的过程。
+
+Spring Security通过http.authorizeRequests()对web请求进行授权保护，使用 标准Filter建立对web请求的拦截，实现对资源的授权访问。
+
 1. **拦截请求**，已认证用户访问受保护的web资源将被`SecurityFilterChain`中(实现类为`DefaultSecurityFilterChain`)的 `FilterSecurityInterceptor` 的子类拦截。
+
 2. **获取资源访问策略**，`FilterSecurityInterceptor`会从 `SecurityMetadataSource` 的子类`DefaultFilterInvocationSecurityMetadataSource` 获取要访问当前资源所需要的权限`Collection`。
+
+   > `SecurityMetadataSource`其实就是读取访问策略的抽象，读取的内容是在配置类中对`SecurityFilterChain filterChain(HttpSecurity http)`的配置
+
+3. **最后**，`FilterSecurityInterceptor`调用`AccessDecisionManager`进行授权决策，若决策通过，则允许访问资源，否则将禁止访问。关于AccessDecisionManager接口，最核心的就是其中的`decide`方法。这个方法用来鉴定当前用户是否有访问对应受保护资源的权限。
+
+   ```java
+   public interface AccessDecisionManager {
+       //通过传递的参数来决定用户是否有访问对应受保护资源的权限
+       void decide(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException;
+   
+       boolean supports(ConfigAttribute attribute);
+   
+       boolean supports(Class<?> clazz);
+   }
+   ```
+
+   > **authentication**：要访问资源的访问者的身份
+   >
+   > **object**：要访问的受保护资源，web请求对应`FilterInvocation`
+   >
+   > **configAttributes**：是受保护资源的访问策略，通过`SecurityMetadataSource`获取。
+
+
+
+## 决策流程
+
+在`AccessDecisionManager`的实现类`ConsensusBased`中，使用投票的方式来确定是否能访问受保护的资源。
+
+`AccessDecisionManager`中包含了一系列的`AccessDecisionVoter`讲会被用来对 `Authentication`是否有权访问受保护对象进行投票，`AccessDecisionManager`根据投票结果，做出最终角色。
+
+> 投票是因为权限可以从多个方面来进行配置，有角色但是没有资源，这就需要有不同的处理策略
+
+```java
+public interface AccessDecisionVoter<S> {
+    int ACCESS_GRANTED = 1;
+    int ACCESS_ABSTAIN = 0;
+    int ACCESS_DENIED = -1;
+
+    boolean supports(ConfigAttribute attribute);
+
+    boolean supports(Class<?> clazz);
+
+    int vote(Authentication authentication, S object, Collection<ConfigAttribute> attributes);
+}
+```
+
+`vote()`是进行投票的方法。投票可以表示赞成、拒绝、弃权。
+
+**Spring Security**内置了三个基于投票的实现类，分别是 `AffirmativeBased`,`ConsensusBasesd`,`UnanimaousBased`
+
+- **AffirmativeBased**的逻辑：只要有一 个投票通过，就表示通过。 
+
+  1、只要有一个投票通过了，就表示通过。 
+
+  2、如果全部弃权也表示通过。
+
+  3、如果没有人投赞成票，但是有人投反对票，则抛出`AccessDeniedException`。
+
+- **ConsensusBased**的逻辑：多数赞成就通过。
+
+  1、赞成票多于反对票则表示通过。
+
+  2、反对票多于赞成票则抛出`AccessDeniedException`。
+
+  3、赞成票与反对票相同且不等于0，并且属性 `allowIfEqualGrantedDeniedDecisions`为`true`，则表示通过，否则抛出 `AccessDeniedException`。参数`allowIfEqualGrantedDeniedDecisions`的值默认`true`。 
+
+  4、如果所有的`AccessDecisionVoter`都弃权，则视参数`allowIfAllAbstainDecisions`的值而定，如果该值为`true`则通过，否则抛出异常`AccessDeniedException`。参数`allowIfAllAbstainDecisions`的值默认`false`
+
+-  **UnanimousBased**相当于一票否决。
+
+   1、受保护对象配置的某一个`ConfigAttribute`被任意的 `AccessDecisionVoter`反对了，则将抛出`AccessDeniedException`。 
+
+  2、没有反对票，但是有赞成票，则表示通过。 
+
+  3、如果全部弃权了，则将视参数`allowIfAllAbstainDecisions`的值而定，`true`通过，`false`抛出`AccessDeniedException`。
+
+  
+
+> **Spring Security**默认使用`AffirmativeBased`投票器，我们同样可以通过往 Spring容器里注入的方式来选择投票决定器
+
+
+
+## 会话控制
+
+用户认证通过后，为避免用户的每次操作都认证，可将用户的信息保存在会话中。**Spring security**提供会话管理，认证通过后将身份信息放入**SecurityContextHolder**上下文，**SecurityContext**与当前线程进行绑定，方便获取用户身份。
+
+
+
+- `SecurityContextHolder.getContext().getAuthentication()`获取当前登录用户信息。
+
+  ```java
+  @GetMapping("/getLoginUser")
+  public String getLoginUser(){
+  Principal principal =
+  (Principal)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+  return principal.getName();
+  }
+  ```
+
+  
+
+- 可通过配置`sessonCreationPolicy`参数来了控制如何管理Session。
+
+  ```java
+  protected void configure(HttpSecurity http) throws Exception {
+  http.sessionManagement()
+  .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) }
+  ```
+
+| 机制       | 描述                                                         |
+| ---------- | ------------------------------------------------------------ |
+| always     | 如果没有Session就创建一个                                    |
+| ifRequired | 如果需要就在登录时创建一个                                   |
+| never      | SpringSecurity将不会创建Session。但是如果应用中其他地方创建了 Session，那么Spring Security就会使用。 |
+| stateless  | SpringSecurity将绝对不创建Session，也不使用。适合于一些REST API 的无状态场景。 |
+
+
+
+- 会话超时时间可以通过spring boot的配置读取。
+
+  ```yml
+  server:
+    servlet:
+      session:
+        timeout: 
+  ```
+
+- session超时后，可以通过SpringSecurity的http配置跳转地址
+
+  ```java
+  .sessionManagement(session -> session
+                          .invalidSessionUrl("/common/invalidSession")//session失效后跳转到这个页面
+                          .maximumSessions(1)//最大session数
+                          .maxSessionsPreventsLogin(true)//当达到最大值时，是否阻止新的登录
+                          .expiredUrl("/common/invalidSession")//session失效后跳转到这个页面
+                  );
+  ```
+
+  expired是指session过期，invalidSession指传入的sessionId失效。
+
+  
+
+- 我们可以使用httpOnly和secure标签来保护我们的会话cookie
+
+  ```yml
+  server:
+    servlet:
+      session:
+        cookie:
+          http-only: true
+          secure: true
+  ```
+
+  **httpOnly**：如果为true，那么浏览器脚本将无法访问cookie **secure**：如果为true，则cookie将仅通过HTTPS连接发送
+
+  
+
+- Spring Security默认实现了logout退出，直接访问/logout就会跳转到登出页面，而ajax访问/logout就可以直接退出。
+
+  ```java
+  .logout(logout->logout
+                          .logoutUrl("/logout")
+                          .logoutSuccessUrl("/index.html")//退出登录后跳转到这个页面
+                          .invalidateHttpSession(true)//清除session 默认为true
+                  );//配置退出登录)
+  ```
+
+  在退出操作时，会做以下几件事情：
+
+  1. 使HTTP Session失效。
+  2. 清除SecurityContextHolder 
+  3. 跳转到定义的地址。
+
+- **logoutHandler** 
+
+  一般LogoutHandler 的实现类被用来执行必要的清理，因而他们不应该抛出异常。
+
+
+
+**下面是Spring Security提供的一些实现**
+
+- PersistentTokenBasedRememberMeServices 基于持久化token的 **RememberMe**功能的相关清理
+- TokenBasedRememberMeService 基于token的**RememberMe**功能的相关清理
+- CookieClearingLogoutHandler 退出时**Cookie**的相关清理
+- CsrfLogoutHandler 负责在退出时移除**csrfToken**
+- CecurityContextLogoutHandler 退出时**SecurityContext**的相关清理
+
+链式API提供了调用相应的 LogoutHandler 实现的快捷方式，比如 deleteCookies()。
