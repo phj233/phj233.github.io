@@ -23,11 +23,11 @@ tags:
 
 > 在这个登录认证的过程中，实际上只有用户和百度之间有**资源**访问的关系，而微信作为一个独立的第三方，使用用户在微信里的身份信息，来对用户的身份进行了一次担保认证。 认证完成后，百度获取到用户的微信身份信息，进入自己的后续流程，与百度内部的一个用户信息完成绑定及登录。
 
-![image-20230222180328186](https://raw.githubusercontent.com/phj233/img/main/md/OAuth2.0baiduLoginWechat.png)
+![OAuth2.0baiduLoginWechat](https://s2.loli.net/2023/03/16/NXvfmQHSk2cLash.png)
 
 ## OAuth2.0协议
 
-![image-20230222180701505](https://raw.githubusercontent.com/phj233/img/main/md/OAuth2.0.png)
+![OAuth2.0](https://s2.loli.net/2023/03/16/RIB6KPYy3lOj9La.png)
 
 `OAuth2.0`协议包含以下几个角色：
 
