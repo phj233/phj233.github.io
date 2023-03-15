@@ -93,6 +93,8 @@ stream流的`filter()`和`map()`返回的结果集是一个**新的**集合。
 
 ## 4.Gradle多模块配置
 
+
+
 ```groovy
 plugins {
     id 'java'
@@ -123,8 +125,9 @@ subprojects {
     dependencies {
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
         implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2022.0.0.0-RC1'
         implementation 'org.springframework.cloud:spring-cloud-dependencies:2022.0.1'
-        implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2021.1'
+        implementation 'com.alibaba.cloud:spring-cloud-alibaba-dependencies:2022.0.0.0-RC1'
         compileOnly 'org.projectlombok:lombok'
         runtimeOnly 'com.mysql:mysql-connector-j'
         annotationProcessor 'org.projectlombok:lombok'
@@ -138,7 +141,12 @@ subprojects {
 ```
 
 - 在父模块`build.gradle`中添加`subprojects{}`
+
 - 把`dependencies`与`tasks.named('test')`移动进`subprojects{}`
+
 - `subprojects{}`添加`apply{}`
+
 - 在`apply{}`添加`plugin`
+
+  ![image-20230315200726476](rrjdm94vn.hn-bkt.clouddn.com/md/gradle.png)
 
