@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0开始不再支持JDK17以下的版本  选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web 新建模块 新建shop-user、shop-common、shop-product、shop-order模块 配置父模块buil">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring_Cloud_Alibaba-Demo搭建">
+<meta property="og:url" content="http://blog.phj233.info/2023/03/15/Spring-Cloud-Alibaba-Demo%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0开始不再支持JDK17以下的版本  选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web 新建模块 新建shop-user、shop-common、shop-product、shop-order模块 配置父模块buil">
+<meta property="og:locale">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="article:published_time" content="2023-03-15T19:43:36.000Z">
+<meta property="article:modified_time" content="2023-03-15T15:38:20.758Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="SpringCloud-Alibaba">
+<meta property="article:tag" content="necos">
+<meta property="article:tag" content="SpringCloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.phj233.info/img/404.jpg">
+
+
+<title >Spring_Cloud_Alibaba-Demo搭建</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.0.3' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.0.3' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.0.3","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":200}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-03-15 15:38:20"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.3" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+ 
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" data-scroll-container style="opacity: 0">
+          <div data-scroll-section id="content" class="trm-scroll-section">
+
+            <div class="locomotive-scroll__sticky-target" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+
+            <!-- top bar -->
+            <header class="trm-top-bar" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner" data-scroll data-scroll-direction="vertical">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" data-scroll data-scroll-direction="vertical" data-scroll-speed="-3" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container" data-scroll data-scroll-direction="vertical" data-scroll-speed="0">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            Spring_Cloud_Alibaba-Demo搭建
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2023
+                                    </span
+                                ></li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <a href="#about-triger" data-scroll-to="#about-triger" data-scroll-offset="-130" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </a>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div id="page-sidebar" class="col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    
+
+<div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card" data-scroll data-scroll-repeat data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="60"> 
+    
+        <div class="trm-user-tabs" id="sidebar-tabs">
+           <div class="trm-tabs-nav trm-mb-40" id="trm-tabs-nav">
+                <div data-to="tabs-user" class="trm-tabs-nav-item">
+                    <i class="iconfont fas fa-user-alt"></i>
+                </div>
+                <div data-to="tabs-toc" class="trm-tabs-nav-item active">
+                    <i class="iconfont fas fa-th-list"></i>
+                </div>
+           </div>
+            <div name="tabs-user" class="trm-tabs-item">
+                <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://avatars.githubusercontent.com/u/19668324?v=4">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+                <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+                <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+                
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+            </div>
+            <div name="tabs-toc" class="trm-tabs-item active">
+                <div class="post-toc">
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#新建SpringCloud"  data-scroll-to="#新建SpringCloud"><span class="toc-text">新建SpringCloud</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"  data-scroll-to="#选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"><span class="toc-text">选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#新建模块"  data-scroll-to="#新建模块"><span class="toc-text">新建模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#新建shop-user、shop-common、shop-product、shop-order模块"  data-scroll-to="#新建shop-user、shop-common、shop-product、shop-order模块"><span class="toc-text">新建shop-user、shop-common、shop-product、shop-order模块</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置父模块build-gradle"  data-scroll-to="#配置父模块build-gradle"><span class="toc-text">配置父模块build.gradle</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-user"  data-scroll-to="#搭建shop-user"><span class="toc-text">搭建shop-user</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建UserEntity实体类"  data-scroll-to="#创建UserEntity实体类"><span class="toc-text">创建UserEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层"  data-scroll-to="#创建dao层与service层"><span class="toc-text">创建dao层与service层</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置application-yml"  data-scroll-to="#配置application-yml"><span class="toc-text">配置application.yml</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-product"  data-scroll-to="#搭建shop-product"><span class="toc-text">搭建shop-product</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建ProductEntity实体类"  data-scroll-to="#创建ProductEntity实体类"><span class="toc-text">创建ProductEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层-1"  data-scroll-to="#创建dao层与service层-1"><span class="toc-text">创建dao层与service层</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置application-yml-1"  data-scroll-to="#配置application-yml-1"><span class="toc-text">配置application.yml</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-order"  data-scroll-to="#搭建shop-order"><span class="toc-text">搭建shop-order</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建OrderEntity实体类"  data-scroll-to="#创建OrderEntity实体类"><span class="toc-text">创建OrderEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层-2"  data-scroll-to="#创建dao层与service层-2"><span class="toc-text">创建dao层与service层</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#搭建Nacos"  data-scroll-to="#搭建Nacos"><span class="toc-text">搭建Nacos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#Nacos下载"  data-scroll-to="#Nacos下载"><span class="toc-text">Nacos下载</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#启动Nacos"  data-scroll-to="#启动Nacos"><span class="toc-text">启动Nacos</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#微服务注册于Nacos"  data-scroll-to="#微服务注册于Nacos"><span class="toc-text">微服务注册于Nacos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#修改所有子模块application-yml"  data-scroll-to="#修改所有子模块application-yml"><span class="toc-text">修改所有子模块application.yml</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#测试微服务调用"  data-scroll-to="#测试微服务调用"><span class="toc-text">测试微服务调用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#新增OrderController"  data-scroll-to="#新增OrderController"><span class="toc-text">新增OrderController</span></a></li></ol></li></ol></li></ol>
+</div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div id="page-content" class="col-lg-8">
+                <div class="trm-content" id="trm-content">
+                    <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
+
+                    <div id="post-info" class="row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            03/15
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            19:43
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <h2 id="新建SpringCloud"><a href="#新建SpringCloud" class="headerlink" title="新建SpringCloud"></a>新建SpringCloud</h2><p><img src="https://s2.loli.net/2023/03/15/2RvXcgb7Us9ljmp.png" alt="image-20230315221505362" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<ul>
+<li>使用<code>Spring Initializr</code>生成器，这里选择<code>Gradle</code>进行构建，JDK为17。<strong>SpringBoot3.0</strong>开始不再支持<strong>JDK17</strong>以下的版本</li>
+</ul>
+<h3 id="选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"><a href="#选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web" class="headerlink" title="选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"></a>选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web</h3><p><img src="https://s2.loli.net/2023/03/15/czr4aBfeY6UQlOA.png" alt="image-20230315221712690" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h3 id="新建模块"><a href="#新建模块" class="headerlink" title="新建模块"></a>新建模块</h3><p><img src="https://s2.loli.net/2023/03/15/rHOJpNWdYFhT2jl.png" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h4 id="新建shop-user、shop-common、shop-product、shop-order模块"><a href="#新建shop-user、shop-common、shop-product、shop-order模块" class="headerlink" title="新建shop-user、shop-common、shop-product、shop-order模块"></a>新建shop-user、shop-common、shop-product、shop-order模块</h4><p><img src="https://s2.loli.net/2023/03/15/tSvZCcrNKmns6yu.png" alt="image-20230315222250621" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h4 id="配置父模块build-gradle"><a href="#配置父模块build-gradle" class="headerlink" title="配置父模块build.gradle"></a>配置父模块build.gradle</h4><ul>
+<li>新建<code>subprojects</code></li>
+<li>将<code>dependencies</code>与<code>tasks.named(&#39;test&#39;)</code>移至<code>subprojects</code></li>
+<li>在<code>subprojects</code>中添加<code>apply</code>并添加<code>plugin</code></li>
+</ul>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    id <span class="string">&#x27;java&#x27;</span></span><br><span class="line">    id <span class="string">&#x27;org.springframework.boot&#x27;</span> version <span class="string">&#x27;3.0.4&#x27;</span></span><br><span class="line">    id <span class="string">&#x27;io.spring.dependency-management&#x27;</span> version <span class="string">&#x27;1.1.0&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">group = <span class="string">&#x27;info.phj233&#x27;</span></span><br><span class="line">version = <span class="string">&#x27;0.0.1-SNAPSHOT&#x27;</span></span><br><span class="line">sourceCompatibility = <span class="string">&#x27;17&#x27;</span></span><br><span class="line"></span><br><span class="line">configurations &#123;</span><br><span class="line">    compileOnly &#123;</span><br><span class="line">        extendsFrom annotationProcessor</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">subprojects &#123;</span><br><span class="line">    apply &#123;</span><br><span class="line">        plugin <span class="string">&#x27;java&#x27;</span></span><br><span class="line">        plugin <span class="string">&#x27;org.springframework.boot&#x27;</span></span><br><span class="line">        plugin <span class="string">&#x27;io.spring.dependency-management&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">    dependencies &#123;</span><br><span class="line">        implementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-data-jpa&#x27;</span></span><br><span class="line">        implementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-web&#x27;</span></span><br><span class="line">        implementation <span class="string">&#x27;com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery:2022.0.0.0-RC1&#x27;</span></span><br><span class="line">        implementation <span class="string">&#x27;org.springframework.cloud:spring-cloud-dependencies:2022.0.1&#x27;</span></span><br><span class="line">        implementation <span class="string">&#x27;com.alibaba.cloud:spring-cloud-alibaba-dependencies:2022.0.0.0-RC1&#x27;</span></span><br><span class="line">        compileOnly <span class="string">&#x27;org.projectlombok:lombok&#x27;</span></span><br><span class="line">        runtimeOnly <span class="string">&#x27;com.mysql:mysql-connector-j&#x27;</span></span><br><span class="line">        annotationProcessor <span class="string">&#x27;org.projectlombok:lombok&#x27;</span></span><br><span class="line">        testImplementation <span class="string">&#x27;org.springframework.boot:spring-boot-starter-test&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    tasks.named(<span class="string">&#x27;test&#x27;</span>) &#123;</span><br><span class="line">        useJUnitPlatform()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="搭建shop-user"><a href="#搭建shop-user" class="headerlink" title="搭建shop-user"></a>搭建shop-user</h3><p><img src="https://s2.loli.net/2023/03/15/afgInOt1jCXLR9S.png" alt="image-20230315225457993" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h4 id="创建UserEntity实体类"><a href="#创建UserEntity实体类" class="headerlink" title="创建UserEntity实体类"></a>创建<code>UserEntity</code>实体类</h4><p><code>info.phj233.shop_user.model.dto.UserEntity</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity(name = &quot;shop_user&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserEntity</span> &#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span></span><br><span class="line">    <span class="meta">@Column(name = &quot;uid&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer uid;</span><br><span class="line">    <span class="meta">@Column(name = &quot;username&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="meta">@Column(name = &quot;password&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line">    <span class="meta">@Column(name = &quot;email&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String email;</span><br><span class="line">    <span class="meta">@Column(name = &quot;phone&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String phone;</span><br><span class="line">    <span class="meta">@Column(name = &quot;role&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String role;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建dao层与service层"><a href="#创建dao层与service层" class="headerlink" title="创建dao层与service层"></a>创建<code>dao</code>层与<code>service</code>层</h4><p><code>info.phj233.shop_user.dao.UserDao</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserDao</span> <span class="keyword">extends</span> <span class="title class_">JpaRepository</span>&lt;UserEntity, Integer&gt; &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置application-yml"><a href="#配置application-yml" class="headerlink" title="配置application.yml"></a>配置application.yml</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">driver-class-name:</span> <span class="string">com.mysql.cj.jdbc.Driver</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/spring_cloud_alibaba?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=UTC</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">phj123456</span></span><br><span class="line">  <span class="attr">jpa:</span></span><br><span class="line">    <span class="attr">show-sql:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">hibernate:</span></span><br><span class="line">      <span class="attr">ddl-auto:</span> <span class="string">update</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">shop-user</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8071</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="搭建shop-product"><a href="#搭建shop-product" class="headerlink" title="搭建shop-product"></a>搭建shop-product</h3><p><img src="https://s2.loli.net/2023/03/15/s1rKPXtcMnj4Fq2.png" alt="image-20230315230040162" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h4 id="创建ProductEntity实体类"><a href="#创建ProductEntity实体类" class="headerlink" title="创建ProductEntity实体类"></a>创建<code>ProductEntity</code>实体类</h4><p><code>info.phj233.shop_product.model.dto</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity(name = &quot;shop_product&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProductEntity</span> &#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@Column(name = &quot;pid&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer pid;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pname&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String pname;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pprice&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String pprice;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pstock&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String pstock;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pdescription&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String pdescription;</span><br><span class="line">    <span class="meta">@Column(name = &quot;ptype&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String ptype;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pimage&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String pimage;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建dao层与service层-1"><a href="#创建dao层与service层-1" class="headerlink" title="创建dao层与service层"></a>创建<code>dao</code>层与<code>service</code>层</h4><p><code>info.phj233.shop_product.dao</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ProductDao</span> <span class="keyword">extends</span> <span class="title class_">JpaRepository</span>&lt;ProductEntity, Integer&gt; &#123;</span><br><span class="line">    ProductEntity <span class="title function_">findProductEntityByPid</span><span class="params">(Integer id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>info.phj233.shop_product.service</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ProductService</span> &#123;</span><br><span class="line">    ProductEntity <span class="title function_">findProductById</span><span class="params">(Integer id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>info.phj233.shop_product.service.impl</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ProductServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">ProductService</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ProductDao productDao;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ProductEntity <span class="title function_">findProductById</span><span class="params">(Integer id)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!ObjectUtils.isEmpty(id)) &#123;</span><br><span class="line">            <span class="keyword">return</span> productDao.findProductEntityByPid(id);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="配置application-yml-1"><a href="#配置application-yml-1" class="headerlink" title="配置application.yml"></a>配置application.yml</h4><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">driver-class-name:</span> <span class="string">com.mysql.cj.jdbc.Driver</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/spring_cloud_alibaba?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=UTC</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">phj123456</span></span><br><span class="line">  <span class="attr">jpa:</span></span><br><span class="line">    <span class="attr">show-sql:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">hibernate:</span></span><br><span class="line">      <span class="attr">ddl-auto:</span> <span class="string">update</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">shop-product</span></span><br><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8081</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="搭建shop-order"><a href="#搭建shop-order" class="headerlink" title="搭建shop-order"></a>搭建shop-order</h3><p><img src="https://s2.loli.net/2023/03/15/dXt8ju4JBS1hoY3.png" alt="image-20230315230518863" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h4 id="创建OrderEntity实体类"><a href="#创建OrderEntity实体类" class="headerlink" title="创建OrderEntity实体类"></a>创建<code>OrderEntity</code>实体类</h4><p><code>info.phj233.shop_order.model.dto</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Entity(name = &quot;shop_order&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderEntity</span> &#123;</span><br><span class="line">    <span class="meta">@Id</span></span><br><span class="line">    <span class="meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span></span><br><span class="line">    <span class="meta">@Column(name = &quot;oid&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer oid;</span><br><span class="line">    <span class="meta">@Column(name = &quot;uid&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer uid;</span><br><span class="line">    <span class="meta">@Column(name = &quot;username&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pid&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer pid;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pname&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String pname;</span><br><span class="line">    <span class="meta">@Column(name = &quot;pprice&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Double pprice;</span><br><span class="line">    <span class="meta">@Column(name = &quot;number&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> Integer number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="创建dao层与service层-2"><a href="#创建dao层与service层-2" class="headerlink" title="创建dao层与service层"></a>创建<code>dao</code>层与<code>service</code>层</h4><p><code>info.phj233.shop_order.dao</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">OrderDao</span> <span class="keyword">extends</span> <span class="title class_">JpaRepository</span>&lt;OrderEntity, Integer&gt; &#123;</span><br><span class="line">    OrderEntity <span class="title function_">findByPid</span><span class="params">(Integer id)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>info.phj233.shop_order.service</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">    Boolean <span class="title function_">insertOrder</span><span class="params">(OrderEntity orderEntity)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>info.phj233.shop_order.service.impl</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">OrderService</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">private</span> OrderDao orderDao;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Boolean <span class="title function_">insertOrder</span><span class="params">(OrderEntity orderEntity)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!ObjectUtils.isEmpty(orderEntity)) &#123;</span><br><span class="line">            orderDao.save(orderEntity);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="搭建Nacos"><a href="#搭建Nacos" class="headerlink" title="搭建Nacos"></a>搭建Nacos</h2><h3 id="Nacos下载"><a href="#Nacos下载" class="headerlink" title="Nacos下载"></a>Nacos下载</h3><p><a target="_blank" rel="noopener" href="https://github.com/alibaba/nacos/releases">Releases · alibaba&#x2F;nacos (github.com)</a></p>
+<h3 id="启动Nacos"><a href="#启动Nacos" class="headerlink" title="启动Nacos"></a>启动Nacos</h3><p>直接启动可在 <strong>nacos&#x2F;bin</strong>中打开<strong>shell</strong>环境执行<code>startup.cmd -m standalone</code>，现可配置于IDEA</p>
+<ul>
+<li>点击运行&#x2F;调试配置 中的编辑配置</li>
+</ul>
+<p><img src="https://s2.loli.net/2023/03/15/bRs6h5CMFSZlx92.png" alt="image-20230315231451814" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<ul>
+<li><p>点击“+”，选中Shell Script</p>
+<p><img src="https://s2.loli.net/2023/03/15/IuPTzRswBLpoZqi.png" alt="image-20230315231711651" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+</li>
+<li><p>如下配置</p>
+<p><img src="https://s2.loli.net/2023/03/15/KDU3IjJSGrgfuTO.png" alt="image-20230315231929791" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+</li>
+</ul>
+<h2 id="微服务注册于Nacos"><a href="#微服务注册于Nacos" class="headerlink" title="微服务注册于Nacos"></a>微服务注册于Nacos</h2><h3 id="修改所有子模块application-yml"><a href="#修改所有子模块application-yml" class="headerlink" title="修改所有子模块application.yml"></a>修改所有子模块application.yml</h3><p>添加：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">spring：</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span>	<span class="string">//nacos端口</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="测试微服务调用"><a href="#测试微服务调用" class="headerlink" title="测试微服务调用"></a>测试微服务调用</h3><h4 id="新增OrderController"><a href="#新增OrderController" class="headerlink" title="新增OrderController"></a>新增OrderController</h4><p><code>info.phj233.shop_order.controller</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/order&quot;)</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderController</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">private</span> OrderDao orderDao;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">private</span> DiscoveryClient discoveryClient;</span><br><span class="line">    <span class="meta">@GetMapping(&quot;/prod/&#123;pid&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> OrderEntity <span class="title function_">orderEntity</span><span class="params">(<span class="meta">@PathVariable(&quot;pid&quot;)</span> Integer id)</span> &#123;</span><br><span class="line">        <span class="type">ServiceInstance</span> <span class="variable">serviceInstance</span> <span class="operator">=</span> discoveryClient.getInstances(<span class="string">&quot;shop-product&quot;</span>).get(<span class="number">0</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> serviceInstance.getHost() + <span class="string">&quot;:&quot;</span> + serviceInstance.getPort();</span><br><span class="line">        <span class="type">ProductEntity</span> <span class="variable">productById</span> <span class="operator">=</span> restTemplate</span><br><span class="line">                .getForObject(<span class="string">&quot;http://&quot;</span>+url+<span class="string">&quot;/product/&quot;</span> + id, ProductEntity.class);</span><br><span class="line">        log.info(<span class="string">&quot;商品信息查询结果&quot;</span> + productById);</span><br><span class="line">        <span class="type">OrderEntity</span> <span class="variable">orderEntity</span> <span class="operator">=</span> orderDao.findByPid(id);</span><br><span class="line">        orderEntity.setOid(orderEntity.getOid());</span><br><span class="line">        orderEntity.setUid(orderEntity.getUid());</span><br><span class="line">        orderEntity.setUsername(orderEntity.getUsername());</span><br><span class="line">        orderEntity.setPid(id);</span><br><span class="line">        orderEntity.setPname(Objects.requireNonNull(productById).getPname());</span><br><span class="line">        orderEntity.setPprice(Double.valueOf(productById.getPprice()));</span><br><span class="line">        orderEntity.setNumber(orderEntity.getNumber());</span><br><span class="line">        <span class="keyword">return</span> orderEntity;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p> 启动Nacos并启动子模块后访问相应接口：</p>
+<p><img src="https://s2.loli.net/2023/03/15/Hz98T2dxXCqV5nY.png" alt="image-20230315233347843" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+
+</article>
+    
+    
+</div>
+<div id="post-next-prev" class="row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+        <a href="/2023/02/22/OAuth2-0%E7%9B%B8%E5%85%B3/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2023/02/22/OAuth2-0%E7%9B%B8%E5%85%B3/" class="trm-anima-link">
+                    OAuth2.0相关
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>23/02/22</li>
+                <li>17:48</li>
+                
+                    <li>968</li>
+                
+                
+                    <li>3</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-scroll-animation" data-scroll data-scroll-offset="50">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v6.3.0
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.0.3
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item">
+            博客已萌萌哒运行 <span id="since" class="trm-accent-color"></span> 天
+        </div>
+     
+
+     
+</footer>
+
+<script>
+    function show_date_time () {
+        var BirthDay = new Date("01/17/2023 17:00:00");
+        var today = new Date();
+        var timeold = (today.getTime() - BirthDay.getTime());
+        var msPerDay = 24 * 60 * 60 * 1000
+        var day = Math.floor(timeold / msPerDay)
+        since.innerHTML = day
+    }
+    show_date_time()
+</script>
+ 
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+          </div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
+
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.0.3"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.0.3"></script>
+
+</body>
+
+</html>
