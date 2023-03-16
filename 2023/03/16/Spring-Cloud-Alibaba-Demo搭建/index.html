@@ -7,12 +7,12 @@
 <meta name="full-screen" content="yes">
 <meta name="theme-color" content="#317EFB" />
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
-<meta name="description" content="新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0开始不再支持JDK17以下的版本  选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web 新建模块 新建shop-user、shop-common、shop-product、shop-order模块 配置父模块buil">
+<meta name="description" content="title: Spring_Cloud_Alibaba-Demo搭建date: 2023-03-15 19:43:36categories:  Programtags: 笔记 SpringCloud-Alibaba necos SpringCloud  新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring_Cloud_Alibaba-Demo搭建">
-<meta property="og:url" content="http://blog.phj233.info/2023/03/15/Spring-Cloud-Alibaba-Demo%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:title" content="PHJ233のBlog">
+<meta property="og:url" content="http://blog.phj233.info/2023/03/16/Spring-Cloud-Alibaba-Demo%E6%90%AD%E5%BB%BA/index.html">
 <meta property="og:site_name" content="PHJ233のBlog">
-<meta property="og:description" content="新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0开始不再支持JDK17以下的版本  选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web 新建模块 新建shop-user、shop-common、shop-product、shop-order模块 配置父模块buil">
+<meta property="og:description" content="title: Spring_Cloud_Alibaba-Demo搭建date: 2023-03-15 19:43:36categories:  Programtags: 笔记 SpringCloud-Alibaba necos SpringCloud  新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0">
 <meta property="og:locale">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
@@ -25,18 +25,21 @@
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
-<meta property="article:published_time" content="2023-03-15T19:43:36.000Z">
-<meta property="article:modified_time" content="2023-03-15T16:04:28.584Z">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
+<meta property="article:published_time" content="2023-03-16T16:30:44.583Z">
+<meta property="article:modified_time" content="2023-03-16T16:30:44.583Z">
 <meta property="article:author" content="phj233">
-<meta property="article:tag" content="笔记">
-<meta property="article:tag" content="SpringCloud-Alibaba">
-<meta property="article:tag" content="necos">
-<meta property="article:tag" content="SpringCloud">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://blog.phj233.info/img/404.jpg">
 
 
-<title >Spring_Cloud_Alibaba-Demo搭建</title>
+<title >PHJ233のBlog</title>
 
 <!-- Favicon -->
 
@@ -78,7 +81,7 @@
 
 <!-- Variable -->
 <script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.0.3","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":200}};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-03-15 16:04:28"};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-03-16 16:30:44"};</script>
 
 <!-- Theme mode css -->
 <link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.3" id="trm-switch-style">
@@ -237,7 +240,7 @@
                             NEWS LETTER
                         </div>
                         <h1 class="trm-mb-30 trm-hsmb-font">
-                            Spring_Cloud_Alibaba-Demo搭建
+                            
                         </h1>
 
                         
@@ -349,7 +352,7 @@
             </div>
             <div name="tabs-toc" class="trm-tabs-item active">
                 <div class="post-toc">
-    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#新建SpringCloud"  data-scroll-to="#新建SpringCloud"><span class="toc-text">新建SpringCloud</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"  data-scroll-to="#选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"><span class="toc-text">选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#新建模块"  data-scroll-to="#新建模块"><span class="toc-text">新建模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#新建shop-user、shop-common、shop-product、shop-order模块"  data-scroll-to="#新建shop-user、shop-common、shop-product、shop-order模块"><span class="toc-text">新建shop-user、shop-common、shop-product、shop-order模块</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置父模块build-gradle"  data-scroll-to="#配置父模块build-gradle"><span class="toc-text">配置父模块build.gradle</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-user"  data-scroll-to="#搭建shop-user"><span class="toc-text">搭建shop-user</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建UserEntity实体类"  data-scroll-to="#创建UserEntity实体类"><span class="toc-text">创建UserEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层"  data-scroll-to="#创建dao层与service层"><span class="toc-text">创建dao层与service层</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置application-yml"  data-scroll-to="#配置application-yml"><span class="toc-text">配置application.yml</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-product"  data-scroll-to="#搭建shop-product"><span class="toc-text">搭建shop-product</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建ProductEntity实体类"  data-scroll-to="#创建ProductEntity实体类"><span class="toc-text">创建ProductEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层-1"  data-scroll-to="#创建dao层与service层-1"><span class="toc-text">创建dao层与service层</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置application-yml-1"  data-scroll-to="#配置application-yml-1"><span class="toc-text">配置application.yml</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-order"  data-scroll-to="#搭建shop-order"><span class="toc-text">搭建shop-order</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建OrderEntity实体类"  data-scroll-to="#创建OrderEntity实体类"><span class="toc-text">创建OrderEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层-2"  data-scroll-to="#创建dao层与service层-2"><span class="toc-text">创建dao层与service层</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#搭建Nacos"  data-scroll-to="#搭建Nacos"><span class="toc-text">搭建Nacos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#Nacos下载"  data-scroll-to="#Nacos下载"><span class="toc-text">Nacos下载</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#启动Nacos"  data-scroll-to="#启动Nacos"><span class="toc-text">启动Nacos</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#微服务注册于Nacos"  data-scroll-to="#微服务注册于Nacos"><span class="toc-text">微服务注册于Nacos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#修改所有子模块application-yml"  data-scroll-to="#修改所有子模块application-yml"><span class="toc-text">修改所有子模块application.yml</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#测试微服务调用"  data-scroll-to="#测试微服务调用"><span class="toc-text">测试微服务调用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#新增OrderController"  data-scroll-to="#新增OrderController"><span class="toc-text">新增OrderController</span></a></li></ol></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#新建SpringCloud"  data-scroll-to="#新建SpringCloud"><span class="toc-text">新建SpringCloud</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"  data-scroll-to="#选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web"><span class="toc-text">选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#新建模块"  data-scroll-to="#新建模块"><span class="toc-text">新建模块</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#新建shop-user、shop-common、shop-product、shop-order模块"  data-scroll-to="#新建shop-user、shop-common、shop-product、shop-order模块"><span class="toc-text">新建shop-user、shop-common、shop-product、shop-order模块</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置父模块build-gradle"  data-scroll-to="#配置父模块build-gradle"><span class="toc-text">配置父模块build.gradle</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-user"  data-scroll-to="#搭建shop-user"><span class="toc-text">搭建shop-user</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建UserEntity实体类"  data-scroll-to="#创建UserEntity实体类"><span class="toc-text">创建UserEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层"  data-scroll-to="#创建dao层与service层"><span class="toc-text">创建dao层与service层</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置application-yml"  data-scroll-to="#配置application-yml"><span class="toc-text">配置application.yml</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-product"  data-scroll-to="#搭建shop-product"><span class="toc-text">搭建shop-product</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建ProductEntity实体类"  data-scroll-to="#创建ProductEntity实体类"><span class="toc-text">创建ProductEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层-1"  data-scroll-to="#创建dao层与service层-1"><span class="toc-text">创建dao层与service层</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#配置application-yml-1"  data-scroll-to="#配置application-yml-1"><span class="toc-text">配置application.yml</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#搭建shop-order"  data-scroll-to="#搭建shop-order"><span class="toc-text">搭建shop-order</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建OrderEntity实体类"  data-scroll-to="#创建OrderEntity实体类"><span class="toc-text">创建OrderEntity实体类</span></a></li><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#创建dao层与service层-2"  data-scroll-to="#创建dao层与service层-2"><span class="toc-text">创建dao层与service层</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#搭建Nacos"  data-scroll-to="#搭建Nacos"><span class="toc-text">搭建Nacos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#Nacos下载"  data-scroll-to="#Nacos下载"><span class="toc-text">Nacos下载</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#启动Nacos"  data-scroll-to="#启动Nacos"><span class="toc-text">启动Nacos</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#微服务注册进Nacos"  data-scroll-to="#微服务注册进Nacos"><span class="toc-text">微服务注册进Nacos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#修改所有子模块application-yml"  data-scroll-to="#修改所有子模块application-yml"><span class="toc-text">修改所有子模块application.yml</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#测试微服务调用"  data-scroll-to="#测试微服务调用"><span class="toc-text">测试微服务调用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#新增OrderController"  data-scroll-to="#新增OrderController"><span class="toc-text">新增OrderController</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#实现微服务的负载均衡"  data-scroll-to="#实现微服务的负载均衡"><span class="toc-text">实现微服务的负载均衡</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#负载均衡"  data-scroll-to="#负载均衡"><span class="toc-text">负载均衡</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#负载均衡实现策略"  data-scroll-to="#负载均衡实现策略"><span class="toc-text">负载均衡实现策略</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#修改OrderController"  data-scroll-to="#修改OrderController"><span class="toc-text">修改OrderController</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#使用Ribbon实现负载均衡"  data-scroll-to="#使用Ribbon实现负载均衡"><span class="toc-text">使用Ribbon实现负载均衡</span></a></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#使用OpenFeign实现服务调用"  data-scroll-to="#使用OpenFeign实现服务调用"><span class="toc-text">使用OpenFeign实现服务调用</span></a></li></ol>
 </div>
             </div>
         </div>
@@ -367,13 +370,13 @@
     <div class="col-sm-4">
         <div class="trm-card trm-label trm-label-light text-center">
             <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
-            03/15
+            03/16
         </div>
     </div>
     <div class="col-sm-4">
         <div class="trm-card trm-label trm-label-light text-center">
             <i class="iconfont far fa-clock trm-icon"></i><br>
-            19:43
+            16:30
         </div>
     </div>
     <div class="col-sm-4">
@@ -385,7 +388,15 @@
 </div>
 <div class="trm-card ">
     <article id="article-container" class="trm-publication">
-    <h2 id="新建SpringCloud"><a href="#新建SpringCloud" class="headerlink" title="新建SpringCloud"></a>新建SpringCloud</h2><p><img src="https://s2.loli.net/2023/03/15/2RvXcgb7Us9ljmp.png" alt="image-20230315221505362" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+    <p>title: Spring_Cloud_Alibaba-Demo搭建<br>date: 2023-03-15 19:43:36<br>categories:</p>
+<ul>
+<li>Program<br>tags:</li>
+<li>笔记</li>
+<li>SpringCloud-Alibaba</li>
+<li>necos</li>
+<li>SpringCloud</li>
+</ul>
+<h2 id="新建SpringCloud"><a href="#新建SpringCloud" class="headerlink" title="新建SpringCloud"></a>新建SpringCloud</h2><p><img src="https://s2.loli.net/2023/03/15/2RvXcgb7Us9ljmp.png" alt="image-20230315221505362" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
 <ul>
 <li>使用<code>Spring Initializr</code>生成器，这里选择<code>Gradle</code>进行构建，JDK为17。<strong>SpringBoot3.0</strong>开始不再支持<strong>JDK17</strong>以下的版本</li>
 </ul>
@@ -456,7 +467,7 @@
 <p><img src="https://s2.loli.net/2023/03/15/KDU3IjJSGrgfuTO.png" alt="image-20230315231929791" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
 </li>
 </ul>
-<h2 id="微服务注册于Nacos"><a href="#微服务注册于Nacos" class="headerlink" title="微服务注册于Nacos"></a>微服务注册于Nacos</h2><h3 id="修改所有子模块application-yml"><a href="#修改所有子模块application-yml" class="headerlink" title="修改所有子模块application.yml"></a>修改所有子模块application.yml</h3><p>添加：</p>
+<h2 id="微服务注册进Nacos"><a href="#微服务注册进Nacos" class="headerlink" title="微服务注册进Nacos"></a>微服务注册进Nacos</h2><h3 id="修改所有子模块application-yml"><a href="#修改所有子模块application-yml" class="headerlink" title="修改所有子模块application.yml"></a>修改所有子模块application.yml</h3><p>添加：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">spring：</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="attr">nacos:</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span>	<span class="string">//nacos端口</span></span><br></pre></td></tr></table></figure>
 
 
@@ -465,7 +476,71 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/order&quot;)</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderController</span> &#123;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">private</span> RestTemplate restTemplate;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">private</span> OrderDao orderDao;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">private</span> DiscoveryClient discoveryClient;</span><br><span class="line">    <span class="meta">@GetMapping(&quot;/prod/&#123;pid&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> OrderEntity <span class="title function_">orderEntity</span><span class="params">(<span class="meta">@PathVariable(&quot;pid&quot;)</span> Integer id)</span> &#123;</span><br><span class="line">        <span class="type">ServiceInstance</span> <span class="variable">serviceInstance</span> <span class="operator">=</span> discoveryClient.getInstances(<span class="string">&quot;shop-product&quot;</span>).get(<span class="number">0</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> serviceInstance.getHost() + <span class="string">&quot;:&quot;</span> + serviceInstance.getPort();</span><br><span class="line">        <span class="type">ProductEntity</span> <span class="variable">productById</span> <span class="operator">=</span> restTemplate</span><br><span class="line">                .getForObject(<span class="string">&quot;http://&quot;</span>+url+<span class="string">&quot;/product/&quot;</span> + id, ProductEntity.class);</span><br><span class="line">        log.info(<span class="string">&quot;商品信息查询结果&quot;</span> + productById);</span><br><span class="line">        <span class="type">OrderEntity</span> <span class="variable">orderEntity</span> <span class="operator">=</span> orderDao.findByPid(id);</span><br><span class="line">        orderEntity.setOid(orderEntity.getOid());</span><br><span class="line">        orderEntity.setUid(orderEntity.getUid());</span><br><span class="line">        orderEntity.setUsername(orderEntity.getUsername());</span><br><span class="line">        orderEntity.setPid(id);</span><br><span class="line">        orderEntity.setPname(Objects.requireNonNull(productById).getPname());</span><br><span class="line">        orderEntity.setPprice(Double.valueOf(productById.getPprice()));</span><br><span class="line">        orderEntity.setNumber(orderEntity.getNumber());</span><br><span class="line">        <span class="keyword">return</span> orderEntity;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p> 启动Nacos并启动子模块后访问相应接口：</p>
-<p><img src="https://s2.loli.net/2023/03/15/Hz98T2dxXCqV5nY.png" alt="image-20230315233347843" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<img src="https://s2.loli.net/2023/03/15/Hz98T2dxXCqV5nY.png" alt="image-20230315233347843" style="zoom: 67%;"  loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'/>
+
+
+
+<h2 id="实现微服务的负载均衡"><a href="#实现微服务的负载均衡" class="headerlink" title="实现微服务的负载均衡"></a>实现微服务的负载均衡</h2><h3 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h3><p><code>负载均衡（Load Balance，简称 LB）</code>是高并发、高可用系统必不可少的关键组件，目标是尽力将网络流量平均分发到多个服务器上，以提高系统整体的响应速度和可用性。</p>
+<p><img src="https://s2.loli.net/2023/03/16/ayZruvX6txMR81j.png" alt="image-20230316145946951" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<blockquote>
+<p><strong>高并发</strong>：负载均衡通过算法调整负载，尽力均匀的分配应用集群中各节点的工作量，以此提高应用集群的并发处理能力（吞吐量）。</p>
+<p><strong>伸缩性</strong>：添加或减少服务器数量，然后由负载均衡进行分发控制。这使得应用集群具备伸缩性。</p>
+<p><strong>高可用</strong>：负载均衡器可以监控候选服务器，当服务器不可用时，自动跳过，将请求分发给可用的服务器。这使得应用集群具备高可用的特性。</p>
+<p><strong>安全防护</strong>：有些负载均衡软件或硬件提供了安全性功能，如：黑白名单处理、防火墙，防 DDos 攻击等。</p>
+</blockquote>
+<p>通俗的讲， 负载均衡就是将负载（工作任务，访问请求）进行分摊到多个操作单元（服务器,组件）上 进行执行。</p>
+<h3 id="负载均衡实现策略"><a href="#负载均衡实现策略" class="headerlink" title="负载均衡实现策略"></a>负载均衡实现策略</h3><ul>
+<li><p>1.轮询策略</p>
+<p><code>轮询策略：RoundRobinRule</code>，按照一定的顺序依次调用服务实例。比如一共有 3 个服务，第一次调用服务 1，第二次调用服务 2，第三次调用服务3，依次类推。</p>
+</li>
+<li><p>2.权重策略</p>
+<p><code>权重策略：WeightedResponseTimeRule</code>，根据每个服务提供者的响应时间分配一个权重，响应时间越长，权重越小，被选中的可能性也就越低。它的实现原理是，刚开始使用轮询策略并开启一个计时器，每一段时间收集一次所有服务提供者的平均响应时间，然后再给每个服务提供者附上一个权重，权重越高被选中的概率也越大。</p>
+</li>
+<li><p>随机策略</p>
+<p><code>随机策略：RandomRule</code>，从服务提供者的列表中随机选择一个服务实例。此策略的配置设置如下：</p>
+</li>
+<li><p>4.最小连接数策略</p>
+<p><code>最小连接数策略：BestAvailableRule</code>，也叫<strong>最小并发数策略</strong>，它是遍历服务提供者列表，选取连接数最小的⼀个服务实例。如果有相同的最小连接数，那么会调用轮询策略进行选取。</p>
+</li>
+<li><p>5.重试策略</p>
+<p><code>重试策略：RetryRule</code>，按照轮询策略来获取服务，如果获取的服务实例为 null 或已经失效，则在指定的时间之内不断地进行重试来获取服务，如果超过指定时间依然没获取到服务实例则返回 null。</p>
+</li>
+<li><p>6.可用性敏感策略</p>
+<p><code>可用敏感性策略：AvailabilityFilteringRule</code>，先过滤掉非健康的服务实例，然后再选择连接数较小的服务实例。</p>
+</li>
+<li><p>7.区域敏感策略</p>
+<p><code>区域敏感策略：ZoneAvoidanceRule</code>，根据服务所在区域（zone）的性能和服务的可用性来选择服务实例，在没有区域的环境下，该策略和轮询策略类似。</p>
+</li>
+</ul>
+<h3 id="修改OrderController"><a href="#修改OrderController" class="headerlink" title="修改OrderController"></a>修改<code>OrderController</code></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/prod/&#123;pid&#125;&quot;)</span></span><br><span class="line"><span class="keyword">public</span> OrderEntity <span class="title function_">orderEntity</span><span class="params">(<span class="meta">@PathVariable(&quot;pid&quot;)</span> Integer id)</span> &#123;</span><br><span class="line">    <span class="comment">// 通过服务名获取服务实例</span></span><br><span class="line">    List&lt;ServiceInstance&gt; instances = discoveryClient.getInstances(<span class="string">&quot;shop-product&quot;</span>);</span><br><span class="line">    <span class="comment">// 从服务实例中获取主机名和端口号</span></span><br><span class="line">    <span class="type">ServiceInstance</span> <span class="variable">serviceInstance</span> <span class="operator">=</span> instances.get(<span class="keyword">new</span> <span class="title class_">Random</span>().nextInt(instances.size()));</span><br><span class="line">    <span class="comment">// 拼接请求地址</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> serviceInstance.getUri().toString();</span><br><span class="line">    log.info(url);</span><br><span class="line">    <span class="type">ProductEntity</span> <span class="variable">productById</span> <span class="operator">=</span> restTemplate</span><br><span class="line">            .getForObject(url+<span class="string">&quot;/product/&quot;</span> + id, ProductEntity.class);</span><br><span class="line">    log.info(<span class="string">&quot;商品信息查询结果&quot;</span> + productById);</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure>
+
+<p>修改后启动各微服务，打开<strong>nacos</strong>发现<code>shop-product</code>服务成功实现负载均衡，健康实例数 2</p>
+<p><img src="https://s2.loli.net/2023/03/16/DsFq6o7l3iuIjOn.png" alt="image-20230316144348643" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<p>多次调用<code>order/prod/</code> 接口，发现端口改变</p>
+<p><img src="https://s2.loli.net/2023/03/16/IWg4TkbE5yLSCJq.png" alt="image-20230316145403911" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<h2 id="使用Ribbon实现负载均衡"><a href="#使用Ribbon实现负载均衡" class="headerlink" title="使用Ribbon实现负载均衡"></a>使用Ribbon实现负载均衡</h2><p>由于<code>spring-cloud-starter-alibaba-nacos-discovery</code>2.2.9RELEASE(大概是。。) 后去掉了<code>spring-cloud-starter-netflix-ribbon</code>，所以暂不撰写</p>
+<h2 id="使用OpenFeign实现服务调用"><a href="#使用OpenFeign实现服务调用" class="headerlink" title="使用OpenFeign实现服务调用"></a>使用OpenFeign实现服务调用</h2><p>Feign 是 Netflix 开发的声明式、模板化的 HTTP 客户端，其灵感来自 Retrofit、JAXRS-2.0以及 WebSocket。Feign 可帮助我们更加便捷、优雅地调用 HTTP API。</p>
+<p>Feign 可以做到使用 HTTP <strong>请求远程服务时就像调用本地方法一样的体验</strong></p>
+<ul>
+<li><p>父模块加入依赖</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">implementation <span class="string">&#x27;org.springframework.cloud:spring-cloud-starter-openfeign:4.0.1&#x27;</span></span><br><span class="line">implementation <span class="string">&#x27;org.springframework.cloud:spring-cloud-starter-loadbalancer:4.0.1&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在需要使用服务调用的服务启动类上打<code>@EnableFeignClients(basePackages = &quot;info.phj233.shop_product.service&quot;)</code></p>
+<p><strong>basePackages</strong>为被调用服务的接口</p>
+<p><img src="https://s2.loli.net/2023/03/17/eVaZiQU8c21GYrw.png" alt="image-20230317001555711" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+</li>
+<li><p>在被调用接口上打上<code>@FeignClient(name = &quot;shop-product&quot;, path = &quot;/product&quot;)</code></p>
+<p>name：为被调用服务的名字</p>
+<p>path为被调用服务的Controller中的<code>@RequestMapping</code></p>
+<p><img src="https://s2.loli.net/2023/03/17/Xh7JIOogspPiAML.png" alt="image-20230317001920203" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+</li>
+<li><p>修改调用服务的<code>OrderController</code>注入被调用的服务接口<img src="https://s2.loli.net/2023/03/17/xXsOHFRQ4vAcTKP.png" alt="image-20230317002408413" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+</li>
+<li><p>写上调用代码并运行</p>
+<p><img src="https://s2.loli.net/2023/03/17/9r5OY8hyDWdSQuN.png" alt="image-20230317002532401" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+<p>调用成功！</p>
+</li>
+</ul>
 
 </article>
     
