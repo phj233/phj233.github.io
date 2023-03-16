@@ -1,4 +1,3 @@
----
 title: Spring_Cloud_Alibaba-Demo搭建
 date: 2023-03-15 19:43:36
 categories:
@@ -8,8 +7,6 @@ tags:
 - SpringCloud-Alibaba
 - necos
 - SpringCloud
-
----
 
 ## 新建SpringCloud
 
@@ -330,7 +327,7 @@ public class OrderServiceImpl implements OrderService {
 
 
 
-## 微服务注册于Nacos
+## 微服务注册进Nacos
 
 ### 修改所有子模块application.yml
 
@@ -384,4 +381,124 @@ public class OrderController {
 
  启动Nacos并启动子模块后访问相应接口：
 
-![image-20230315233347843](https://s2.loli.net/2023/03/15/Hz98T2dxXCqV5nY.png)
+<img src="https://s2.loli.net/2023/03/15/Hz98T2dxXCqV5nY.png" alt="image-20230315233347843" style="zoom: 67%;" />
+
+
+
+## 实现微服务的负载均衡
+
+### 负载均衡
+
+`负载均衡（Load Balance，简称 LB）`是高并发、高可用系统必不可少的关键组件，目标是尽力将网络流量平均分发到多个服务器上，以提高系统整体的响应速度和可用性。
+
+![image-20230316145946951](https://s2.loli.net/2023/03/16/ayZruvX6txMR81j.png)
+
+> **高并发**：负载均衡通过算法调整负载，尽力均匀的分配应用集群中各节点的工作量，以此提高应用集群的并发处理能力（吞吐量）。
+>
+> **伸缩性**：添加或减少服务器数量，然后由负载均衡进行分发控制。这使得应用集群具备伸缩性。
+>
+> **高可用**：负载均衡器可以监控候选服务器，当服务器不可用时，自动跳过，将请求分发给可用的服务器。这使得应用集群具备高可用的特性。
+>
+> **安全防护**：有些负载均衡软件或硬件提供了安全性功能，如：黑白名单处理、防火墙，防 DDos 攻击等。
+
+通俗的讲， 负载均衡就是将负载（工作任务，访问请求）进行分摊到多个操作单元（服务器,组件）上 进行执行。
+
+### 负载均衡实现策略
+
+- 1.轮询策略
+
+  `轮询策略：RoundRobinRule`，按照一定的顺序依次调用服务实例。比如一共有 3 个服务，第一次调用服务 1，第二次调用服务 2，第三次调用服务3，依次类推。
+
+- 2.权重策略
+
+  `权重策略：WeightedResponseTimeRule`，根据每个服务提供者的响应时间分配一个权重，响应时间越长，权重越小，被选中的可能性也就越低。它的实现原理是，刚开始使用轮询策略并开启一个计时器，每一段时间收集一次所有服务提供者的平均响应时间，然后再给每个服务提供者附上一个权重，权重越高被选中的概率也越大。
+
+- 随机策略
+
+  `随机策略：RandomRule`，从服务提供者的列表中随机选择一个服务实例。此策略的配置设置如下：
+
+- 4.最小连接数策略
+
+  `最小连接数策略：BestAvailableRule`，也叫**最小并发数策略**，它是遍历服务提供者列表，选取连接数最小的⼀个服务实例。如果有相同的最小连接数，那么会调用轮询策略进行选取。
+  
+- 5.重试策略
+
+  `重试策略：RetryRule`，按照轮询策略来获取服务，如果获取的服务实例为 null 或已经失效，则在指定的时间之内不断地进行重试来获取服务，如果超过指定时间依然没获取到服务实例则返回 null。
+
+- 6.可用性敏感策略
+
+  `可用敏感性策略：AvailabilityFilteringRule`，先过滤掉非健康的服务实例，然后再选择连接数较小的服务实例。
+
+- 7.区域敏感策略
+
+  `区域敏感策略：ZoneAvoidanceRule`，根据服务所在区域（zone）的性能和服务的可用性来选择服务实例，在没有区域的环境下，该策略和轮询策略类似。
+
+### 修改`OrderController`
+
+```java
+@GetMapping("/prod/{pid}")
+public OrderEntity orderEntity(@PathVariable("pid") Integer id) {
+    // 通过服务名获取服务实例
+    List<ServiceInstance> instances = discoveryClient.getInstances("shop-product");
+    // 从服务实例中获取主机名和端口号
+    ServiceInstance serviceInstance = instances.get(new Random().nextInt(instances.size()));
+    // 拼接请求地址
+    String url = serviceInstance.getUri().toString();
+    log.info(url);
+    ProductEntity productById = restTemplate
+            .getForObject(url+"/product/" + id, ProductEntity.class);
+    log.info("商品信息查询结果" + productById);
+    ......
+```
+
+修改后启动各微服务，打开**nacos**发现`shop-product`服务成功实现负载均衡，健康实例数 2
+
+![image-20230316144348643](https://s2.loli.net/2023/03/16/DsFq6o7l3iuIjOn.png)
+
+多次调用`order/prod/` 接口，发现端口改变
+
+![image-20230316145403911](https://s2.loli.net/2023/03/16/IWg4TkbE5yLSCJq.png)
+
+
+
+## 使用Ribbon实现负载均衡
+
+由于`spring-cloud-starter-alibaba-nacos-discovery`2.2.9RELEASE(大概是。。) 后去掉了`spring-cloud-starter-netflix-ribbon`，所以暂不撰写
+
+
+
+## 使用OpenFeign实现服务调用
+
+Feign 是 Netflix 开发的声明式、模板化的 HTTP 客户端，其灵感来自 Retrofit、JAXRS-2.0以及 WebSocket。Feign 可帮助我们更加便捷、优雅地调用 HTTP API。
+
+Feign 可以做到使用 HTTP **请求远程服务时就像调用本地方法一样的体验**
+
+- 父模块加入依赖
+
+  ```groovy
+  implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.0.1'
+  implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer:4.0.1'
+  ```
+
+- 在需要使用服务调用的服务启动类上打`@EnableFeignClients(basePackages = "info.phj233.shop_product.service")`
+
+  **basePackages**为被调用服务的接口
+
+  ![image-20230317001555711](https://s2.loli.net/2023/03/17/eVaZiQU8c21GYrw.png)
+
+- 在被调用接口上打上`@FeignClient(name = "shop-product", path = "/product")`
+
+  name：为被调用服务的名字
+
+  path为被调用服务的Controller中的`@RequestMapping`
+
+  ![image-20230317001920203](https://s2.loli.net/2023/03/17/Xh7JIOogspPiAML.png)
+
+- 修改调用服务的`OrderController`注入被调用的服务接口![image-20230317002408413](https://s2.loli.net/2023/03/17/xXsOHFRQ4vAcTKP.png)
+
+- 写上调用代码并运行
+
+  ![image-20230317002532401](https://s2.loli.net/2023/03/17/9r5OY8hyDWdSQuN.png)
+
+  调用成功！
+

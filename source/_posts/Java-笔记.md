@@ -148,5 +148,5 @@ subprojects {
 
 - 在`apply{}`添加`plugin`
 
-  ![image-20230315200726476](rrjdm94vn.hn-bkt.clouddn.com/md/gradle.png)
+  ![image-20230317002825573](https://s2.loli.net/2023/03/17/hNdUlFBXeWYv2ik.png)
 
