@@ -7,12 +7,12 @@
 <meta name="full-screen" content="yes">
 <meta name="theme-color" content="#317EFB" />
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
-<meta name="description" content="title: Spring_Cloud_Alibaba-Demo搭建date: 2023-03-15 19:43:36categories:  Programtags: 笔记 SpringCloud-Alibaba necos SpringCloud  新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0">
+<meta name="description" content="新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0开始不再支持JDK17以下的版本  选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web 新建模块 新建shop-user、shop-common、shop-product、shop-order模块 配置父模块buil">
 <meta property="og:type" content="article">
-<meta property="og:title" content="PHJ233のBlog">
-<meta property="og:url" content="http://blog.phj233.info/2023/03/16/Spring-Cloud-Alibaba-Demo%E6%90%AD%E5%BB%BA/index.html">
+<meta property="og:title" content="Spring_Cloud_Alibaba-Demo搭建">
+<meta property="og:url" content="http://blog.phj233.info/2023/03/15/Spring-Cloud-Alibaba-Demo%E6%90%AD%E5%BB%BA/index.html">
 <meta property="og:site_name" content="PHJ233のBlog">
-<meta property="og:description" content="title: Spring_Cloud_Alibaba-Demo搭建date: 2023-03-15 19:43:36categories:  Programtags: 笔记 SpringCloud-Alibaba necos SpringCloud  新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0">
+<meta property="og:description" content="新建SpringCloud  使用Spring Initializr生成器，这里选择Gradle进行构建，JDK为17。SpringBoot3.0开始不再支持JDK17以下的版本  选择依赖Lombok、JPA、MySQL、Spring-Boot-starter-web 新建模块 新建shop-user、shop-common、shop-product、shop-order模块 配置父模块buil">
 <meta property="og:locale">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
@@ -32,14 +32,18 @@
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
-<meta property="article:published_time" content="2023-03-16T16:30:44.583Z">
-<meta property="article:modified_time" content="2023-03-16T16:30:44.583Z">
+<meta property="article:published_time" content="2023-03-15T19:43:36.000Z">
+<meta property="article:modified_time" content="2023-03-17T01:14:25.240Z">
 <meta property="article:author" content="phj233">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="SpringCloud-Alibaba">
+<meta property="article:tag" content="necos">
+<meta property="article:tag" content="SpringCloud">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://blog.phj233.info/img/404.jpg">
 
 
-<title >PHJ233のBlog</title>
+<title >Spring_Cloud_Alibaba-Demo搭建</title>
 
 <!-- Favicon -->
 
@@ -81,7 +85,7 @@
 
 <!-- Variable -->
 <script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.0.3","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":200}};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-03-16 16:30:44"};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-03-17 01:14:25"};</script>
 
 <!-- Theme mode css -->
 <link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.3" id="trm-switch-style">
@@ -240,7 +244,7 @@
                             NEWS LETTER
                         </div>
                         <h1 class="trm-mb-30 trm-hsmb-font">
-                            
+                            Spring_Cloud_Alibaba-Demo搭建
                         </h1>
 
                         
@@ -370,13 +374,13 @@
     <div class="col-sm-4">
         <div class="trm-card trm-label trm-label-light text-center">
             <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
-            03/16
+            03/15
         </div>
     </div>
     <div class="col-sm-4">
         <div class="trm-card trm-label trm-label-light text-center">
             <i class="iconfont far fa-clock trm-icon"></i><br>
-            16:30
+            19:43
         </div>
     </div>
     <div class="col-sm-4">
@@ -388,15 +392,7 @@
 </div>
 <div class="trm-card ">
     <article id="article-container" class="trm-publication">
-    <p>title: Spring_Cloud_Alibaba-Demo搭建<br>date: 2023-03-15 19:43:36<br>categories:</p>
-<ul>
-<li>Program<br>tags:</li>
-<li>笔记</li>
-<li>SpringCloud-Alibaba</li>
-<li>necos</li>
-<li>SpringCloud</li>
-</ul>
-<h2 id="新建SpringCloud"><a href="#新建SpringCloud" class="headerlink" title="新建SpringCloud"></a>新建SpringCloud</h2><p><img src="https://s2.loli.net/2023/03/15/2RvXcgb7Us9ljmp.png" alt="image-20230315221505362" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
+    <h2 id="新建SpringCloud"><a href="#新建SpringCloud" class="headerlink" title="新建SpringCloud"></a>新建SpringCloud</h2><p><img src="https://s2.loli.net/2023/03/15/2RvXcgb7Us9ljmp.png" alt="image-20230315221505362" loading="lazy" onerror='this.onerror=null;this.src="/img/404.jpg"'></p>
 <ul>
 <li>使用<code>Spring Initializr</code>生成器，这里选择<code>Gradle</code>进行构建，JDK为17。<strong>SpringBoot3.0</strong>开始不再支持<strong>JDK17</strong>以下的版本</li>
 </ul>
