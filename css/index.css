@@ -671,7 +671,7 @@ html.is-animating .trm-swup-animation {
   }
   .trm-app-frame {
     border: 0;
-    overflow: scroll;
+    overflow: hidden scroll;
     border-radius: 0;
     width: 100%;
     height: 100%;
@@ -1156,13 +1156,12 @@ html.is-animating .trm-swup-animation {
 }
 blockquote {
   box-shadow: var(--box-shadow2, 0 2px 4px -2px rgba(0, 0, 0, 0.15));
-  padding: 0;
   margin: 0;
   display: block;
   position: relative;
   background-color: var(--theme-bg-color, #fcfcfe);
   color: var(--theme-color, #00283a);
-  padding: var(--card-padding, 40px);
+  padding: 40px var(--card-padding, 40px);
   border-radius: var(--card-border-radius, 10px);
   font-style: italic;
   font-size: 16px;
@@ -1181,13 +1180,12 @@ blockquote:before {
 }
 blockquote:after {
   margin: 0;
-  width: 50px;
   color: var(--primary, #afb42b);
   line-height: 55px;
   content: '"';
   position: absolute;
-  bottom: -20px;
-  right: 2px;
+  bottom: -16px;
+  right: 16px;
   font-size: 54px;
 }
 .trm-card {
