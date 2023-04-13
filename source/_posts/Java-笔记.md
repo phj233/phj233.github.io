@@ -144,9 +144,20 @@ subprojects {
 
 - 把`dependencies`与`tasks.named('test')`移动进`subprojects{}`
 
-- `subprojects{}`添加`apply{}`
+- `subprojects{}`添加`apply{}`  (这里图方便直接在子模块加入所有依赖)
 
 - 在`apply{}`添加`plugin`
 
   ![image-20230317002825573](https://s2.loli.net/2023/03/17/hNdUlFBXeWYv2ik.png)
 
+## 5.jakarta.validation.NoProviderFoundException on application startup
+
+主要报错：
+
+```java
+jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+```
+
+添加依赖`spring-boot-starter-validation`
+
+具体原因为：[问题 #1979 ·Springdoc/Springdoc-openAPI (github.com)](https://github.com/springdoc/springdoc-openapi/issues/1979)
