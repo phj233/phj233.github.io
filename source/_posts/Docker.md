@@ -6,6 +6,8 @@ categories:
 tags:
 - 笔记
 - Docker
+- Ubuntu
+- Linux
 ---
 
 # Docker启动失败
@@ -21,3 +23,31 @@ tags:
 > ```shell
 > systemctl start docker
 > ```
+
+
+
+# 端口占用
+
+- 查找被占用的端口
+
+  ```shell
+  netstat -tln	//查看所有端口使用情况
+  ```
+
+  ```shell
+  netstat -tln | grep 80	//只查看80端口的使用情况
+  ```
+
+- 查看那哪个端口被占用
+
+  ```shell
+  lsof -i :80
+  ```
+
+- 杀进程
+
+  ```shell
+  kill -9 进程id
+  ```
+
+  
