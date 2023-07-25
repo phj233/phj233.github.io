@@ -28,29 +28,39 @@ public class SecurityConfig{
      */
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //链式配置拦截策略
-        http.csrf().disable()//关闭csrg跨域检查
-                .authorizeRequests(auth -> auth
-                        .antMatchers("/index.html","/css/**","/img/**","/js/**").permitAll() //index.html直接通过
-                        .antMatchers("/mobile/**").hasAuthority("mobile") //配置资源权限
-                        .antMatchers("/salary/**").hasAuthority("salary")//hasXx方法有很多，有什么权限
-                        .antMatchers("/common/**").permitAll() //common下的请求直接通过
-                        .anyRequest().authenticated() //其他请求需要登录)
-                )//开启请求认证
-                .formLogin(login -> {
-                            try {
-                                login
-//                                        .loginPage("/index.html").loginProcessingUrl("/login")//实现自定义的登录页面,页面源码 DefaultLoginPageGeneratingFilter
-                                        .usernameParameter("username").passwordParameter("password")//自定义登录参数
-                                        .defaultSuccessUrl("/main.html")//可从默认的login页面登录，并且登录后跳转到main.html)
-                                        .failureUrl("/common/loginFailed")
-                                        .and()
-                                        .rememberMe();//开启记住我功能 具体实现RememberMeAuthenticationFilter
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                );
+        http
+                // 关闭csrf
+                .csrf().disable()
+                // 基于token，所以不需要session
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .exceptionHandling()
+                .and()
+                .authorizeHttpRequests(auth -> auth
+                        //放行knife4j
+                        .requestMatchers(
+                                "/doc.html",
+                                "/webjars/**",
+                                "/swagger-resources/**",
+                                "/v3/api-docs/**",
+                                "/upload/**",
+                                "/login",).permitAll()
+                        .anyRequest().authenticated()
+                )
+                // security提交form表单请求的接口地址 默认是/login
+                // 添加JWT过滤器
+                .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .userDetailsService(userDetailsService)
+                .authenticationProvider(authenticationProvider)
+                .formLogin()
+                // 配置登录成功自定义处理类
+                .successHandler(authenticationSuccessHandler)
+                // 配置登录失败自定义处理类
+                .failureHandler(authenticationFailureHandler)
+                .and()
+                .logout()
+                // 配置退出成功自定义处理类
+                .logoutSuccessHandler(logoutSuccessHandler);
         return http.build();
     }
     //配置密码加密方式
@@ -92,6 +102,22 @@ Spring Security后台有一个CsrfFilter专门负责对Csrf参数进行检查。
 
 
 
+## 常用的Handler
+
+在Spring Security中，常用的处理程序（handlers）包括以下几个：
+
+1. `AuthenticationSuccessHandler`：用于处理成功的身份验证请求。可以在身份验证成功后执行自定义的操作，例如重定向到特定页面或生成访问令牌。
+
+2. `AuthenticationFailureHandler`：用于处理身份验证失败的请求。可以根据失败的原因执行自定义的操作，例如显示错误消息或重定向到特定页面。
+
+3. `AccessDeniedHandler`：用于处理访问被拒绝的请求。当用户尝试访问他们没有权限的资源时，可以执行自定义的操作，例如显示错误消息或重定向到特定页面。
+
+4. `LogoutSuccessHandler`：用于处理成功的注销请求。在用户注销成功后执行自定义的操作，例如显示注销成功消息或重定向到登录页面。
+
+5. `AuthenticationEntryPoint`：用于处理需要身份验证的资源的请求。当用户尝试访问需要身份验证的资源时，但未提供有效的凭据时，该处理程序将处理请求，例如返回身份验证错误的响应或重定向到登录页面。
+
+这些处理程序可以通过实现相应的接口或使用现有的实现类来自定义。此外，还可以通过配置适当的bean将它们与Spring Security集成，并将其应用于适当的请求。
+
 ## 认证流程
 
 1. 用户提交用户名、密码被`SecurityFilterChain`中的`UsernamePasswordAuthenticationFilter` **过滤器**获取到，封装为请求 `Authentication`，通常情况下是`UsernamePasswordAuthenticationToken`这个实 现类。
@@ -104,9 +130,52 @@ Spring Security后台有一个CsrfFilter专门负责对Csrf参数进行检查。
 
    
 
-   可以看出AuthenticationManager接口（认证管理器）是认证相关的核心接 口，也是发起认证的出发点，它的实现类为ProviderManager。而Spring Security 支持多种认证方式，因此ProviderManager维护着一个List 列表，存放多种认证方 式，最终实际的认证工作是由AuthenticationProvider完成的。咱们知道web表单 的对应的AuthenticationProvider实现类为DaoAuthenticationProvider，它的内 部又维护着一个UserDetailsService负责UserDetails的获取。最终 AuthenticationProvider将UserDetails填充至Authentication。
+   可以看出AuthenticationManager接口（认证管理器）是认证相关的核心接 口，也是发起认证的出发点，它的实现类为ProviderManager。而Spring Security 支持多种认证方式，因此ProviderManager维护着一个List 列表，存放多种认证方 式，最终实际的认证工作是由AuthenticationProvider完成的。咱们知道web表单 的对应的AuthenticationProvider实现类为DaoAuthenticationProvider，它的内部又维护着一个UserDetailsService负责UserDetails的获取。最终 AuthenticationProvider将UserDetails填充至Authentication。
 
    > 调试代码从`UsernamePasswordAuthenticationFilter` 开始跟踪。 最后的认证流程在`AbstractUserDetailsAuthenticationProvider`的 `authenticate`方法中。获取用户在`retrieveUser`方法。密码比较在 `additionalAuthenticationChecks`方法
+
+
+
+### 下面是Spring Security的基本认证流程：
+
+1. 用户提交身份验证请求。
+2. 请求被拦截，由`AuthenticationFilter`处理。
+3. `AuthenticationFilter`调用`AuthenticationManager`进行身份验证。
+4. `AuthenticationManager`委托给`AuthenticationProvider`进行身份验证。
+5. `AuthenticationProvider`验证用户的凭据，并返回一个已验证的`Authentication`对象。
+6. `AuthenticationManager`将验证的`Authentication`对象返回给`AuthenticationFilter`。
+7. `AuthenticationFilter`将验证的`Authentication`对象存储在`SecurityContextHolder`中。
+8. 用户被认为是已验证的，并且可以继续访问受保护的资源。
+
+```markdown
+用户提交身份验证请求
+    |
+    v
+AuthenticationFilter
+    |
+    v
+AuthenticationManager
+    |
+    v
+AuthenticationProvider
+    |
+    v
+验证成功
+    |
+    v
+AuthenticationManager
+    |
+    v
+AuthenticationFilter
+    |
+    v
+存储Authentication对象
+    |
+    v
+访问受保护的资源
+```
+
+
 
 ### AuthenticationProvider接口：认证处理器
 
@@ -128,7 +197,7 @@ public boolean supports(Class<?> authentication) {
 
 这里对于`AbstractUserDetailsAuthenticationProvider`，他的`support`方法就表明他可以处理用户名密码这样的认证。
 
-### Authentication接口：认证信息
+#### Authentication接口：认证信息
 
 ```java
 public interface Authentication extends Principal, Serializable {
@@ -164,7 +233,7 @@ public interface UserDetailsService {
 
 
 
-### UserDetails: 用户信息实体
+#### UserDetails: 用户信息实体
 
 代表了一个用户实体，包括用户、密码、权限列表、账号过期、认证过期、是否启用、是否锁定。
 
@@ -244,6 +313,59 @@ Spring Security通过http.authorizeRequests()对web请求进行授权保护，�
 
 
 
+
+
+### 下面是Spring Security的基本授权流程：
+
+1. 用户请求访问受保护的资源。
+2. 请求被拦截，由`FilterSecurityInterceptor`处理。
+3. `FilterSecurityInterceptor`从`SecurityContextHolder`获取当前用户的`Authentication`对象。
+4. `FilterSecurityInterceptor`获取访问所需的权限信息。
+5. `AccessDecisionManager`被调用来进行决策，判断用户是否有足够的权限访问资源。
+6. `AccessDecisionManager`委托给`AccessDecisionVoter`进行投票，根据策略决定用户是否有访问权限。
+7. 所有`AccessDecisionVoter`完成投票后，`AccessDecisionManager`根据策略计算最终的投票结果。
+8. `AccessDecisionManager`将决策结果返回给`FilterSecurityInterceptor`。
+9. `FilterSecurityInterceptor`根据决策结果决定是否允许用户访问资源。
+10. 如果允许访问，用户将获得对受保护资源的访问权限。
+
+
+
+```markdown
+用户请求访问受保护的资源
+    |
+    v
+FilterSecurityInterceptor
+    |
+    v
+获取当前用户的Authentication对象
+    |
+    v
+获取访问所需的权限信息
+    |
+    v
+AccessDecisionManager
+    |
+    v
+AccessDecisionVoter进行投票
+    |
+    v
+所有AccessDecisionVoter完成投票
+    |
+    v
+计算最终投票结果
+    |
+    v
+返回决策结果
+    |
+    v
+决定是否允许访问
+    |
+    v
+访问受保护的资源
+```
+
+
+
 ## 决策流程
 
 在`AccessDecisionManager`的实现类`ConsensusBased`中，使用投票的方式来确定是否能访问受保护的资源。
@@ -296,9 +418,30 @@ public interface AccessDecisionVoter<S> {
 
   3、如果全部弃权了，则将视参数`allowIfAllAbstainDecisions`的值而定，`true`通过，`false`抛出`AccessDeniedException`。
 
-  
 
 > **Spring Security**默认使用`AffirmativeBased`投票器，我们同样可以通过往 Spring容器里注入的方式来选择投票决定器
+
+```markdown
+AccessDecisionManager被调用
+    |
+    v
+获取AccessDecisionVoters列表
+    |
+    v
+依次调用每个AccessDecisionVoter的vote()方法
+    |
+    v
+每个AccessDecisionVoter根据策略判断权限并返回投票结果
+    |
+    v
+收集所有AccessDecisionVoters的投票结果
+    |
+    v
+根据决策策略计算最终决策结果
+    |
+    v
+返回最终决策结果
+```
 
 
 
