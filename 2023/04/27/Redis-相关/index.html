@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="String 字符串字符串是最基本的 Redis 数据类型, 它们通常用于缓存。 默认情况下，单个 Redis 字符串的最大大小为 512 MB。 set在redis存储字符串 1set user phj233  ex存储user:code 并从现在起 100 秒过期 1set user:code 777777 ex 3600  get12get userreturn phj233  incrus">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 相关">
+<meta property="og:url" content="http://blog.phj233.info/2023/04/27/Redis-%E7%9B%B8%E5%85%B3/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="String 字符串字符串是最基本的 Redis 数据类型, 它们通常用于缓存。 默认情况下，单个 Redis 字符串的最大大小为 512 MB。 set在redis存储字符串 1set user phj233  ex存储user:code 并从现在起 100 秒过期 1set user:code 777777 ex 3600  get12get userreturn phj233  incrus">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-04-27T15:09:59.000Z">
+<meta property="article:modified_time" content="2023-07-25T08:00:51.641Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="数据结构">
+<meta name="twitter:card" content="summary">
+
+
+<title >Redis 相关</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.0.9","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":200}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-07-25 08:00:51"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.9" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+ 
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" data-scroll-container style="opacity: 0">
+          <div data-scroll-section id="content" class="trm-scroll-section">
+
+            <div class="locomotive-scroll__sticky-target" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
+
+            <!-- top bar -->
+            <header class="trm-top-bar" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner" data-scroll data-scroll-direction="vertical">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" data-scroll data-scroll-direction="vertical" data-scroll-speed="-3" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container" data-scroll data-scroll-direction="vertical" data-scroll-speed="0">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            Redis 相关
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2023
+                                    </span
+                                ></li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <a href="#about-triger" data-scroll-to="#about-triger" data-scroll-offset="-130" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </a>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div id="page-sidebar" class="col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    
+
+<div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card" data-scroll data-scroll-repeat data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="60"> 
+    
+        <div class="trm-user-tabs" id="sidebar-tabs">
+           <div class="trm-tabs-nav trm-mb-40" id="trm-tabs-nav">
+                <div data-to="tabs-user" class="trm-tabs-nav-item">
+                    <i class="iconfont fas fa-user-alt"></i>
+                </div>
+                <div data-to="tabs-toc" class="trm-tabs-nav-item active">
+                    <i class="iconfont fas fa-th-list"></i>
+                </div>
+           </div>
+            <div name="tabs-user" class="trm-tabs-item">
+                <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+                <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+                <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+                
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+            </div>
+            <div name="tabs-toc" class="trm-tabs-item active">
+                <div class="post-toc">
+    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#String-字符串"  data-scroll-to="#String-字符串"><span class="toc-text">String 字符串</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#set"  data-scroll-to="#set"><span class="toc-text">set</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#ex"  data-scroll-to="#ex"><span class="toc-text">ex</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#get"  data-scroll-to="#get"><span class="toc-text">get</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#incr"  data-scroll-to="#incr"><span class="toc-text">incr</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#incrby"  data-scroll-to="#incrby"><span class="toc-text">incrby</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#List-列表"  data-scroll-to="#List-列表"><span class="toc-text">List 列表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#lpush"  data-scroll-to="#lpush"><span class="toc-text">lpush</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#rpush"  data-scroll-to="#rpush"><span class="toc-text">rpush</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#lrange"  data-scroll-to="#lrange"><span class="toc-text">lrange</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#llen"  data-scroll-to="#llen"><span class="toc-text">llen</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#lpop"  data-scroll-to="#lpop"><span class="toc-text">lpop</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#rpop"  data-scroll-to="#rpop"><span class="toc-text">rpop</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Hash-表"  data-scroll-to="#Hash-表"><span class="toc-text">Hash 表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hset"  data-scroll-to="#hset"><span class="toc-text">hset</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hmset"  data-scroll-to="#hmset"><span class="toc-text">hmset</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hget"  data-scroll-to="#hget"><span class="toc-text">hget</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hmget"  data-scroll-to="#hmget"><span class="toc-text">hmget</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hgetall"  data-scroll-to="#hgetall"><span class="toc-text">hgetall</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hincrby"  data-scroll-to="#hincrby"><span class="toc-text">hincrby</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Set-集合"  data-scroll-to="#Set-集合"><span class="toc-text">Set 集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#sadd"  data-scroll-to="#sadd"><span class="toc-text">sadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#smembers"  data-scroll-to="#smembers"><span class="toc-text">smembers</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#sismember"  data-scroll-to="#sismember"><span class="toc-text">sismember</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#sinter"  data-scroll-to="#sinter"><span class="toc-text">sinter</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#scard"  data-scroll-to="#scard"><span class="toc-text">scard</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#srem"  data-scroll-to="#srem"><span class="toc-text">srem</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Sorted-Set-有序集合"  data-scroll-to="#Sorted-Set-有序集合"><span class="toc-text">Sorted Set 有序集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zadd"  data-scroll-to="#zadd"><span class="toc-text">zadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zrange"  data-scroll-to="#zrange"><span class="toc-text">zrange</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zrevrange"  data-scroll-to="#zrevrange"><span class="toc-text">zrevrange</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zcard"  data-scroll-to="#zcard"><span class="toc-text">zcard</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zscore"  data-scroll-to="#zscore"><span class="toc-text">zscore</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zrem"  data-scroll-to="#zrem"><span class="toc-text">zrem</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Bitmaps-位图"  data-scroll-to="#Bitmaps-位图"><span class="toc-text">Bitmaps 位图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#setbit"  data-scroll-to="#setbit"><span class="toc-text">setbit</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#getbit"  data-scroll-to="#getbit"><span class="toc-text">getbit</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitcount"  data-scroll-to="#bitcount"><span class="toc-text">bitcount</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitop"  data-scroll-to="#bitop"><span class="toc-text">bitop</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#HyperLogLog-基数统计"  data-scroll-to="#HyperLogLog-基数统计"><span class="toc-text">HyperLogLog 基数统计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#pfadd"  data-scroll-to="#pfadd"><span class="toc-text">pfadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#pfcount"  data-scroll-to="#pfcount"><span class="toc-text">pfcount</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#pfmerge"  data-scroll-to="#pfmerge"><span class="toc-text">pfmerge</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Geo-地理空间"  data-scroll-to="#Geo-地理空间"><span class="toc-text">Geo 地理空间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#geoadd"  data-scroll-to="#geoadd"><span class="toc-text">geoadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#geopos"  data-scroll-to="#geopos"><span class="toc-text">geopos</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#geodist"  data-scroll-to="#geodist"><span class="toc-text">geodist</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#georadius"  data-scroll-to="#georadius"><span class="toc-text">georadius</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Stream-消息流"  data-scroll-to="#Stream-消息流"><span class="toc-text">Stream 消息流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xadd"  data-scroll-to="#xadd"><span class="toc-text">xadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xread"  data-scroll-to="#xread"><span class="toc-text">xread</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xgroup"  data-scroll-to="#xgroup"><span class="toc-text">xgroup</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xreadgroup"  data-scroll-to="#xreadgroup"><span class="toc-text">xreadgroup</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xack"  data-scroll-to="#xack"><span class="toc-text">xack</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xdel"  data-scroll-to="#xdel"><span class="toc-text">xdel</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Bitfields"  data-scroll-to="#Bitfields"><span class="toc-text">Bitfields</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitfield"  data-scroll-to="#bitfield"><span class="toc-text">bitfield</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitcount-1"  data-scroll-to="#bitcount-1"><span class="toc-text">bitcount</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitop-1"  data-scroll-to="#bitop-1"><span class="toc-text">bitop</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitpos"  data-scroll-to="#bitpos"><span class="toc-text">bitpos</span></a></li></ol></li></ol>
+</div>
+            </div>
+        </div>
+    
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div id="page-content" class="col-lg-8">
+                <div class="trm-content" id="trm-content">
+                    <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
+
+                    <div id="post-info" class="row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            04/27
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            15:09
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <h2 id="String-字符串"><a href="#String-字符串" class="headerlink" title="String 字符串"></a>String 字符串</h2><p>字符串是最基本的 Redis 数据类型, 它们通常用于缓存。</p>
+<p>默认情况下，单个 Redis 字符串的最大大小为 512 MB。</p>
+<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>在redis存储字符串</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set user phj233</span><br></pre></td></tr></table></figure>
+
+<h4 id="ex"><a href="#ex" class="headerlink" title="ex"></a>ex</h4><p>存储user:code 并从现在起 100 秒过期</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set user:code 777777 ex 3600</span><br></pre></td></tr></table></figure>
+
+<h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">get user</span><br><span class="line">return phj233</span><br></pre></td></tr></table></figure>
+
+<h3 id="incr"><a href="#incr" class="headerlink" title="incr"></a>incr</h3><p>user:code 递增1</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">incr user:code</span><br><span class="line">return 777778</span><br></pre></td></tr></table></figure>
+
+<h3 id="incrby"><a href="#incrby" class="headerlink" title="incrby"></a>incrby</h3><p>user:code 增加 指定值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">incrby user:code 10</span><br><span class="line">return 777787</span><br></pre></td></tr></table></figure>
+
+<h2 id="List-列表"><a href="#List-列表" class="headerlink" title="List 列表"></a>List 列表</h2><p>列表是一个由字符串组成的有序集合，可以在列表的两端推入或弹出元素，也可以根据索引获取或修改元素。</p>
+<h3 id="lpush"><a href="#lpush" class="headerlink" title="lpush"></a>lpush</h3><p>将一个或多个字符串插入到列表的左侧。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lpush mylist &quot;hello&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="rpush"><a href="#rpush" class="headerlink" title="rpush"></a>rpush</h3><p>将一个或多个字符串插入到列表的右侧。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpush mylist &quot;world&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="lrange"><a href="#lrange" class="headerlink" title="lrange"></a>lrange</h3><p>获取列表中指定范围的元素。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lrange mylist 0 1</span><br></pre></td></tr></table></figure>
+
+<h3 id="llen"><a href="#llen" class="headerlink" title="llen"></a>llen</h3><p>获取列表的长度</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">llen mylist</span><br><span class="line">return 2</span><br></pre></td></tr></table></figure>
+
+<h3 id="lpop"><a href="#lpop" class="headerlink" title="lpop"></a>lpop</h3><p>从列表的左侧弹出一个元素，并返回它。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lpop mylist</span><br></pre></td></tr></table></figure>
+
+<h3 id="rpop"><a href="#rpop" class="headerlink" title="rpop"></a>rpop</h3><p>从列表的右侧弹出一个元素，并返回它。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpop mylist</span><br></pre></td></tr></table></figure>
+
+<h2 id="Hash-表"><a href="#Hash-表" class="headerlink" title="Hash 表"></a>Hash 表</h2><p>结构化为key和value的记录类型</p>
+<h3 id="hset"><a href="#hset" class="headerlink" title="hset"></a>hset</h3><p>向hash表添加key value</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hset <span class="keyword">user</span> username phj233 password <span class="number">123456</span></span><br><span class="line"><span class="keyword">return</span>: <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="hmset"><a href="#hmset" class="headerlink" title="hmset"></a>hmset</h3><p>设置多个哈希键值对</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hmset user age 18 gender &quot;male&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="hget"><a href="#hget" class="headerlink" title="hget"></a>hget</h3><p>获取hash表指定key的value</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hget <span class="keyword">user</span> username</span><br><span class="line"><span class="keyword">return</span>: &quot;phj233&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="hmget"><a href="#hmget" class="headerlink" title="hmget"></a>hmget</h3><p>在 Redis 中，hmget 命令用于获取哈希表中多个键的值。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hmget user:info name email</span><br><span class="line">return [&quot;John Doe&quot;, &quot;johndoe@example.com&quot;]</span><br></pre></td></tr></table></figure>
+
+<h3 id="hgetall"><a href="#hgetall" class="headerlink" title="hgetall"></a>hgetall</h3><p>获取指定表全部数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">hgetall <span class="keyword">user</span></span><br><span class="line"><span class="keyword">return</span>:</span><br><span class="line">&quot;password&quot;</span><br><span class="line">&quot;123456&quot;</span><br><span class="line">&quot;username&quot;</span><br><span class="line">&quot;phj233&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="hincrby"><a href="#hincrby" class="headerlink" title="hincrby"></a>hincrby</h3><p>对指定key的value增加指定整数</p>
+<h2 id="Set-集合"><a href="#Set-集合" class="headerlink" title="Set 集合"></a>Set 集合</h2><p> Set是唯一字符串的无序集合</p>
+<ul>
+<li>跟踪唯一项目（例如，跟踪访问给定博客文章的所有唯一 IP 地址）。</li>
+<li>表示关系（例如，具有给定角色的所有用户的集合）。</li>
+<li>执行常见的集合操作，例如交集、并集和差分。</li>
+</ul>
+<p>Redis  Set的最大大小为 2^32 - 1 （4，294，967，295） 个成员。</p>
+<h3 id="sadd"><a href="#sadd" class="headerlink" title="sadd"></a>sadd</h3><p>向集合添加元素：</p>
+<p>储存用户：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sadd <span class="keyword">user</span> phj233</span><br><span class="line"><span class="keyword">return</span>: <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>储存用户的code：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sadd <span class="keyword">user</span>:phj233:code <span class="number">123456</span></span><br></pre></td></tr></table></figure>
+
+<p>example:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sadd <span class="keyword">user</span>:phj233:num <span class="number">465789</span></span><br><span class="line">sadd <span class="keyword">user</span>:phj233:num <span class="number">123456</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="smembers"><a href="#smembers" class="headerlink" title="smembers"></a>smembers</h3><p>获取集合中的所有元素</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">smembers myset</span><br><span class="line">return [&quot;apple&quot;]</span><br></pre></td></tr></table></figure>
+
+<h3 id="sismember"><a href="#sismember" class="headerlink" title="sismember"></a>sismember</h3><p>检查value是否存在集合中</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sismember <span class="keyword">user</span>:phj233:code <span class="number">123456</span></span><br><span class="line"><span class="keyword">return</span>: <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="sinter"><a href="#sinter" class="headerlink" title="sinter"></a>sinter</h3><p>查询两个集合交集</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sinter <span class="keyword">user</span>:phj233:code <span class="keyword">user</span>:phj233:num</span><br><span class="line"><span class="keyword">return</span>: <span class="number">123456</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="scard"><a href="#scard" class="headerlink" title="scard"></a>scard</h3><p>集合计数</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scard <span class="keyword">user</span>:phj233:num</span><br><span class="line"><span class="keyword">return</span>: <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="srem"><a href="#srem" class="headerlink" title="srem"></a>srem</h3><p>移出集合元素</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">srem <span class="keyword">user</span> phj233</span><br><span class="line"><span class="keyword">return</span>: <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Sorted-Set-有序集合"><a href="#Sorted-Set-有序集合" class="headerlink" title="Sorted Set 有序集合"></a>Sorted Set 有序集合</h2><p>有序集合是一个无序的字符串集合，每个元素关联一个分数，可以根据分数进行排序。</p>
+<h3 id="zadd"><a href="#zadd" class="headerlink" title="zadd"></a>zadd</h3><p>向有序集合添加一个或多个元素</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zadd myzset 1 &quot;apple&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="zrange"><a href="#zrange" class="headerlink" title="zrange"></a>zrange</h3><p>获取有序集合中指定范围内的元素</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">zadd myzset 2 &quot;banana&quot;</span><br><span class="line">zadd myzset 3 &quot;cherry&quot;</span><br><span class="line">zrange myzset 0 1</span><br><span class="line">return [&quot;apple&quot;, &quot;banana&quot;]</span><br></pre></td></tr></table></figure>
+
+<h3 id="zrevrange"><a href="#zrevrange" class="headerlink" title="zrevrange"></a>zrevrange</h3><p>获取有序集合中指定范围内的元素，按照分数从大到小排序</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zrevrange myzset 0 1</span><br><span class="line">return [&quot;cherry&quot;, &quot;banana&quot;]</span><br></pre></td></tr></table></figure>
+
+<h3 id="zcard"><a href="#zcard" class="headerlink" title="zcard"></a>zcard</h3><p>获取有序集合的元素数量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zcard myzset</span><br><span class="line">return 3</span><br></pre></td></tr></table></figure>
+
+<h3 id="zscore"><a href="#zscore" class="headerlink" title="zscore"></a>zscore</h3><p>获取有序集合中指定元素的分数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zscore myzset &quot;cherry&quot;</span><br><span class="line">return 3</span><br></pre></td></tr></table></figure>
+
+<h3 id="zrem"><a href="#zrem" class="headerlink" title="zrem"></a>zrem</h3><p>从有序集合中删除一个或多个元素</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zrem myzset &quot;cherry&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Bitmaps-位图"><a href="#Bitmaps-位图" class="headerlink" title="Bitmaps 位图"></a>Bitmaps 位图</h2><p>位图是一种紧凑的数据结构，用于存储二进制位的值，可以进行一些位运算操作。</p>
+<h3 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h3><p>设置位图中指定位置的值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setbit mybitmap 0 1</span><br></pre></td></tr></table></figure>
+
+<h3 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h3><p>获取位图中指定位置的值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">getbit mybitmap 0</span><br><span class="line">return 1</span><br></pre></td></tr></table></figure>
+
+<h3 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h3><p>获取位图中值为 1 的二进制位的数量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setbit mybitmap 1 1</span><br><span class="line">setbit mybitmap 3 1</span><br><span class="line">bitcount mybitmap</span><br><span class="line">return 2</span><br></pre></td></tr></table></figure>
+
+<h3 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h3><p>对多个位图进行位运算操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setbit mybitmap2 0 1</span><br><span class="line">bitop AND myresult mybitmap mybitmap2</span><br><span class="line">getbit myresult 0</span><br><span class="line">return 0</span><br></pre></td></tr></table></figure>
+
+<h2 id="HyperLogLog-基数统计"><a href="#HyperLogLog-基数统计" class="headerlink" title="HyperLogLog 基数统计"></a>HyperLogLog 基数统计</h2><p>HyperLogLog 是一种概率性的数据结构，用于估计一个集合中不同元素的数量。HyperLogLog 以完美的精度换取高效的空间利用率。</p>
+<h3 id="pfadd"><a href="#pfadd" class="headerlink" title="pfadd"></a>pfadd</h3><p>向 HyperLogLog 中添加一个或多个元素</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pfadd myloglog &quot;apple&quot;</span><br><span class="line">pfadd myloglog &quot;banana&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="pfcount"><a href="#pfcount" class="headerlink" title="pfcount"></a>pfcount</h3><p>获取 HyperLogLog 中估计的元素数量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pfcount myloglog</span><br><span class="line">return 2</span><br></pre></td></tr></table></figure>
+
+<h3 id="pfmerge"><a href="#pfmerge" class="headerlink" title="pfmerge"></a>pfmerge</h3><p>合并两个集合</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PFADD hll1 foo bar zap a</span><br><span class="line">PFADD hll2 a b c foo</span><br><span class="line">PFMERGE hll3 hll1 hll2</span><br><span class="line">return ok</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="Geo-地理空间"><a href="#Geo-地理空间" class="headerlink" title="Geo 地理空间"></a>Geo 地理空间</h2><p>Geo 是一种用于存储地理空间信息的数据结构，可以对地理空间信息进行查询和计算。</p>
+<h3 id="geoadd"><a href="#geoadd" class="headerlink" title="geoadd"></a>geoadd</h3><p>向 Geo 中添加一个或多个地理空间信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">geoadd mygeo 116.48105 39.996794 &quot;Beijing&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="geopos"><a href="#geopos" class="headerlink" title="geopos"></a>geopos</h3><p>获取指定地理空间信息的经纬度坐标</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">geopos mygeo &quot;Beijing&quot;</span><br><span class="line">return [[116.48105, 39.996794]]</span><br></pre></td></tr></table></figure>
+
+<h3 id="geodist"><a href="#geodist" class="headerlink" title="geodist"></a>geodist</h3><p>计算两个地理空间信息之间的距离</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">geoadd mygeo 116.417524, 39.928216 &quot;Peking University&quot;</span><br><span class="line">geodist mygeo &quot;Beijing&quot; &quot;Peking University&quot;</span><br><span class="line">return 4239.2289</span><br></pre></td></tr></table></figure>
+
+<h3 id="georadius"><a href="#georadius" class="headerlink" title="georadius"></a>georadius</h3><p>获取指定范围内的地理空间信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">georadius mygeo 116.45635 39.91803 10 km</span><br><span class="line">return [&quot;Peking University&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="Stream-消息流"><a href="#Stream-消息流" class="headerlink" title="Stream 消息流"></a>Stream 消息流</h2><p>Stream 是一种消息流数据结构，用于存储消息并支持消费者组的消费。</p>
+<h3 id="xadd"><a href="#xadd" class="headerlink" title="xadd"></a>xadd</h3><p>向 Stream 中添加一条消息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xadd mystream * name &quot;phj233&quot; age 18</span><br></pre></td></tr></table></figure>
+
+<h3 id="xread"><a href="#xread" class="headerlink" title="xread"></a>xread</h3><p>从 Stream 中读取消息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xread COUNT 1 STREAMS mystream 0-0</span><br><span class="line">return [[&quot;mystream&quot;, [[&quot;1-0&quot;, &#123;&quot;name&quot;:&quot;phj233&quot;, &quot;age&quot;:&quot;18&quot;&#125;]]]]</span><br></pre></td></tr></table></figure>
+
+<h3 id="xgroup"><a href="#xgroup" class="headerlink" title="xgroup"></a>xgroup</h3><p>创建或管理消费者组</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xgroup CREATE mystream mygroup 0-0</span><br></pre></td></tr></table></figure>
+
+<h3 id="xreadgroup"><a href="#xreadgroup" class="headerlink" title="xreadgroup"></a>xreadgroup</h3><p>从 Stream 中以消费者组的方式读取消息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xreadgroup GROUP mygroup myconsumer COUNT</span><br></pre></td></tr></table></figure>
+
+<h3 id="xack"><a href="#xack" class="headerlink" title="xack"></a>xack</h3><p>确认消费者组已经成功消费了一条或多条消息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xack mystream mygroup 1-0</span><br></pre></td></tr></table></figure>
+
+<h3 id="xdel"><a href="#xdel" class="headerlink" title="xdel"></a>xdel</h3><p>从 Stream 中删除一条或多条消息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xdel mystream 1-0</span><br></pre></td></tr></table></figure>
+
+<h2 id="Bitfields"><a href="#Bitfields" class="headerlink" title="Bitfields"></a>Bitfields</h2><p>Bitfields 是 Redis 3.2 引入的新数据类型，它可以看作是对 Redis 字符串类型的扩展，支持对字符串中的某些位进行读写操作。</p>
+<h3 id="bitfield"><a href="#bitfield" class="headerlink" title="bitfield"></a>bitfield</h3><p>对 Redis 字符串中的位进行读写操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bitfield mykey SET u4 0 15 GET u4 0</span><br><span class="line">return [0, 0]</span><br></pre></td></tr></table></figure>
+
+<h3 id="bitcount-1"><a href="#bitcount-1" class="headerlink" title="bitcount"></a>bitcount</h3><p>统计 Redis 字符串中值为 1 的位数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bitcount mykey</span><br><span class="line">return 0</span><br></pre></td></tr></table></figure>
+
+<h3 id="bitop-1"><a href="#bitop-1" class="headerlink" title="bitop"></a>bitop</h3><p>对多个 Redis 字符串进行位运算，并将结果存储到新的 Redis 字符串中</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">set key1 &quot;101010&quot;</span><br><span class="line">set key2 &quot;111000&quot;</span><br><span class="line">bitop AND destkey key1 key2</span><br><span class="line">return 6</span><br></pre></td></tr></table></figure>
+
+<h3 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h3><p>查找 Redis 字符串中值为 1 的位的位置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set mykey &quot;\xff\xf0\x00&quot;</span><br><span class="line">bitpos mykey 1</span><br><span class="line">return 12</span><br></pre></td></tr></table></figure>
+
+</article>
+    
+    
+
+</div>
+<div id="post-next-prev" class="row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+        <a href="/2023/05/09/JavaDoc-%E5%B8%B8%E7%94%A8%E6%A0%87%E7%AD%BE/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2023/05/09/JavaDoc-%E5%B8%B8%E7%94%A8%E6%A0%87%E7%AD%BE/" class="trm-anima-link">
+                    JavaDoc 常用标签
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>23/05/09</li>
+                <li>17:39</li>
+                
+                    <li>598</li>
+                
+                
+                    <li>2</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+        <a href="/2023/04/13/Docker/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Env/">
+                    Env
+                </a>
+            </div>
+            <h5>
+                <a href="/2023/04/13/Docker/" class="trm-anima-link">
+                    Docker
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>23/04/13</li>
+                <li>00:19</li>
+                
+                    <li>335</li>
+                
+                
+                    <li>1</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-scroll-animation" data-scroll data-scroll-offset="50">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v6.3.0
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.0.9
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item">
+            博客已萌萌哒运行 <span id="since" class="trm-accent-color"></span> 天
+        </div>
+     
+
+     
+</footer>
+
+<script>
+    function show_date_time () {
+        var BirthDay = new Date("01/17/2023 17:00:00");
+        var today = new Date();
+        var timeold = (today.getTime() - BirthDay.getTime());
+        var msPerDay = 24 * 60 * 60 * 1000
+        var day = Math.floor(timeold / msPerDay)
+        since.innerHTML = day
+    }
+    show_date_time()
+</script>
+ 
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+          </div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
+
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.0.9"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.0.9"></script>
+
+</body>
+
+</html>
