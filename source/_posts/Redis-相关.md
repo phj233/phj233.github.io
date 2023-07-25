@@ -6,8 +6,7 @@ categories:
 tags:
 - 笔记
 - Redis
-- 数据结构h'
-s
+- 数据结构
 ---
 
 ## String 字符串
