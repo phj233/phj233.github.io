@@ -15,7 +15,7 @@
 <meta property="og:description" content="String 字符串字符串是最基本的 Redis 数据类型, 它们通常用于缓存。 默认情况下，单个 Redis 字符串的最大大小为 512 MB。 set在redis存储字符串 1set user phj233  ex存储user:code 并从现在起 100 秒过期 1set user:code 777777 ex 3600  get12get userreturn phj233  incrus">
 <meta property="og:locale">
 <meta property="article:published_time" content="2023-04-27T15:09:59.000Z">
-<meta property="article:modified_time" content="2023-07-25T08:01:28.961Z">
+<meta property="article:modified_time" content="2023-11-06T07:44:30.096Z">
 <meta property="article:author" content="phj233">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="Redis">
@@ -27,10 +27,10 @@
 
 <!-- Favicon -->
 
-    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='16x16' ></link>
+    <link href='/img/favicon.svg?v=2.1.6' rel='icon' type='image/png' sizes='16x16' ></link>
 
 
-    <link href='/img/favicon.svg?v=2.0.9' rel='icon' type='image/png' sizes='32x32' ></link>
+    <link href='/img/favicon.svg?v=2.1.6' rel='icon' type='image/png' sizes='32x32' ></link>
 
 
 
@@ -42,9 +42,6 @@
 
     
 <link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
-
-    
-<link rel="stylesheet" href="https://unpkg.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.css">
 
     
 <link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
@@ -64,11 +61,11 @@
 
 
 <!-- Variable -->
-<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.0.9","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":200}};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-07-25 08:01:28"};</script>
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.1.6","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","appleTouchIcon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","showText":"(/≧▽≦/)咦！又好了！","hideText":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":200},"toc":{"post_title":true}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2023-11-06 07:44:30"};</script>
 
 <!-- Theme mode css -->
-<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.0.9" id="trm-switch-style">
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.1.6" id="trm-switch-style">
 <script>
     let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
     let catchMode = localStorage.getItem('theme-mode') || defaultMode;
@@ -124,13 +121,9 @@
 
       <!-- scroll container -->
       <div id="trm-dynamic-content" class="trm-swup-animation">
-        <div id="trm-scroll-container" class="trm-scroll-container" data-scroll-container style="opacity: 0">
-          <div data-scroll-section id="content" class="trm-scroll-section">
-
-            <div class="locomotive-scroll__sticky-target" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;"></div>
-
+        <div id="trm-scroll-container" class="trm-scroll-container" style="opacity: 0">
             <!-- top bar -->
-            <header class="trm-top-bar" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+            <header class="trm-top-bar">
 	<div class="container">
 		<div class="trm-left-side">
 			<!-- logo -->
@@ -202,16 +195,16 @@
             
 <div class="trm-content-start">
     <!-- banner -->
-    <div class="trm-banner" data-scroll data-scroll-direction="vertical">
+    <div class="trm-banner">
     
     <!-- banner cover -->
-    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" data-scroll data-scroll-direction="vertical" data-scroll-speed="-3" src="/img/banner.png">
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" src="/img/banner.png">
     <!-- banner cover end -->
     
 
     <!-- banner content -->
     <div class="trm-banner-content trm-overlay">
-        <div class="container" data-scroll data-scroll-direction="vertical" data-scroll-speed="0">
+        <div class="container">
             <div class="row">
                 
                 <div class="col-lg-4"></div>
@@ -235,18 +228,18 @@
                                 <li>
                                     <span>
                                         2023
-                                    </span
-                                ></li>
+                                    </span>
+                                </li>
                             </ul>
                         
                     </div>
                     <!-- banner title end -->
 
                     <!-- scroll hint -->
-                    <a href="#about-triger" data-scroll-to="#about-triger" data-scroll-offset="-130" class="trm-scroll-hint-frame">
+                    <span id="scroll-triger" class="trm-scroll-hint-frame">
                         <div class="trm-scroll-hint"></div>
                         <span class="trm-label">Scroll down</span>
-                    </a>
+                    </span>
                     <!-- scroll hint end -->
 
                 </div>
@@ -259,24 +252,11 @@
     <div class="container">
         <div class="row">
             
-                <div id="page-sidebar" class="col-lg-4 hidden-sm">
+                <div class="trm-page-sidebar col-lg-4 hidden-sm">
                     <!-- main card -->
-                    
-
-<div class="trm-main-card-frame trm-sidebar">
-    <div class="trm-main-card" data-scroll data-scroll-repeat data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="60"> 
-    
-        <div class="trm-user-tabs" id="sidebar-tabs">
-           <div class="trm-tabs-nav trm-mb-40" id="trm-tabs-nav">
-                <div data-to="tabs-user" class="trm-tabs-nav-item">
-                    <i class="iconfont fas fa-user-alt"></i>
-                </div>
-                <div data-to="tabs-toc" class="trm-tabs-nav-item active">
-                    <i class="iconfont fas fa-th-list"></i>
-                </div>
-           </div>
-            <div name="tabs-user" class="trm-tabs-item">
-                <!-- card header -->
+                    <div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card"> 
+        <!-- card header -->
 <div class="trm-mc-header">
     <div class="trm-avatar-frame trm-mb-20">
         <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
@@ -294,7 +274,7 @@
     
 </div>
 <!-- card header end -->
-                <!-- sidebar social -->
+        <!-- sidebar social -->
 
 <div class="trm-divider trm-mb-40 trm-mt-40"></div>
 <div class="trm-social">
@@ -306,7 +286,7 @@
 </div>
 
 <!-- sidebar social end -->
-                <!-- info -->
+        <!-- info -->
 <div class="trm-divider trm-mb-40 trm-mt-40"></div>
 <ul class="trm-table trm-mb-20">
     
@@ -322,7 +302,7 @@
 </ul>
 <!-- info end -->
 
-                
+        
     <div class="trm-divider trm-mb-40 trm-mt-40"></div>
     <!-- action button -->
     <div class="text-center">
@@ -333,24 +313,14 @@
     </div>
     <!-- action button end -->
 
-            </div>
-            <div name="tabs-toc" class="trm-tabs-item active">
-                <div class="post-toc">
-    <ol class="toc"><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#String-字符串"  data-scroll-to="#String-字符串"><span class="toc-text">String 字符串</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#set"  data-scroll-to="#set"><span class="toc-text">set</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a rel="nofollow" class="toc-link" href="#ex"  data-scroll-to="#ex"><span class="toc-text">ex</span></a></li></ol></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#get"  data-scroll-to="#get"><span class="toc-text">get</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#incr"  data-scroll-to="#incr"><span class="toc-text">incr</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#incrby"  data-scroll-to="#incrby"><span class="toc-text">incrby</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#List-列表"  data-scroll-to="#List-列表"><span class="toc-text">List 列表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#lpush"  data-scroll-to="#lpush"><span class="toc-text">lpush</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#rpush"  data-scroll-to="#rpush"><span class="toc-text">rpush</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#lrange"  data-scroll-to="#lrange"><span class="toc-text">lrange</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#llen"  data-scroll-to="#llen"><span class="toc-text">llen</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#lpop"  data-scroll-to="#lpop"><span class="toc-text">lpop</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#rpop"  data-scroll-to="#rpop"><span class="toc-text">rpop</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Hash-表"  data-scroll-to="#Hash-表"><span class="toc-text">Hash 表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hset"  data-scroll-to="#hset"><span class="toc-text">hset</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hmset"  data-scroll-to="#hmset"><span class="toc-text">hmset</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hget"  data-scroll-to="#hget"><span class="toc-text">hget</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hmget"  data-scroll-to="#hmget"><span class="toc-text">hmget</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hgetall"  data-scroll-to="#hgetall"><span class="toc-text">hgetall</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#hincrby"  data-scroll-to="#hincrby"><span class="toc-text">hincrby</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Set-集合"  data-scroll-to="#Set-集合"><span class="toc-text">Set 集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#sadd"  data-scroll-to="#sadd"><span class="toc-text">sadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#smembers"  data-scroll-to="#smembers"><span class="toc-text">smembers</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#sismember"  data-scroll-to="#sismember"><span class="toc-text">sismember</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#sinter"  data-scroll-to="#sinter"><span class="toc-text">sinter</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#scard"  data-scroll-to="#scard"><span class="toc-text">scard</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#srem"  data-scroll-to="#srem"><span class="toc-text">srem</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Sorted-Set-有序集合"  data-scroll-to="#Sorted-Set-有序集合"><span class="toc-text">Sorted Set 有序集合</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zadd"  data-scroll-to="#zadd"><span class="toc-text">zadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zrange"  data-scroll-to="#zrange"><span class="toc-text">zrange</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zrevrange"  data-scroll-to="#zrevrange"><span class="toc-text">zrevrange</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zcard"  data-scroll-to="#zcard"><span class="toc-text">zcard</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zscore"  data-scroll-to="#zscore"><span class="toc-text">zscore</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#zrem"  data-scroll-to="#zrem"><span class="toc-text">zrem</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Bitmaps-位图"  data-scroll-to="#Bitmaps-位图"><span class="toc-text">Bitmaps 位图</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#setbit"  data-scroll-to="#setbit"><span class="toc-text">setbit</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#getbit"  data-scroll-to="#getbit"><span class="toc-text">getbit</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitcount"  data-scroll-to="#bitcount"><span class="toc-text">bitcount</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitop"  data-scroll-to="#bitop"><span class="toc-text">bitop</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#HyperLogLog-基数统计"  data-scroll-to="#HyperLogLog-基数统计"><span class="toc-text">HyperLogLog 基数统计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#pfadd"  data-scroll-to="#pfadd"><span class="toc-text">pfadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#pfcount"  data-scroll-to="#pfcount"><span class="toc-text">pfcount</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#pfmerge"  data-scroll-to="#pfmerge"><span class="toc-text">pfmerge</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Geo-地理空间"  data-scroll-to="#Geo-地理空间"><span class="toc-text">Geo 地理空间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#geoadd"  data-scroll-to="#geoadd"><span class="toc-text">geoadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#geopos"  data-scroll-to="#geopos"><span class="toc-text">geopos</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#geodist"  data-scroll-to="#geodist"><span class="toc-text">geodist</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#georadius"  data-scroll-to="#georadius"><span class="toc-text">georadius</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Stream-消息流"  data-scroll-to="#Stream-消息流"><span class="toc-text">Stream 消息流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xadd"  data-scroll-to="#xadd"><span class="toc-text">xadd</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xread"  data-scroll-to="#xread"><span class="toc-text">xread</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xgroup"  data-scroll-to="#xgroup"><span class="toc-text">xgroup</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xreadgroup"  data-scroll-to="#xreadgroup"><span class="toc-text">xreadgroup</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xack"  data-scroll-to="#xack"><span class="toc-text">xack</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#xdel"  data-scroll-to="#xdel"><span class="toc-text">xdel</span></a></li></ol></li><li class="toc-item toc-level-2"><a rel="nofollow" class="toc-link" href="#Bitfields"  data-scroll-to="#Bitfields"><span class="toc-text">Bitfields</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitfield"  data-scroll-to="#bitfield"><span class="toc-text">bitfield</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitcount-1"  data-scroll-to="#bitcount-1"><span class="toc-text">bitcount</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitop-1"  data-scroll-to="#bitop-1"><span class="toc-text">bitop</span></a></li><li class="toc-item toc-level-3"><a rel="nofollow" class="toc-link" href="#bitpos"  data-scroll-to="#bitpos"><span class="toc-text">bitpos</span></a></li></ol></li></ol>
-</div>
-            </div>
-        </div>
-    
     </div>
 </div>
                     <!-- main card end -->
                 </div>
             
-            <div id="page-content" class="col-lg-8">
-                <div class="trm-content" id="trm-content">
-                    <div data-scroll data-scroll-repeat data-scroll-offset="500" id="about-triger"></div>
-
-                    <div id="post-info" class="row hidden-sm">
+            <div class="trm-page-content col-lg-8">
+                <div id="trm-content" class="trm-content">
+                    <div class="trm-post-info row hidden-sm">
     <div class="col-sm-4">
         <div class="trm-card trm-label trm-label-light text-center">
             <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
@@ -562,7 +532,7 @@
     
 
 </div>
-<div id="post-next-prev" class="row">
+<div class="trm-post-next-prev row">
     <div class="col-lg-12">
         <!-- title -->
         <h5 class="trm-title-with-divider">
@@ -572,7 +542,7 @@
     </div>
     
         <div class="col-lg-6">
-    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+    <div class="trm-blog-card trm-scroll-animation">
         <a href="/2023/05/09/JavaDoc-%E5%B8%B8%E7%94%A8%E6%A0%87%E7%AD%BE/" class="trm-cover-frame trm-anima-link">
             
             
@@ -608,7 +578,7 @@
     
     
         <div class="col-lg-6">
-    <div class="trm-blog-card trm-scroll-animation" data-scroll data-scroll-offset="40">
+    <div class="trm-blog-card trm-scroll-animation">
         <a href="/2023/04/13/Docker/" class="trm-cover-frame trm-anima-link">
             
             
@@ -651,7 +621,7 @@
                     <div class="trm-divider footer-divider"></div>
 
                     <!-- footer -->
-                    <footer class="trm-scroll-animation" data-scroll data-scroll-offset="50">
+                    <footer class="trm-scroll-animation">
 
     
 
@@ -666,7 +636,7 @@
             <span> 
                 主题 - 
                 <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
-                v2.0.9
+                v2.1.6
             </span>
         </div>
       
@@ -701,14 +671,34 @@
 </div>
             <!-- body end -->
 
-            <div class="trm-fixed-container" data-scroll data-scroll-sticky data-scroll-target=".locomotive-scroll__sticky-target" data-scroll-offset="-10">
+            
+
+    <div id="post-toc" class="trm-post-toc">
+      <div class="trm-post-toc-header">
+        目录导航
+				<span id="post-toc-top">
+					置顶
+				</span>
+      </div>
+      <div class="trm-post-toc-content">
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-2" title="String 字符串"><a rel="nofollow" class="trm-toc-link" href="#String-字符串"><span class="trm-toc-text">String 字符串</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="set"><a rel="nofollow" class="trm-toc-link" href="#set"><span class="trm-toc-text">set</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-4" title="ex"><a rel="nofollow" class="trm-toc-link" href="#ex"><span class="trm-toc-text">ex</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-3" title="get"><a rel="nofollow" class="trm-toc-link" href="#get"><span class="trm-toc-text">get</span></a></li><li class="trm-toc-item trm-toc-level-3" title="incr"><a rel="nofollow" class="trm-toc-link" href="#incr"><span class="trm-toc-text">incr</span></a></li><li class="trm-toc-item trm-toc-level-3" title="incrby"><a rel="nofollow" class="trm-toc-link" href="#incrby"><span class="trm-toc-text">incrby</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="List 列表"><a rel="nofollow" class="trm-toc-link" href="#List-列表"><span class="trm-toc-text">List 列表</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="lpush"><a rel="nofollow" class="trm-toc-link" href="#lpush"><span class="trm-toc-text">lpush</span></a></li><li class="trm-toc-item trm-toc-level-3" title="rpush"><a rel="nofollow" class="trm-toc-link" href="#rpush"><span class="trm-toc-text">rpush</span></a></li><li class="trm-toc-item trm-toc-level-3" title="lrange"><a rel="nofollow" class="trm-toc-link" href="#lrange"><span class="trm-toc-text">lrange</span></a></li><li class="trm-toc-item trm-toc-level-3" title="llen"><a rel="nofollow" class="trm-toc-link" href="#llen"><span class="trm-toc-text">llen</span></a></li><li class="trm-toc-item trm-toc-level-3" title="lpop"><a rel="nofollow" class="trm-toc-link" href="#lpop"><span class="trm-toc-text">lpop</span></a></li><li class="trm-toc-item trm-toc-level-3" title="rpop"><a rel="nofollow" class="trm-toc-link" href="#rpop"><span class="trm-toc-text">rpop</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="Hash 表"><a rel="nofollow" class="trm-toc-link" href="#Hash-表"><span class="trm-toc-text">Hash 表</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="hset"><a rel="nofollow" class="trm-toc-link" href="#hset"><span class="trm-toc-text">hset</span></a></li><li class="trm-toc-item trm-toc-level-3" title="hmset"><a rel="nofollow" class="trm-toc-link" href="#hmset"><span class="trm-toc-text">hmset</span></a></li><li class="trm-toc-item trm-toc-level-3" title="hget"><a rel="nofollow" class="trm-toc-link" href="#hget"><span class="trm-toc-text">hget</span></a></li><li class="trm-toc-item trm-toc-level-3" title="hmget"><a rel="nofollow" class="trm-toc-link" href="#hmget"><span class="trm-toc-text">hmget</span></a></li><li class="trm-toc-item trm-toc-level-3" title="hgetall"><a rel="nofollow" class="trm-toc-link" href="#hgetall"><span class="trm-toc-text">hgetall</span></a></li><li class="trm-toc-item trm-toc-level-3" title="hincrby"><a rel="nofollow" class="trm-toc-link" href="#hincrby"><span class="trm-toc-text">hincrby</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="Set 集合"><a rel="nofollow" class="trm-toc-link" href="#Set-集合"><span class="trm-toc-text">Set 集合</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="sadd"><a rel="nofollow" class="trm-toc-link" href="#sadd"><span class="trm-toc-text">sadd</span></a></li><li class="trm-toc-item trm-toc-level-3" title="smembers"><a rel="nofollow" class="trm-toc-link" href="#smembers"><span class="trm-toc-text">smembers</span></a></li><li class="trm-toc-item trm-toc-level-3" title="sismember"><a rel="nofollow" class="trm-toc-link" href="#sismember"><span class="trm-toc-text">sismember</span></a></li><li class="trm-toc-item trm-toc-level-3" title="sinter"><a rel="nofollow" class="trm-toc-link" href="#sinter"><span class="trm-toc-text">sinter</span></a></li><li class="trm-toc-item trm-toc-level-3" title="scard"><a rel="nofollow" class="trm-toc-link" href="#scard"><span class="trm-toc-text">scard</span></a></li><li class="trm-toc-item trm-toc-level-3" title="srem"><a rel="nofollow" class="trm-toc-link" href="#srem"><span class="trm-toc-text">srem</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="Sorted Set 有序集合"><a rel="nofollow" class="trm-toc-link" href="#Sorted-Set-有序集合"><span class="trm-toc-text">Sorted Set 有序集合</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="zadd"><a rel="nofollow" class="trm-toc-link" href="#zadd"><span class="trm-toc-text">zadd</span></a></li><li class="trm-toc-item trm-toc-level-3" title="zrange"><a rel="nofollow" class="trm-toc-link" href="#zrange"><span class="trm-toc-text">zrange</span></a></li><li class="trm-toc-item trm-toc-level-3" title="zrevrange"><a rel="nofollow" class="trm-toc-link" href="#zrevrange"><span class="trm-toc-text">zrevrange</span></a></li><li class="trm-toc-item trm-toc-level-3" title="zcard"><a rel="nofollow" class="trm-toc-link" href="#zcard"><span class="trm-toc-text">zcard</span></a></li><li class="trm-toc-item trm-toc-level-3" title="zscore"><a rel="nofollow" class="trm-toc-link" href="#zscore"><span class="trm-toc-text">zscore</span></a></li><li class="trm-toc-item trm-toc-level-3" title="zrem"><a rel="nofollow" class="trm-toc-link" href="#zrem"><span class="trm-toc-text">zrem</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="Bitmaps 位图"><a rel="nofollow" class="trm-toc-link" href="#Bitmaps-位图"><span class="trm-toc-text">Bitmaps 位图</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="setbit"><a rel="nofollow" class="trm-toc-link" href="#setbit"><span class="trm-toc-text">setbit</span></a></li><li class="trm-toc-item trm-toc-level-3" title="getbit"><a rel="nofollow" class="trm-toc-link" href="#getbit"><span class="trm-toc-text">getbit</span></a></li><li class="trm-toc-item trm-toc-level-3" title="bitcount"><a rel="nofollow" class="trm-toc-link" href="#bitcount"><span class="trm-toc-text">bitcount</span></a></li><li class="trm-toc-item trm-toc-level-3" title="bitop"><a rel="nofollow" class="trm-toc-link" href="#bitop"><span class="trm-toc-text">bitop</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="HyperLogLog 基数统计"><a rel="nofollow" class="trm-toc-link" href="#HyperLogLog-基数统计"><span class="trm-toc-text">HyperLogLog 基数统计</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="pfadd"><a rel="nofollow" class="trm-toc-link" href="#pfadd"><span class="trm-toc-text">pfadd</span></a></li><li class="trm-toc-item trm-toc-level-3" title="pfcount"><a rel="nofollow" class="trm-toc-link" href="#pfcount"><span class="trm-toc-text">pfcount</span></a></li><li class="trm-toc-item trm-toc-level-3" title="pfmerge"><a rel="nofollow" class="trm-toc-link" href="#pfmerge"><span class="trm-toc-text">pfmerge</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="Geo 地理空间"><a rel="nofollow" class="trm-toc-link" href="#Geo-地理空间"><span class="trm-toc-text">Geo 地理空间</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="geoadd"><a rel="nofollow" class="trm-toc-link" href="#geoadd"><span class="trm-toc-text">geoadd</span></a></li><li class="trm-toc-item trm-toc-level-3" title="geopos"><a rel="nofollow" class="trm-toc-link" href="#geopos"><span class="trm-toc-text">geopos</span></a></li><li class="trm-toc-item trm-toc-level-3" title="geodist"><a rel="nofollow" class="trm-toc-link" href="#geodist"><span class="trm-toc-text">geodist</span></a></li><li class="trm-toc-item trm-toc-level-3" title="georadius"><a rel="nofollow" class="trm-toc-link" href="#georadius"><span class="trm-toc-text">georadius</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="Stream 消息流"><a rel="nofollow" class="trm-toc-link" href="#Stream-消息流"><span class="trm-toc-text">Stream 消息流</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="xadd"><a rel="nofollow" class="trm-toc-link" href="#xadd"><span class="trm-toc-text">xadd</span></a></li><li class="trm-toc-item trm-toc-level-3" title="xread"><a rel="nofollow" class="trm-toc-link" href="#xread"><span class="trm-toc-text">xread</span></a></li><li class="trm-toc-item trm-toc-level-3" title="xgroup"><a rel="nofollow" class="trm-toc-link" href="#xgroup"><span class="trm-toc-text">xgroup</span></a></li><li class="trm-toc-item trm-toc-level-3" title="xreadgroup"><a rel="nofollow" class="trm-toc-link" href="#xreadgroup"><span class="trm-toc-text">xreadgroup</span></a></li><li class="trm-toc-item trm-toc-level-3" title="xack"><a rel="nofollow" class="trm-toc-link" href="#xack"><span class="trm-toc-text">xack</span></a></li><li class="trm-toc-item trm-toc-level-3" title="xdel"><a rel="nofollow" class="trm-toc-link" href="#xdel"><span class="trm-toc-text">xdel</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="Bitfields"><a rel="nofollow" class="trm-toc-link" href="#Bitfields"><span class="trm-toc-text">Bitfields</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="bitfield"><a rel="nofollow" class="trm-toc-link" href="#bitfield"><span class="trm-toc-text">bitfield</span></a></li><li class="trm-toc-item trm-toc-level-3" title="bitcount"><a rel="nofollow" class="trm-toc-link" href="#bitcount-1"><span class="trm-toc-text">bitcount</span></a></li><li class="trm-toc-item trm-toc-level-3" title="bitop"><a rel="nofollow" class="trm-toc-link" href="#bitop-1"><span class="trm-toc-text">bitop</span></a></li><li class="trm-toc-item trm-toc-level-3" title="bitpos"><a rel="nofollow" class="trm-toc-link" href="#bitpos"><span class="trm-toc-text">bitpos</span></a></li></ol></li></ol>
+      </div>
+    </div>
+
+            
+<div class="trm-fixed-container">
+    
+        <div class="trm-fixed-btn post-toc-btn" data-title="目录">
+            <i class="iconfont fas fa-th-list"></i>
+        </div>
+    
     
         <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
             <i class="iconfont fas fa-book-reader"></i>
         </div>
     
     
-        <div class="trm-fixed-btn" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+        <div class="trm-fixed-btn hidden-md" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
             <i class="iconfont fas fa-arrows-alt-h"></i>
         </div>
     
@@ -716,11 +706,9 @@
         <i class="iconfont fas fa-arrow-up"></i>
     </div>
 </div>
-          </div>
         </div>
       </div>
       <!-- scroll container end -->
-
   </div>
   <!-- app wrapper end -->
 
@@ -732,15 +720,12 @@
 
     
     
-<script src="https://unpkg.com/locomotive-scroll@4.1.4/dist/locomotive-scroll.min.js"></script>
-
-    
 <script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
 
     
 
     
-        <script src="/js/plugins/typing.js?v=2.0.9"></script>
+        <script src="/js/plugins/typing.js?v=2.1.6"></script>
     
 
     
@@ -775,7 +760,7 @@
     
 
 
-<script id="async-script" src="/js/main.js?v=2.0.9"></script>
+<script id="async-script" src="/js/main.js?v=2.1.6"></script>
 
 </body>
 
