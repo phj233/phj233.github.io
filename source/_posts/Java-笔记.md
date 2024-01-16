@@ -161,3 +161,25 @@ jakarta.validation.NoProviderFoundException: Unable to create a Configuration, b
 添加依赖`spring-boot-starter-validation`
 
 具体原因为：[问题 #1979 ·Springdoc/Springdoc-openAPI (github.com)](https://github.com/springdoc/springdoc-openapi/issues/1979)
+
+## 6.k8s和Docker关系
+
+Docker提供了容器化的能力，而K8s提供了对容器化应用程序的自动化管理能力。
+
+## 7.hpa和pod啥关系
+
+HPA通过增加或减少Pod的数量来实现自动水平伸缩。通过动态调整Pod的数量，可以根据实际需求来提供更好的性能和可用性，并有效地利用资源。
+
+## 8.shell和bash啥区别
+
+发行版差异：不同的操作系统发行版可能使用不同的`Shell`
+
+默认情况下，Linux一般使用Bash作为默认的Shell，而其他UNIX系统可能使用不同的Shell实现。
+
+## 9.多线程  锁   事务还有spring中的事务之间的联系场景
+
+多线程业务中通常会使用**锁**保证共享变量的数据安全
+事务通常是指一个操作中的所有动作需要全部成功或全部失败
+spring中的事务是一种事务的实现。
+多线程和锁有关系，事务和它们没有关系。
+集群单例场景中，很多代码的功能在单机环境是没问题的，但是到了集群就会出现重复执行的情况下，这个时候就需要分布式锁保证集群单例。
