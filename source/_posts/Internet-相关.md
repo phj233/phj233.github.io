@@ -2,6 +2,7 @@
 title: Internet 相关
 date: 2023-06-20 17:05:32
 tags:
+- 笔记
 ---
 ## MTU
 

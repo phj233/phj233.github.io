@@ -1,5 +1,5 @@
 ---
-title: VUE笔记
+title: VUE
 date: 2023-02-13 11:21:50
 categories:
 - Program
