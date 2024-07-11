@@ -3,7 +3,7 @@ user:
   first_name: 233
   last_name: phj
   email: 2780990934@qq.com
-  domain: blog.phj233.info
+  domain: blog.phj233.top
   avatar: https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886
   describe: 记录笔记...
   ruleText: 暂不接受个人博客以外的友链申请...
@@ -17,10 +17,10 @@ footer:
   # https://beian.miit.gov.cn/
   beian:
     enable: false
-    icp: 
+    icp:
   # Copyright date
   copyrightYear:
-  # 
+  #
   live_time:
     enable: true
     prefix: footer.tips
@@ -32,7 +32,7 @@ footer:
 sidebar:
   typedTextPrefix: I`m
   typedText: ['Developer']
-  info: 
+  info:
     - key: sidebar.residence
       val: Earth
   social:
@@ -71,19 +71,19 @@ wordcount:
 about:
   title: 如果一切都是镜花水月，那就让这万物走向终结。如果一切皆是命中注定，那就让这世界消失殆尽。
   introduction: 大家好，我是 <strong>PHJ233</strong>，很高兴您能在浩瀚如烟的互联网世界里发现这个博客，更感谢您能够饶有兴致地浏览这个页面。建立这个 Blog 是出于兴趣爱好，我将在此分会分享一些学习笔记，可能还会分享少许图片、视频以及其他有趣东西的链接。
-  blog: 
+  blog:
     <ul class="trm-list">
       <li>程序：Hexo </li>
       <li>主题：Hexo-theme-async </li>
       <li>部署：Github Page </li>
     </ul>
-  privacy: 
+  privacy:
     本网站不会追踪访客行为，且不要求访客提供任何敏感信息（比如真实姓名、身份证号码、手机号等），因而也不存在任何隐私泄漏问题。访客参与评论，必须遵守法律法规和基本道德规范，文明礼貌。严禁发布任何有关淫秽、反动、暴力、博彩、恐吓、低俗的内容或违法信息，在尊重言论自由的同时请保持和平与理性。请勿对他人采取不友好的评论或其它过激行为。
 
 highlight:
-  theme: true 
+  theme: true
   title: default
   copy: true
   lang: true
-  code_word_wrap: fasle 
-  height_limit: 200 # 超出时，显示折叠按钮
+  code_word_wrap: fasle
+  height_limit: 300 # 超出时，显示折叠按钮

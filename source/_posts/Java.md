@@ -1,5 +1,5 @@
 ---
-title: Java 笔记
+title: Java
 date: 2023-01-16 16:00:48
 categories:
 - Program
