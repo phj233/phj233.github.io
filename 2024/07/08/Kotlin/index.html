@@ -7,15 +7,15 @@
 <meta name="full-screen" content="yes">
 <meta name="theme-color" content="#317EFB" />
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
-<meta name="description" content="1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解在 build.gradle.kts 中添加 123plugins &#123;    kotlin(&quot;plugin.serialization&quot;) version &quot;你的kotlin编译器版本&quot;&#125;">
+<meta name="description" content="1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解在 build.gradle.kts 中添加 1234plugins &#123;    kotlin(&quot;plugin.serialization&quot;) version &quot;你的kotlin编译器版本&quot;&#125;...    2.kotlin + gradl">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kotlin">
 <meta property="og:url" content="http://blog.phj233.info/2024/07/08/Kotlin/index.html">
 <meta property="og:site_name" content="PHJ233のBlog">
-<meta property="og:description" content="1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解在 build.gradle.kts 中添加 123plugins &#123;    kotlin(&quot;plugin.serialization&quot;) version &quot;你的kotlin编译器版本&quot;&#125;">
+<meta property="og:description" content="1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解在 build.gradle.kts 中添加 1234plugins &#123;    kotlin(&quot;plugin.serialization&quot;) version &quot;你的kotlin编译器版本&quot;&#125;...    2.kotlin + gradl">
 <meta property="og:locale">
 <meta property="article:published_time" content="2024-07-08T17:43:39.000Z">
-<meta property="article:modified_time" content="2024-07-08T10:09:42.690Z">
+<meta property="article:modified_time" content="2024-07-11T13:29:22.455Z">
 <meta property="article:author" content="phj233">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="Gradle">
@@ -61,8 +61,8 @@
 
 
 <!-- Variable -->
-<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.2","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":200},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2024-07-08 10:09:42"};</script>
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.2","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","user_tag":"fas fa-user-alt","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2024-07-11 13:29:22"};</script>
 
 <!-- Theme mode css -->
 <link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.2" id="trm-switch-style">
@@ -344,7 +344,18 @@
 <div class="trm-card ">
     <article id="article-container" class="trm-publication">
     <h1 id="1-引用-kotlinx-serialization-json-或其他kotlinx序列化时无法使用注解"><a href="#1-引用-kotlinx-serialization-json-或其他kotlinx序列化时无法使用注解" class="headerlink" title="1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解"></a>1.引用 <code>kotlinx-serialization-json</code> 或其他kotlinx序列化时无法使用注解</h1><p>在 <code>build.gradle.kts</code> 中添加</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    kotlin(<span class="string">&quot;plugin.serialization&quot;</span>) version <span class="string">&quot;你的kotlin编译器版本&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    kotlin(<span class="string">&quot;plugin.serialization&quot;</span>) version <span class="string">&quot;你的kotlin编译器版本&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="2-kotlin-gradle-打包-jar-并包含依赖"><a href="#2-kotlin-gradle-打包-jar-并包含依赖" class="headerlink" title="2.kotlin + gradle 打包 jar 并包含依赖"></a>2.kotlin + gradle 打包 <code>jar</code> 并包含依赖</h1><p>在 <code>build.gradle.kts</code> 中添加 <code>shadow</code> 插件，并为打包添加主清单(程序入口类)</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">plugins &#123;</span><br><span class="line">    id(<span class="string">&quot;com.github.johnrengelman.shadow&quot;</span>) version <span class="string">&quot;8.1.1&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">tasks.jar &#123;</span><br><span class="line">    manifest &#123;</span><br><span class="line">        attributes(mapOf(<span class="string">&quot;Main-Class&quot;</span> to <span class="string">&quot;top.phj233.simbot.SimBotKt&quot;</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+
+<p>3.在idea使用gradle时自动下载依赖的源文件以及文档</p>
+<p>在 <code>build.gradle.kts</code> 中添加</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">idea &#123;</span><br><span class="line">    module &#123;</span><br><span class="line">        isDownloadJavadoc = <span class="literal">true</span></span><br><span class="line">        isDownloadSources = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
 </article>
@@ -451,7 +462,7 @@
 				</span>
       </div>
       <div class="trm-post-toc-content">
-        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-1" title="1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解"><a rel="nofollow" class="trm-toc-link" href="#1-引用-kotlinx-serialization-json-或其他kotlinx序列化时无法使用注解"><span class="trm-toc-text">1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解</span></a></li></ol>
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-1" title="1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解"><a rel="nofollow" class="trm-toc-link" href="#1-引用-kotlinx-serialization-json-或其他kotlinx序列化时无法使用注解"><span class="trm-toc-text">1.引用 kotlinx-serialization-json 或其他kotlinx序列化时无法使用注解</span></a></li><li class="trm-toc-item trm-toc-level-1" title="2.kotlin + gradle 打包 jar 并包含依赖"><a rel="nofollow" class="trm-toc-link" href="#2-kotlin-gradle-打包-jar-并包含依赖"><span class="trm-toc-text">2.kotlin + gradle 打包 jar 并包含依赖</span></a></li></ol>
       </div>
     </div>
 

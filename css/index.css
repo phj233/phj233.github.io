@@ -3483,7 +3483,7 @@ figure.highlight .code-expand-btn:not(.expand-done) ~ pre,
 figure.highlight .code-expand-btn:not(.expand-done) ~ table {
   margin-bottom: 0;
   overflow: hidden;
-  height: 200px;
+  height: 300px;
 }
 figure.highlight .code-expand-btn svg {
   margin: 0;
