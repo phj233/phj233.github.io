@@ -9,7 +9,7 @@ tags:
 - 笔记
 ---
 
-# 1.引用 `kotlinx-serialization-json` 或其他kotlinx序列化时无法使用注解
+# 1.引用 kotlinx-serialization-json 或其他 kotlinx 序列化时无法使用注解
 
 在 `build.gradle.kts` 中添加
 
@@ -22,7 +22,7 @@ plugins {
 
 
 
-# 2.kotlin + gradle 打包 `jar` 并包含依赖
+# 2.kotlin + gradle 打包 jar 并包含依赖
 
 在 `build.gradle.kts` 中添加 `shadow` 插件，并为打包添加主清单(程序入口类)
 
@@ -41,7 +41,7 @@ tasks.jar {
 
 
 
-3.在idea使用gradle时自动下载依赖的源文件以及文档
+# 3.在idea使用gradle时自动下载依赖的源文件以及文档
 
 在 `build.gradle.kts` 中添加
 
