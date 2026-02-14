@@ -17,7 +17,7 @@
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="og:image" content="http://blog.phj233.info/img/404.jpg">
 <meta property="article:published_time" content="2023-02-22T17:48:19.000Z">
-<meta property="article:modified_time" content="2026-02-14T14:57:36.774Z">
+<meta property="article:modified_time" content="2026-02-14T14:57:48.588Z">
 <meta property="article:author" content="phj233">
 <meta property="article:tag" content="笔记">
 <meta property="article:tag" content="OAuth2.0">
@@ -66,7 +66,7 @@
 
 <!-- Variable -->
 <script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.7","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
-<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-02-14 14:57:36"};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-02-14 14:57:48"};</script>
 
 <!-- Theme mode css -->
 <link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.7" id="trm-switch-style">
@@ -373,12 +373,12 @@
 <li><p><strong>资源服务器</strong> - 示例中的微信 和 百度</p>
 <p>存储资源的服务器。本示例中，微信通过OAuth协议让百度可以获取到自己存储的用户信息，而百度则通过OAuth协议，让用户可以访问自己的受保护资源。</p>
 <ul>
-<li>**clientDetails(client_id)**：客户信息。代表百度在微信中的唯一索引。 在微信中用appid区分</li>
+<li><strong>clientDetails(client_id)</strong>：客户信息。代表百度在微信中的唯一索引。 在微信中用appid区分</li>
 <li><strong>secret</strong>：秘钥。代表百度获取微信信息需要提供的一个加密字段。这跟微信采用的加密算法有关。</li>
 <li><strong>scope</strong>：授权作用域。代表百度可以获取到的微信的信息范围。例如登录范围的凭证无法获取用户信息范围的信息。</li>
 <li><strong>access_token</strong>：授权码。百度获取微信用户信息的凭证。微信中叫做接口调用凭证。</li>
 <li><strong>grant_type</strong>： 授权类型。例如微信目前仅支持基于授权码的 authorization_code模式。而OAuth2.0还可以有其他的授权方式，例如输入微信的用户名和密码的方式。</li>
-<li>**userDetails(user_id)**：授权用户标识。在示例中代表用户的微信号。 在微信中用openid区分.</li>
+<li><strong>userDetails(user_id)</strong>：授权用户标识。在示例中代表用户的微信号。 在微信中用openid区分.</li>
 </ul>
 </li>
 </ol>
