@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="一个 AI 创作平台的前端从旧版原生 HTML 迁移到了 Vue3 + Vite + TypeScript + Element Plus + Pinia + Tailwind CSS。项目当前约 121 个 Vue SFC、95 个 TS 文件、8 个 CSS 模块，合计约 5.2 万行。这里记录一下主题体系和组件化重构的思路。 一、设计令牌（Design Tokens）所有颜色、阴影、模糊、边框">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue3 大型项目 Liquid Glass 主题与组件化重构">
+<meta property="og:url" content="http://blog.phj233.info/2026/05/28/Vue3-%E5%A4%A7%E5%9E%8B%E9%A1%B9%E7%9B%AELiquid-Glass%E4%B8%BB%E9%A2%98%E4%B8%8E%E7%BB%84%E4%BB%B6%E5%8C%96%E9%87%8D%E6%9E%84/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="一个 AI 创作平台的前端从旧版原生 HTML 迁移到了 Vue3 + Vite + TypeScript + Element Plus + Pinia + Tailwind CSS。项目当前约 121 个 Vue SFC、95 个 TS 文件、8 个 CSS 模块，合计约 5.2 万行。这里记录一下主题体系和组件化重构的思路。 一、设计令牌（Design Tokens）所有颜色、阴影、模糊、边框">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-05-28T11:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-28T03:20:15.120Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="Tailwind">
+<meta property="article:tag" content="TypeScript">
+<meta property="article:tag" content="Vue3">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+
+
+<title >Vue3 大型项目 Liquid Glass 主题与组件化重构</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.7","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-05-28 03:20:15"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.7" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+
+ 
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" style="opacity: 0">
+            <!-- top bar -->
+            <header class="trm-top-bar">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            Vue3 大型项目 Liquid Glass 主题与组件化重构
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2026
+                                    </span>
+                                </li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <span id="scroll-triger" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </span>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div class="trm-page-sidebar col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    <div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card"> 
+        <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+        <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+        <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+        
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div class="trm-page-content col-lg-8">
+                <div id="trm-content" class="trm-content">
+                    <div class="trm-post-info row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            05/28
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            11:00
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>一个 AI 创作平台的前端从旧版原生 HTML 迁移到了 Vue3 + Vite + TypeScript + Element Plus + Pinia + Tailwind CSS。项目当前约 121 个 Vue SFC、95 个 TS 文件、8 个 CSS 模块，合计约 5.2 万行。这里记录一下主题体系和组件化重构的思路。</p>
+<h2 id="一、设计令牌（Design-Tokens）"><a href="#一、设计令牌（Design-Tokens）" class="headerlink" title="一、设计令牌（Design Tokens）"></a>一、设计令牌（Design Tokens）</h2><p>所有颜色、阴影、模糊、边框统一收敛到 CSS 自定义属性，通过主题变量控制全局外观。<code>index.css</code> 定义了完整的令牌体系：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-pseudo">:root</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>-scheme: dark;</span><br><span class="line">  <span class="attribute">background</span>: <span class="number">#08080f</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#f1f5f9</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 背景层级 */</span></span><br><span class="line">  <span class="attr">--yy-bg</span>: <span class="number">#08080f</span>;</span><br><span class="line">  <span class="attr">--yy-bg-soft</span>: <span class="number">#0f1020</span>;</span><br><span class="line">  <span class="attr">--yy-panel</span>: <span class="built_in">rgba</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">0.04</span>);          <span class="comment">/* 底层面板 */</span></span><br><span class="line">  <span class="attr">--yy-panel-strong</span>: <span class="built_in">rgba</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">0.075</span>);    <span class="comment">/* 强调面板 */</span></span><br><span class="line">  <span class="attr">--yy-panel-elevated</span>: <span class="built_in">rgba</span>(<span class="number">20</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">0.96</span>);      <span class="comment">/* 浮层面板 */</span></span><br><span class="line">  <span class="attr">--yy-panel-solid</span>: <span class="built_in">rgba</span>(<span class="number">10</span>, <span class="number">12</span>, <span class="number">20</span>, <span class="number">0.84</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 文字层级 */</span></span><br><span class="line">  <span class="attr">--yy-text</span>: <span class="number">#f1f5f9</span>;</span><br><span class="line">  <span class="attr">--yy-text-muted</span>: <span class="number">#94a3b8</span>;</span><br><span class="line">  <span class="attr">--yy-text-faint</span>: <span class="number">#64748b</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 品牌色 */</span></span><br><span class="line">  <span class="attr">--yy-brand</span>: <span class="number">#7c3aed</span>;         <span class="comment">/* 紫色 */</span></span><br><span class="line">  <span class="attr">--yy-brand-2</span>: <span class="number">#3b82f6</span>;       <span class="comment">/* 蓝色 */</span></span><br><span class="line">  <span class="attr">--yy-success</span>: <span class="number">#22c55e</span>;</span><br><span class="line">  <span class="attr">--yy-warning</span>: <span class="number">#f59e0b</span>;</span><br><span class="line">  <span class="attr">--yy-danger</span>: <span class="number">#ef4444</span>;</span><br><span class="line">  <span class="attr">--yy-info</span>: <span class="number">#60a5fa</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 玻璃效果 */</span></span><br><span class="line">  <span class="attr">--yy-glass-blur</span>: <span class="built_in">blur</span>(<span class="number">18px</span>);</span><br><span class="line">  <span class="attr">--yy-glass-saturate</span>: <span class="built_in">saturate</span>(<span class="number">1</span>);</span><br><span class="line">  <span class="attr">--yy-glass-shadow</span>: <span class="number">0</span> <span class="number">24px</span> <span class="number">80px</span> <span class="built_in">rgba</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.22</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 控件 */</span></span><br><span class="line">  <span class="attr">--yy-control-bg</span>: <span class="built_in">rgba</span>(<span class="number">255</span>, <span class="number">255</span>, <span class="number">255</span>, <span class="number">0.055</span>);</span><br><span class="line">  <span class="attr">--yy-control-bg-hover</span>: <span class="built_in">rgba</span>(<span class="number">124</span>, <span class="number">58</span>, <span class="number">237</span>, <span class="number">0.12</span>);</span><br><span class="line">  <span class="attr">--yy-control-ring</span>: <span class="built_in">rgba</span>(<span class="number">124</span>, <span class="number">58</span>, <span class="number">237</span>, <span class="number">0.42</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 导航栏 */</span></span><br><span class="line">  <span class="attr">--yy-navbar-bg</span>: <span class="built_in">linear-gradient</span>(<span class="number">180deg</span>,</span><br><span class="line">    <span class="built_in">rgba</span>(<span class="number">8</span>, <span class="number">8</span>, <span class="number">15</span>, <span class="number">0.52</span>), <span class="built_in">rgba</span>(<span class="number">8</span>, <span class="number">8</span>, <span class="number">15</span>, <span class="number">0.38</span>));</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 选择器 */</span></span><br><span class="line">  <span class="attr">--yy-select-glass-bg</span>: <span class="built_in">var</span>(--yy-panel-elevated);</span><br><span class="line">  <span class="attr">--yy-select-glass-border</span>: <span class="built_in">var</span>(--yy-border);</span><br><span class="line">  <span class="attr">--yy-select-glass-hover</span>: <span class="built_in">var</span>(--yy-control-bg);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 背景光晕 */</span></span><br><span class="line">  <span class="attr">--yy-bg-orb-primary</span>: <span class="built_in">rgba</span>(<span class="number">124</span>, <span class="number">58</span>, <span class="number">237</span>, <span class="number">0.16</span>);</span><br><span class="line">  <span class="attr">--yy-bg-orb-secondary</span>: <span class="built_in">rgba</span>(<span class="number">59</span>, <span class="number">130</span>, <span class="number">246</span>, <span class="number">0.12</span>);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 将 Element Plus 的主题色链接到我们的令牌 */</span></span><br><span class="line">  <span class="attr">--el-color-primary</span>: <span class="built_in">var</span>(--yy-brand);</span><br><span class="line">  <span class="attr">--el-color-success</span>: <span class="built_in">var</span>(--yy-success);</span><br><span class="line">  <span class="attr">--el-color-warning</span>: <span class="built_in">var</span>(--yy-warning);</span><br><span class="line">  <span class="attr">--el-color-danger</span>: <span class="built_in">var</span>(--yy-danger);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Element Plus 的主题色通过赋值给 <code>--el-color-primary</code> 来统一，避免第三方组件和自定义组件颜色不一致。</p>
+<hr>
+<h2 id="二、Liquid-Glass-面板组件"><a href="#二、Liquid-Glass-面板组件" class="headerlink" title="二、Liquid Glass 面板组件"></a>二、Liquid Glass 面板组件</h2><p>核心面板组件 <code>LiquidGlassPanel</code>，承载透明玻璃质感的容器：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">&lt;script setup lang=&quot;ts&quot;&gt;</span><br><span class="line">withDefaults(</span><br><span class="line">  defineProps&lt;&#123;</span><br><span class="line">    as?: string                       // 渲染标签，默认 &#x27;div&#x27;</span><br><span class="line">    interactive?: boolean             // 悬停动效</span><br><span class="line">    tone?: &#x27;soft&#x27; | &#x27;strong&#x27; | &#x27;media&#x27; // 强调级别</span><br><span class="line">  &#125;&gt;(),</span><br><span class="line">  &#123; as: &#x27;div&#x27;, interactive: false, tone: &#x27;soft&#x27; &#125;,</span><br><span class="line">)</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;component</span><br><span class="line">    :is=&quot;as&quot;</span><br><span class="line">    class=&quot;liquid-glass-panel&quot;</span><br><span class="line">    :class=&quot;[`tone-$&#123;tone&#125;`, &#123; interactive &#125;]&quot;</span><br><span class="line">  &gt;</span><br><span class="line">    &lt;slot /&gt;</span><br><span class="line">  &lt;/component&gt;</span><br><span class="line">&lt;/template&gt;</span><br><span class="line"></span><br><span class="line">&lt;style scoped&gt;</span><br><span class="line">.liquid-glass-panel &#123;</span><br><span class="line">  position: relative;</span><br><span class="line">  overflow: hidden;</span><br><span class="line">  isolation: isolate;</span><br><span class="line">  color: var(--yy-text);</span><br><span class="line">  background:</span><br><span class="line">    linear-gradient(135deg,</span><br><span class="line">      color-mix(in srgb, var(--yy-panel-strong) 74%, transparent),</span><br><span class="line">      color-mix(in srgb, var(--yy-panel) 92%, transparent)),</span><br><span class="line">    color-mix(in srgb, var(--yy-bg) 4%, transparent);</span><br><span class="line">  border: 1px solid color-mix(in srgb,</span><br><span class="line">    var(--yy-border) 78%, var(--yy-on-accent) 12%);</span><br><span class="line">  -webkit-backdrop-filter: var(--yy-glass-blur) var(--yy-glass-saturate);</span><br><span class="line">  backdrop-filter: var(--yy-glass-blur) var(--yy-glass-saturate);</span><br><span class="line">  box-shadow: var(--yy-glass-shadow);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 顶部高光伪元素 —— 模拟玻璃的反光 */</span><br><span class="line">.liquid-glass-panel::before &#123;</span><br><span class="line">  content: &#x27;&#x27;;</span><br><span class="line">  position: absolute;</span><br><span class="line">  inset: 0;</span><br><span class="line">  z-index: 0;</span><br><span class="line">  pointer-events: none;</span><br><span class="line">  background:</span><br><span class="line">    linear-gradient(120deg, rgba(255, 255, 255, 0.28), transparent 28%),</span><br><span class="line">    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 44%);</span><br><span class="line">  opacity: 0.44;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">:slotted(*) &#123;</span><br><span class="line">  position: relative;</span><br><span class="line">  z-index: 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* Strong 模式：更强调的面板 */</span><br><span class="line">.liquid-glass-panel.tone-strong &#123;</span><br><span class="line">  background: linear-gradient(135deg,</span><br><span class="line">    color-mix(in srgb, var(--yy-panel-elevated) 78%, transparent),</span><br><span class="line">    color-mix(in srgb, var(--yy-panel-strong) 92%, transparent));</span><br><span class="line">  border-color: color-mix(in srgb, var(--yy-brand) 20%, var(--yy-border));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 交互态：悬停浮起 */</span><br><span class="line">.liquid-glass-panel.interactive &#123;</span><br><span class="line">  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;</span><br><span class="line">&#125;</span><br><span class="line">.liquid-glass-panel.interactive:hover &#123;</span><br><span class="line">  border-color: color-mix(in srgb, var(--yy-brand) 32%, var(--yy-border));</span><br><span class="line">  box-shadow: var(--yy-glass-shadow),</span><br><span class="line">    0 14px 42px color-mix(in srgb, var(--yy-brand) 16%, transparent);</span><br><span class="line">  transform: translateY(-2px);</span><br><span class="line">&#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+<p>用 <code>::before</code> 伪元素做顶部高光、<code>backdrop-filter</code> 做背景模糊、<code>color-mix</code> 做半透明混合，三件套实现玻璃效果。<code>interactive</code> 模式下悬停会浮起并向品牌色靠近。</p>
+<hr>
+<h2 id="三、Liquid-Glass-Select-组件"><a href="#三、Liquid-Glass-Select-组件" class="headerlink" title="三、Liquid Glass Select 组件"></a>三、Liquid Glass Select 组件</h2><p>Element Plus 原生的 <code>ElSelect</code> 在玻璃背景下有对比度问题、弹层被裁切、长模型名显示不佳。自己写了一个 <code>LiquidGlassSelect</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line">&lt;script setup lang=&quot;ts&quot;&gt;</span><br><span class="line">export interface LiquidGlassSelectOption &#123;</span><br><span class="line">  value: string</span><br><span class="line">  label: string</span><br><span class="line">  description?: string</span><br><span class="line">  icon?: string</span><br><span class="line">  iconClass?: string</span><br><span class="line">  disabled?: boolean</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const props = withDefaults(</span><br><span class="line">  defineProps&lt;&#123;</span><br><span class="line">    modelValue: string</span><br><span class="line">    options: LiquidGlassSelectOption[]</span><br><span class="line">    menuLabel?: string</span><br><span class="line">    placeholder?: string</span><br><span class="line">    variant?: &#x27;param&#x27; | &#x27;model&#x27;    // param=参数选择，model=模型选择</span><br><span class="line">    wide?: boolean</span><br><span class="line">    compact?: boolean</span><br><span class="line">    disabled?: boolean</span><br><span class="line">    placement?: &#x27;top&#x27; | &#x27;bottom&#x27;</span><br><span class="line">  &#125;&gt;(),</span><br><span class="line">  &#123; menuLabel: &#x27;&#x27;, placeholder: &#x27;请选择&#x27;, variant: &#x27;param&#x27;, /* ... */ &#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">const emit = defineEmits&lt;&#123;</span><br><span class="line">  &#x27;update:modelValue&#x27;: [value: string]</span><br><span class="line">  change: [value: string]</span><br><span class="line">&#125;&gt;()</span><br><span class="line"></span><br><span class="line">const rootRef = ref&lt;HTMLElement | null&gt;(null)</span><br><span class="line">const menuRef = ref&lt;HTMLElement | null&gt;(null)</span><br><span class="line">const open = ref(false)</span><br><span class="line">const menuStyle = ref&lt;Record&lt;string, string&gt;&gt;(&#123;&#125;)</span><br><span class="line">const activeOptionIndex = ref(-1)</span><br><span class="line"></span><br><span class="line">// 键盘导航</span><br><span class="line">function handleTriggerKeydown(event: KeyboardEvent) &#123;</span><br><span class="line">  if (event.key === &#x27;ArrowDown&#x27; || event.key === &#x27;ArrowUp&#x27;) &#123;</span><br><span class="line">    event.preventDefault()</span><br><span class="line">    if (!open.value) openMenu()</span><br><span class="line">    else moveActiveOption(event.key === &#x27;ArrowDown&#x27; ? 1 : -1)</span><br><span class="line">    return</span><br><span class="line">  &#125;</span><br><span class="line">  if (event.key === &#x27;Enter&#x27; || event.key === &#x27; &#x27;) &#123;</span><br><span class="line">    event.preventDefault()</span><br><span class="line">    if (!open.value) openMenu()</span><br><span class="line">    else pickActiveOption()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 弹层位置自适应：根据 viewport 自动选择上/下弹出，不超出屏幕</span><br><span class="line">function updateMenuPosition() &#123;</span><br><span class="line">  if (!open.value || !rootRef.value) return</span><br><span class="line"></span><br><span class="line">  const rect = rootRef.value.getBoundingClientRect()</span><br><span class="line">  const viewportHeight = window.innerHeight</span><br><span class="line">  const gap = 8</span><br><span class="line">  const edge = 16</span><br><span class="line">  const minWidth = isWide.value ? 260 : props.compact ? 132 : 200</span><br><span class="line">  const maxAllowedWidth = Math.max(minWidth, window.innerWidth - edge * 2)</span><br><span class="line">  const naturalWidth = Math.max(rect.width, minWidth)</span><br><span class="line">  const width = Math.min(naturalWidth,</span><br><span class="line">    isWide.value ? Math.min(420, maxAllowedWidth) : maxAllowedWidth)</span><br><span class="line">  const left = Math.min(Math.max(edge, rect.left),</span><br><span class="line">    window.innerWidth - width - edge)</span><br><span class="line">  const menuHeight = menuRef.value?.offsetHeight || (props.variant === &#x27;model&#x27; ? 320 : 260)</span><br><span class="line">  const belowTop = rect.bottom + gap</span><br><span class="line">  const aboveTop = rect.top - menuHeight - gap</span><br><span class="line">  const shouldOpenUp = props.placement === &#x27;top&#x27;</span><br><span class="line">    || (belowTop + menuHeight &gt; viewportHeight - edge &amp;&amp; aboveTop &gt;= edge)</span><br><span class="line">  const top = shouldOpenUp</span><br><span class="line">    ? Math.max(edge, aboveTop)</span><br><span class="line">    : Math.min(belowTop, Math.max(edge, viewportHeight - menuHeight - edge))</span><br><span class="line"></span><br><span class="line">  menuStyle.value = &#123;</span><br><span class="line">    position: &#x27;fixed&#x27;,</span><br><span class="line">    top: `$&#123;top&#125;px`,</span><br><span class="line">    left: `$&#123;left&#125;px`,</span><br><span class="line">    width: `$&#123;width&#125;px`,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div ref=&quot;rootRef&quot; class=&quot;liquid-glass-select&quot; :class=&quot;[/* ... */]&quot;&gt;</span><br><span class="line">    &lt;button class=&quot;lg-select-trigger&quot; @click.stop=&quot;toggle&quot;</span><br><span class="line">            @keydown=&quot;handleTriggerKeydown&quot; aria-haspopup=&quot;listbox&quot;&gt;</span><br><span class="line">      &lt;span v-if=&quot;triggerIcon&quot; class=&quot;lg-select-icon&quot; :class=&quot;triggerIconClass&quot;&gt;</span><br><span class="line">        &#123;&#123; triggerIcon &#125;&#125;</span><br><span class="line">      &lt;/span&gt;</span><br><span class="line">      &lt;span class=&quot;lg-select-value&quot;&gt;&#123;&#123; triggerLabel &#125;&#125;&lt;/span&gt;</span><br><span class="line">      &lt;span class=&quot;lg-select-arrow&quot;&gt;▾&lt;/span&gt;</span><br><span class="line">    &lt;/button&gt;</span><br><span class="line"></span><br><span class="line">    &lt;!-- Teleport 到 body 避免被父容器裁切 --&gt;</span><br><span class="line">    &lt;Teleport to=&quot;body&quot;&gt;</span><br><span class="line">      &lt;div v-if=&quot;open&quot; ref=&quot;menuRef&quot; class=&quot;lg-select-menu dd show&quot;</span><br><span class="line">           :style=&quot;menuStyle&quot; role=&quot;listbox&quot;&gt;</span><br><span class="line">        &lt;div v-if=&quot;menuLabel&quot; class=&quot;dd-label&quot;&gt;&#123;&#123; menuLabel &#125;&#125;&lt;/div&gt;</span><br><span class="line">        &lt;div class=&quot;lg-select-scroll&quot;&gt;</span><br><span class="line">          &lt;button v-for=&quot;(option, index) in options&quot; :key=&quot;option.value&quot;</span><br><span class="line">                  :id=&quot;`$&#123;selectId&#125;-option-$&#123;index&#125;`&quot; class=&quot;dd-item&quot;</span><br><span class="line">                  :class=&quot;&#123; sel: option.value === modelValue,</span><br><span class="line">                            active: index === activeOptionIndex &#125;&quot;</span><br><span class="line">                  @click=&quot;pick(option)&quot;</span><br><span class="line">                  @mouseenter=&quot;activeOptionIndex = option.disabled</span><br><span class="line">                    ? activeOptionIndex : index&quot;&gt;</span><br><span class="line">            &lt;!-- variant=model 时展示模型名+描述 --&gt;</span><br><span class="line">            &lt;span v-if=&quot;variant === &#x27;model&#x27;&quot; class=&quot;lg-model-text&quot;&gt;</span><br><span class="line">              &lt;strong&gt;</span><br><span class="line">                &lt;span v-if=&quot;option.icon&quot; class=&quot;lg-option-icon&quot;</span><br><span class="line">                      :class=&quot;option.iconClass&quot;&gt;&#123;&#123; option.icon &#125;&#125;&lt;/span&gt;</span><br><span class="line">                &#123;&#123; option.label &#125;&#125;</span><br><span class="line">              &lt;/strong&gt;</span><br><span class="line">              &lt;small v-if=&quot;option.description&quot;&gt;&#123;&#123; option.description &#125;&#125;&lt;/small&gt;</span><br><span class="line">            &lt;/span&gt;</span><br><span class="line">            &lt;span v-else&gt;&#123;&#123; option.label &#125;&#125;&lt;/span&gt;</span><br><span class="line">            &lt;span v-if=&quot;option.value === modelValue&quot; class=&quot;check&quot;&gt;✓&lt;/span&gt;</span><br><span class="line">          &lt;/button&gt;</span><br><span class="line">        &lt;/div&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/Teleport&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/template&gt;</span><br></pre></td></tr></table></figure>
+
+<p>关键设计决策：</p>
+<ul>
+<li><strong>Teleport 到 body</strong>：弹层不再受父容器 <code>overflow: hidden</code> &#x2F; <code>backdrop-filter</code> &#x2F; <code>fixed</code> 影响</li>
+<li><strong>自适应位置</strong>：优先向下弹出，空间不足则向上；水平方向约束在 viewport 内</li>
+<li><strong>键盘导航</strong>：支持 <code>ArrowDown/Up/Enter/Space/Escape</code></li>
+<li><strong>ARIA 属性</strong>：<code>role=&quot;listbox&quot;</code> &#x2F; <code>aria-expanded</code> &#x2F; <code>aria-selected</code></li>
+</ul>
+<hr>
+<h2 id="四、模块化样式治理"><a href="#四、模块化样式治理" class="headerlink" title="四、模块化样式治理"></a>四、模块化样式治理</h2><p>项目样式按模块拆分到独立的 CSS 文件中，由 <code>index.css</code> 统一引入：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* src/styles/index.css */</span></span><br><span class="line"><span class="keyword">@import</span> <span class="string">&#x27;tailwindcss&#x27;</span>;</span><br><span class="line"><span class="keyword">@import</span> <span class="string">&#x27;./home.css&#x27;</span>;</span><br><span class="line"><span class="keyword">@import</span> <span class="string">&#x27;./center.css&#x27;</span>;</span><br><span class="line"><span class="keyword">@import</span> <span class="string">&#x27;./invite.css&#x27;</span>;</span><br><span class="line"><span class="keyword">@import</span> <span class="string">&#x27;./comic-workflow.css&#x27;</span>;</span><br><span class="line"><span class="keyword">@import</span> <span class="string">&#x27;./media-generation.css&#x27;</span>;</span><br><span class="line"><span class="keyword">@import</span> <span class="string">&#x27;./membership.css&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 全局设计令牌和 reset 在这里 */</span></span><br><span class="line"><span class="comment">/* Element Plus 主题适配在这里 */</span></span><br></pre></td></tr></table></figure>
+
+<p>每个模块 CSS 使用 Tailwind 的 <code>@layer components</code> 包装，示例来自 <code>center.css</code>：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@layer</span> components &#123;</span><br><span class="line">  <span class="selector-class">.center-panel-head</span> &#123;</span><br><span class="line">    <span class="keyword">@apply</span> mb-<span class="number">4</span> flex items-start justify-between gap-<span class="number">3</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="selector-class">.center-panel-title</span> &#123;</span><br><span class="line">    <span class="keyword">@apply</span> flex min-w-<span class="number">0</span> items-center gap-<span class="number">2</span> text-base font-bold</span><br><span class="line">           leading-[<span class="number">1.35</span>] text-yy-text;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="selector-class">.center-tab</span> &#123;</span><br><span class="line">    <span class="keyword">@apply</span> cursor-pointer whitespace-nowrap rounded-lg border-<span class="number">0</span> px-<span class="number">3.5</span></span><br><span class="line">           py-<span class="number">1.5</span> text-xs font-medium;</span><br><span class="line">    <span class="attribute">background</span>: <span class="built_in">var</span>(--glass-strong);</span><br><span class="line">    <span class="attribute">color</span>: <span class="built_in">var</span>(--yy-text-faint);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="selector-class">.center-tab-active</span> &#123;</span><br><span class="line">    <span class="attribute">background</span>: <span class="built_in">rgba</span>(<span class="number">124</span>, <span class="number">58</span>, <span class="number">237</span>, <span class="number">0.15</span>);</span><br><span class="line">    <span class="attribute">color</span>: <span class="built_in">var</span>(--yy-text);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而 Liquid Glass 的原生效果（<code>color-mix</code>、<code>backdrop-filter</code>、多层渐变、变量阴影）保持在原生 CSS 中，避免 Tailwind 无法表达的玻璃质感在 Safari&#x2F;iOS 下降级。</p>
+<hr>
+<h2 id="五、页面级组织：以-AI-创作为例"><a href="#五、页面级组织：以-AI-创作为例" class="headerlink" title="五、页面级组织：以 AI 创作为例"></a>五、页面级组织：以 AI 创作为例</h2><p><code>AiCreatePage.vue</code> 目前约 1489 行，拆成了多个层级：</p>
+<p><strong>页面壳层</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;script setup lang=&quot;ts&quot;&gt;</span><br><span class="line">// 注入 composable 函数，每个 composable 负责一个独立关注点</span><br><span class="line">import &#123; useCosUpload &#125; from &#x27;../../composables/useCosUpload&#x27;</span><br><span class="line">import &#123; useAiCreateMediaPreview &#125; from &#x27;../../composables/useAiCreateMediaPreview&#x27;</span><br><span class="line">import &#123; useAiCreateReferenceUploads &#125; from &#x27;../../composables/useAiCreateReferenceUploads&#x27;</span><br><span class="line">import &#123; useAiCreateSubmission &#125; from &#x27;../../composables/useAiCreateSubmission&#x27;</span><br><span class="line">import &#123; useAiCreateTaskActions &#125; from &#x27;../../composables/useAiCreateTaskActions&#x27;</span><br><span class="line">import &#123; useAiCreateTaskLifecycle &#125; from &#x27;../../composables/useAiCreateTaskLifecycle&#x27;</span><br><span class="line">// ...</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>组件层级</strong>（全部从页面壳拆出）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">AiCreatePage.vue</span><br><span class="line">├── AiCreateWorkspaceShell.vue    —— 工作区滚动壳 + 侧栏/主面板 slot</span><br><span class="line">├── AiCreateSidePanel.vue         —— 左侧设置面板 + 参考素材面板</span><br><span class="line">├── AiCreateIntroPanel.vue        —— 顶部统计</span><br><span class="line">├── AiCreateFloatingComposer.vue  —— 底部悬浮输入卡 + 媒体条 + 提示词</span><br><span class="line">├── AiCreateTaskOverview.vue      —— 任务历史列表（loading/empty/卡片）</span><br><span class="line">└── LongVideoChatPanel.vue        —— 长视频二级工作台的聊天区</span><br></pre></td></tr></table></figure>
+
+<p><strong>Composable 层级</strong>（每个 composable 负责一个独立关注点）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">useCosUpload.ts               —— COS 上传</span><br><span class="line">useAiCreateMediaPreview.ts    —— 媒体预览</span><br><span class="line">useAiCreateReferenceUploads.ts —— 参考素材上传</span><br><span class="line">useAiCreateSubmission.ts      —— 任务提交</span><br><span class="line">useAiCreateTaskActions.ts     —— 任务操作（预览/下载/删除）</span><br><span class="line">useAiCreateTaskLifecycle.ts   —— 任务生命周期（倒计时/轮询/取消）</span><br><span class="line">useAiCreateTaskRegenerate.ts  —— 再次编辑</span><br><span class="line">useAiCreateTaskRemoval.ts     —— 任务删除</span><br><span class="line">useMediaTaskPolling.ts        —— 通用媒体任务轮询（Map 管理多任务并行轮询）</span><br></pre></td></tr></table></figure>
+
+<p><strong>工具层</strong>（纯函数，无副作用）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">aiTaskCards.ts      —— 本地任务、远程作品、长视频项目合并去重</span><br><span class="line">aiCreateTaskUi.ts   —— 状态文案、进度计算、样式 class</span><br><span class="line">happyHorse.ts       —— HappyHorse 模型参数约束</span><br><span class="line">seedance.ts         —— Seedance 模型参数约束</span><br><span class="line">modelPricing.ts     —— 价格计算（按用户会员等级读不同价格）</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、Pinia-持久化策略"><a href="#六、Pinia-持久化策略" class="headerlink" title="六、Pinia 持久化策略"></a>六、Pinia 持久化策略</h2><p>使用 <code>pinia-plugin-persistedstate</code> 做持久化，但不是所有状态都需要持久化。只持久化跨刷新必要的状态：</p>
+<p><strong><code>creationTasks</code> store</strong>：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable constant_">TASKS_KEY</span> = <span class="string">&#x27;ai_create_tasks_v1&#x27;</span></span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">REFS_KEY</span> = <span class="string">&#x27;ai_create_refs&#x27;</span></span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">FRAME_ASSETS_KEY</span> = <span class="string">&#x27;ai_create_frame_assets&#x27;</span></span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">IMAGE_REF_KEY</span> = <span class="string">&#x27;ai_create_image_ref&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>持久化：任务卡、参考素材、输入草稿、模型偏好</li>
+<li>不持久化：用户余额、模型配置、账单——这些后端可恢复且易过期</li>
+</ul>
+<p><strong><code>auth</code> store</strong>：</p>
+<ul>
+<li>持久化 <code>token</code> &#x2F; <code>refreshToken</code>，底层 key 兼容旧代码</li>
+<li>登录态刷新&#x2F;过期不再用 <code>window</code> 自定义事件，改用类型化信号和 <code>useAuthSessionBridge</code></li>
+</ul>
+<hr>
+<h2 id="七、路由结构"><a href="#七、路由结构" class="headerlink" title="七、路由结构"></a>七、路由结构</h2><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> routes = [</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;&#x27;</span>,           <span class="attr">component</span>: <span class="title class_">HomePage</span>,         <span class="attr">meta</span>: &#123; <span class="attr">title</span>: <span class="string">&#x27;首页&#x27;</span> &#125; &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;center&#x27;</span>,     <span class="attr">component</span>: <span class="title class_">PersonalCenterPage</span>, <span class="attr">meta</span>: &#123; <span class="attr">requiresAuth</span>: <span class="literal">true</span> &#125; &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;comic-workflow&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ComicWorkflowPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;gallery&#x27;</span>,    <span class="attr">component</span>: <span class="title class_">GalleryPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;models&#x27;</span>,     <span class="attr">component</span>: <span class="title class_">ModelsPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;membership&#x27;</span>, <span class="attr">component</span>: <span class="title class_">MembershipPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;video-generation&#x27;</span>, <span class="attr">component</span>: <span class="title class_">VideoGenerationPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;image-generation-create&#x27;</span>, <span class="attr">component</span>: <span class="title class_">ImageGenerationPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;ai-create&#x27;</span>,  <span class="attr">component</span>: <span class="title class_">AiCreatePage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;ai-create/long-video&#x27;</span>, <span class="attr">component</span>: <span class="title class_">AiCreatePage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;ai-create/3d&#x27;</span>, <span class="attr">component</span>: <span class="title class_">Model3DWorkbenchPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;chat&#x27;</span>,       <span class="attr">component</span>: <span class="title class_">ChatPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;invite&#x27;</span>,     <span class="attr">component</span>: <span class="title class_">InvitePage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;legal/privacy&#x27;</span>,   <span class="attr">component</span>: <span class="title class_">PrivacyPage</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">path</span>: <span class="string">&#x27;legal/terms&#x27;</span>,     <span class="attr">component</span>: <span class="title class_">TermsPage</span> &#125;,</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>所有页面使用懒加载 <code>() =&gt; import(...)</code>，<code>MainLayout</code> 和 <code>FullscreenLayout</code> 两套布局壳。</p>
+<hr>
+<h2 id="八、核心约定"><a href="#八、核心约定" class="headerlink" title="八、核心约定"></a>八、核心约定</h2><ol>
+<li><strong>样式先拆到模块 CSS</strong>：<code>src/styles/&lt;module&gt;.css</code>，使用 <code>@layer components</code> 包装</li>
+<li><strong>Liquid Glass 原生效果保持原生 CSS</strong>：<code>color-mix</code> &#x2F; <code>backdrop-filter</code> &#x2F; 玻璃阴影不用 Tailwind</li>
+<li><strong>一个 composable 一个关注点</strong>：不把图片参数和视频轮询混在一个 composable 里</li>
+<li><strong>持久化最小化</strong>：只存跨刷新必要的状态，其余后端可恢复</li>
+<li><strong>组件 Teleport</strong>：弹层&#x2F;下拉框 Teleport 到 body，避免被父容器裁切</li>
+<li><strong>无 <code>as any</code>、无生产 <code>console.log</code></strong>：全量扫描确认过</li>
+</ol>
+
+</article>
+    
+    
+
+</div>
+<div class="trm-post-next-prev row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/05/28/AI-SaaS-%E9%95%BF%E8%A7%86%E9%A2%91%E5%90%88%E6%88%90%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%AE%BE%E8%AE%A1/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/05/28/AI-SaaS-%E9%95%BF%E8%A7%86%E9%A2%91%E5%90%88%E6%88%90%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%AE%BE%E8%AE%A1/" class="trm-anima-link">
+                    AI SaaS 长视频合成工作流设计
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/05/28</li>
+                <li>11:11</li>
+                
+                    <li>1.8k</li>
+                
+                
+                    <li>7</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/05/28/AI-%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%EF%BC%9A%E4%BB%8E%E4%B8%8A%E5%B8%9D%E7%B1%BB%E5%88%B0%E9%AB%98%E5%86%85%E8%81%9A%E6%9C%8D%E5%8A%A1/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/05/28/AI-%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E6%8B%86%E5%88%86%EF%BC%9A%E4%BB%8E%E4%B8%8A%E5%B8%9D%E7%B1%BB%E5%88%B0%E9%AB%98%E5%86%85%E8%81%9A%E6%9C%8D%E5%8A%A1/" class="trm-anima-link">
+                    AI 代理服务拆分：从上帝类到高内聚服务
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/05/28</li>
+                <li>10:30</li>
+                
+                    <li>2.9k</li>
+                
+                
+                    <li>12</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-footer-card trm-scroll-animation">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v8.1.2
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.2.7
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item blog-run-long"></div>
+     
+
+     
+</footer>
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            
+
+    <div id="post-toc" class="trm-post-toc">
+      <div class="trm-post-toc-header">
+        目录导航
+				<span id="post-toc-top">
+					置顶
+				</span>
+      </div>
+      <div class="trm-post-toc-content">
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-2" title="一、设计令牌（Design Tokens）"><a rel="nofollow" class="trm-toc-link" href="#一、设计令牌（Design-Tokens）"><span class="trm-toc-text">一、设计令牌（Design Tokens）</span></a></li><li class="trm-toc-item trm-toc-level-2" title="二、Liquid Glass 面板组件"><a rel="nofollow" class="trm-toc-link" href="#二、Liquid-Glass-面板组件"><span class="trm-toc-text">二、Liquid Glass 面板组件</span></a></li><li class="trm-toc-item trm-toc-level-2" title="三、Liquid Glass Select 组件"><a rel="nofollow" class="trm-toc-link" href="#三、Liquid-Glass-Select-组件"><span class="trm-toc-text">三、Liquid Glass Select 组件</span></a></li><li class="trm-toc-item trm-toc-level-2" title="四、模块化样式治理"><a rel="nofollow" class="trm-toc-link" href="#四、模块化样式治理"><span class="trm-toc-text">四、模块化样式治理</span></a></li><li class="trm-toc-item trm-toc-level-2" title="五、页面级组织：以 AI 创作为例"><a rel="nofollow" class="trm-toc-link" href="#五、页面级组织：以-AI-创作为例"><span class="trm-toc-text">五、页面级组织：以 AI 创作为例</span></a></li><li class="trm-toc-item trm-toc-level-2" title="六、Pinia 持久化策略"><a rel="nofollow" class="trm-toc-link" href="#六、Pinia-持久化策略"><span class="trm-toc-text">六、Pinia 持久化策略</span></a></li><li class="trm-toc-item trm-toc-level-2" title="七、路由结构"><a rel="nofollow" class="trm-toc-link" href="#七、路由结构"><span class="trm-toc-text">七、路由结构</span></a></li><li class="trm-toc-item trm-toc-level-2" title="八、核心约定"><a rel="nofollow" class="trm-toc-link" href="#八、核心约定"><span class="trm-toc-text">八、核心约定</span></a></li></ol>
+      </div>
+    </div>
+
+            
+<div class="trm-fixed-container">
+    
+        <div class="trm-fixed-btn post-toc-btn" data-title="目录">
+            <i class="iconfont fas fa-th-list"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn hidden-md" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.2.7"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+		
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.2.7"></script>
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+</body>
+
+</html>

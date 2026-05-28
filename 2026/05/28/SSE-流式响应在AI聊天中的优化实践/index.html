@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="AI 聊天需要流式输出——用户提问后，模型逐字生成回应的过程通过 SSE 实时推送到前端。这里记录一下前后端各做了什么优化。 一、前端 SSE 解析前端 useSseChat composable 负责 SSE 流的消费： 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSE 流式响应在 AI 聊天中的优化实践">
+<meta property="og:url" content="http://blog.phj233.info/2026/05/28/SSE-%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E5%9C%A8AI%E8%81%8A%E5%A4%A9%E4%B8%AD%E7%9A%84%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="AI 聊天需要流式输出——用户提问后，模型逐字生成回应的过程通过 SSE 实时推送到前端。这里记录一下前后端各做了什么优化。 一、前端 SSE 解析前端 useSseChat composable 负责 SSE 流的消费： 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-05-28T12:00:00.000Z">
+<meta property="article:modified_time" content="2026-05-28T03:20:15.120Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="SSE">
+<meta property="article:tag" content="TypeScript">
+<meta property="article:tag" content="Vue3">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="性能优化">
+<meta property="article:tag" content="流式">
+<meta name="twitter:card" content="summary">
+
+
+<title >SSE 流式响应在 AI 聊天中的优化实践</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.7","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-05-28 03:20:15"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.7" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+
+ 
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" style="opacity: 0">
+            <!-- top bar -->
+            <header class="trm-top-bar">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            SSE 流式响应在 AI 聊天中的优化实践
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2026
+                                    </span>
+                                </li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <span id="scroll-triger" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </span>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div class="trm-page-sidebar col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    <div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card"> 
+        <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+        <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+        <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+        
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div class="trm-page-content col-lg-8">
+                <div id="trm-content" class="trm-content">
+                    <div class="trm-post-info row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            05/28
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            12:00
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>AI 聊天需要流式输出——用户提问后，模型逐字生成回应的过程通过 SSE 实时推送到前端。这里记录一下前后端各做了什么优化。</p>
+<h2 id="一、前端-SSE-解析"><a href="#一、前端-SSE-解析" class="headerlink" title="一、前端 SSE 解析"></a>一、前端 SSE 解析</h2><p>前端 <code>useSseChat</code> composable 负责 SSE 流的消费：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; ref &#125; <span class="keyword">from</span> <span class="string">&#x27;vue&#x27;</span></span><br><span class="line"><span class="keyword">import</span> &#123; readAuthToken &#125; <span class="keyword">from</span> <span class="string">&#x27;../utils/authSession&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">ChatCompletionStreamPayload</span> = &#123;</span><br><span class="line">  choices?: <span class="title class_">Array</span>&lt;&#123;</span><br><span class="line">    delta?: &#123;</span><br><span class="line">      content?: <span class="built_in">string</span></span><br><span class="line">      reasoning_content?: <span class="built_in">string</span></span><br><span class="line">      reasoningContent?: <span class="built_in">string</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * SSE data 行可能出现双重 `data:data:` 前缀，需要递归去除。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">normalizeSseLine</span>(<span class="params">raw: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> line = raw.<span class="title function_">trim</span>()</span><br><span class="line">  <span class="keyword">while</span> (line.<span class="title function_">startsWith</span>(<span class="string">&#x27;data:&#x27;</span>)) &#123;</span><br><span class="line">    line = line.<span class="title function_">slice</span>(<span class="number">5</span>).<span class="title function_">trimStart</span>()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 过滤 SSE 控制行（注释、event、id、retry）</span></span><br><span class="line">  <span class="keyword">if</span> (line.<span class="title function_">startsWith</span>(<span class="string">&#x27;:&#x27;</span>) || line.<span class="title function_">startsWith</span>(<span class="string">&#x27;event:&#x27;</span>)</span><br><span class="line">      || line.<span class="title function_">startsWith</span>(<span class="string">&#x27;id:&#x27;</span>) || line.<span class="title function_">startsWith</span>(<span class="string">&#x27;retry:&#x27;</span>)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> line.<span class="title function_">trim</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">useSseChat</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> streaming = <span class="title function_">ref</span>(<span class="literal">false</span>)</span><br><span class="line">  <span class="keyword">let</span> <span class="attr">abortController</span>: <span class="title class_">AbortController</span> | <span class="literal">null</span> = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">stop</span>(<span class="params"></span>) &#123;</span><br><span class="line">    abortController?.<span class="title function_">abort</span>()</span><br><span class="line">    abortController = <span class="literal">null</span></span><br><span class="line">    streaming.<span class="property">value</span> = <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">stream</span>(<span class="params"></span></span><br><span class="line"><span class="params">    model: <span class="built_in">string</span>,</span></span><br><span class="line"><span class="params">    messages: ChatMessage[],</span></span><br><span class="line"><span class="params">    onDelta: (value: <span class="built_in">string</span>) =&gt; <span class="built_in">void</span>,</span></span><br><span class="line"><span class="params">    options: StreamOptions = &#123;&#125;,</span></span><br><span class="line"><span class="params">  </span>) &#123;</span><br><span class="line">    <span class="title function_">stop</span>()</span><br><span class="line">    abortController = <span class="keyword">new</span> <span class="title class_">AbortController</span>()</span><br><span class="line">    streaming.<span class="property">value</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;/api/v1/chat/completions&#x27;</span>, &#123;</span><br><span class="line">        <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">        <span class="attr">headers</span>: &#123;</span><br><span class="line">          <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>,</span><br><span class="line">          <span class="title class_">Accept</span>: <span class="string">&#x27;text/event-stream&#x27;</span>,</span><br><span class="line">          <span class="attr">token</span>: <span class="title function_">readAuthToken</span>(),</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;</span><br><span class="line">          model,</span><br><span class="line">          messages,</span><br><span class="line">          <span class="attr">stream</span>: <span class="literal">true</span>,</span><br><span class="line">          <span class="attr">conversationUid</span>: options.<span class="property">conversationUid</span> || <span class="literal">undefined</span>,</span><br><span class="line">          <span class="attr">projectUid</span>: options.<span class="property">projectUid</span> || <span class="literal">undefined</span>,</span><br><span class="line">          <span class="attr">clientMessageId</span>: options.<span class="property">clientMessageId</span> || <span class="literal">undefined</span>,</span><br><span class="line">          <span class="attr">assistantClientMessageId</span>: options.<span class="property">assistantClientMessageId</span> || <span class="literal">undefined</span>,</span><br><span class="line">        &#125;),</span><br><span class="line">        <span class="attr">signal</span>: abortController.<span class="property">signal</span>,</span><br><span class="line">      &#125;)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!response.<span class="property">ok</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> message = <span class="string">`HTTP <span class="subst">$&#123;response.status&#125;</span>`</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> payload = <span class="keyword">await</span> response.<span class="title function_">json</span>()</span><br><span class="line">          <span class="keyword">if</span> (payload?.<span class="property">msg</span>) message = payload.<span class="property">msg</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> &#123; <span class="comment">/* 非 JSON 响应体，保持 HTTP status 为错误提示 */</span> &#125;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(message)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!response.<span class="property">body</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;当前浏览器不支持流式响应&#x27;</span>)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> reader = response.<span class="property">body</span>.<span class="title function_">getReader</span>()</span><br><span class="line">      <span class="keyword">const</span> decoder = <span class="keyword">new</span> <span class="title class_">TextDecoder</span>(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line">      <span class="keyword">let</span> remainder = <span class="string">&#x27;&#x27;</span></span><br><span class="line">      <span class="keyword">let</span> currentEvent = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> <span class="title function_">handleLine</span> = (<span class="params">raw: <span class="built_in">string</span></span>) =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> trimmed = raw.<span class="title function_">trim</span>()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 空行 = 事件分隔符，重置当前事件名</span></span><br><span class="line">        <span class="keyword">if</span> (!trimmed) &#123; currentEvent = <span class="string">&#x27;&#x27;</span>; <span class="keyword">return</span> &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// event: 行 —— 记录自定义事件名</span></span><br><span class="line">        <span class="keyword">if</span> (trimmed.<span class="title function_">startsWith</span>(<span class="string">&#x27;event:&#x27;</span>)) &#123;</span><br><span class="line">          currentEvent = trimmed.<span class="title function_">slice</span>(<span class="number">6</span>).<span class="title function_">trim</span>()</span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 忽略 SSE 标准注释/控制行</span></span><br><span class="line">        <span class="keyword">if</span> (trimmed.<span class="title function_">startsWith</span>(<span class="string">&#x27;:&#x27;</span>) || trimmed.<span class="title function_">startsWith</span>(<span class="string">&#x27;id:&#x27;</span>)</span><br><span class="line">            || trimmed.<span class="title function_">startsWith</span>(<span class="string">&#x27;retry:&#x27;</span>)) <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 既不是 data: 也不是 JSON 开头的行，不是标准 SSE 数据行</span></span><br><span class="line">        <span class="keyword">if</span> (!trimmed.<span class="title function_">startsWith</span>(<span class="string">&#x27;data:&#x27;</span>) &amp;&amp; !trimmed.<span class="title function_">startsWith</span>(<span class="string">&#x27;&#123;&#x27;</span>)</span><br><span class="line">            &amp;&amp; trimmed !== <span class="string">&#x27;[DONE]&#x27;</span>) <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> line = <span class="title function_">normalizeSseLine</span>(raw)</span><br><span class="line">        <span class="keyword">if</span> (!line || line === <span class="string">&#x27;[DONE]&#x27;</span>) <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 自定义 error 事件 —— 抛出让外层 catch 处理</span></span><br><span class="line">        <span class="keyword">if</span> (currentEvent === <span class="string">&#x27;error&#x27;</span>) &#123;</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(line)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 自定义 metadata 事件 —— 传递会话/消息 UID</span></span><br><span class="line">        <span class="keyword">if</span> (currentEvent === <span class="string">&#x27;metadata&#x27;</span>) &#123;</span><br><span class="line">          <span class="keyword">try</span> &#123; options.<span class="property">onMetadata</span>?.(<span class="title class_">JSON</span>.<span class="title function_">parse</span>(line)) &#125; <span class="keyword">catch</span> &#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 标准 data 行 —— 解析 delta</span></span><br><span class="line">        <span class="keyword">let</span> <span class="attr">payload</span>: <span class="title class_">ChatCompletionStreamPayload</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          payload = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(line)</span><br><span class="line">        &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(line)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> choice = payload.<span class="property">choices</span>?.[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">const</span> reasoningDelta =</span><br><span class="line">          choice?.<span class="property">delta</span>?.<span class="property">reasoning_content</span></span><br><span class="line">          || choice?.<span class="property">delta</span>?.<span class="property">reasoningContent</span></span><br><span class="line">          || <span class="string">&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">const</span> delta = choice?.<span class="property">delta</span>?.<span class="property">content</span> || <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (reasoningDelta) options.<span class="property">onReasoningDelta</span>?.(reasoningDelta)</span><br><span class="line">        <span class="keyword">if</span> (delta) <span class="title function_">onDelta</span>(delta)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 流式读取循环</span></span><br><span class="line">      <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123; value, done &#125; = <span class="keyword">await</span> reader.<span class="title function_">read</span>()</span><br><span class="line">        <span class="keyword">if</span> (done) <span class="keyword">break</span></span><br><span class="line">        remainder += decoder.<span class="title function_">decode</span>(value, &#123; <span class="attr">stream</span>: <span class="literal">true</span> &#125;)</span><br><span class="line">        <span class="keyword">const</span> lines = remainder.<span class="title function_">split</span>(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">        remainder = lines.<span class="title function_">pop</span>() || <span class="string">&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">const</span> raw <span class="keyword">of</span> lines) &#123;</span><br><span class="line">          <span class="title function_">handleLine</span>(raw)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// 处理最后一行残留</span></span><br><span class="line">      remainder += decoder.<span class="title function_">decode</span>()</span><br><span class="line">      <span class="keyword">if</span> (remainder) <span class="title function_">handleLine</span>(remainder)</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      streaming.<span class="property">value</span> = <span class="literal">false</span></span><br><span class="line">      abortController = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123; streaming, stream, stop &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h3><p><strong>1. 双重 data: 前缀兼容</strong>。有些上游 SSE 会写出 <code>data:data:{...}</code>，<code>normalizeSseLine</code> 用 while 循环递归去掉所有 <code>data:</code> 前缀。</p>
+<p><strong>2. 自定义事件</strong>。除了标准 SSE <code>data:</code> 行，还支持自定义事件：</p>
+<ul>
+<li><code>event: metadata</code> — 后端返回会话 UID、消息 UID，前端用于后续关联</li>
+<li><code>event: error</code> — 流中发生错误时抛出，终止解析</li>
+</ul>
+<p><strong>3. remainder 行残留处理</strong>。SSE 流是分 chunk 到达的，<code>\n</code> 可能出现在 chunk 中间。用 <code>remainder</code> 变量缓存最后不完整的行，下个 chunk 来时拼接。</p>
+<p><strong>4. AbortController 取消</strong>。调用 <code>stop()</code> 时中止 fetch，后端检测到客户端断开后关闭上游流，释放连接资源。</p>
+<hr>
+<h2 id="二、聊天-Composable-编排"><a href="#二、聊天-Composable-编排" class="headerlink" title="二、聊天 Composable 编排"></a>二、聊天 Composable 编排</h2><p><code>useChatConversation</code> 在 <code>useSseChat</code> 之上做会话层编排：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">useChatConversation</span>(<span class="params">options: UseChatConversationOptions</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> chatStore = <span class="title function_">useChatStore</span>()</span><br><span class="line">  <span class="keyword">const</span> sseChat = <span class="title function_">useSseChat</span>()</span><br><span class="line">  <span class="keyword">const</span> activeStreamConversationId = <span class="title function_">ref</span>(<span class="string">&#x27;&#x27;</span>)</span><br><span class="line">  <span class="keyword">const</span> activeAssistantMessageId = <span class="title function_">ref</span>(<span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">sendMessage</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="comment">// 如果正在流式输出，点发送 = 停止生成</span></span><br><span class="line">    <span class="keyword">if</span> (chatStore.<span class="property">streaming</span>) &#123;</span><br><span class="line">      <span class="keyword">await</span> <span class="title function_">stopCurrentGeneration</span>()</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> text = options.<span class="property">prompt</span>.<span class="property">value</span>.<span class="title function_">trim</span>()</span><br><span class="line">    <span class="keyword">if</span> (!text || text.<span class="property">length</span> &gt; chatStore.<span class="property">maxChars</span>) <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> modelCode = chatStore.<span class="property">currentModel</span></span><br><span class="line">    <span class="keyword">const</span> upstream = <span class="title function_">buildUpstreamMessages</span>()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 添加用户消息到本地</span></span><br><span class="line">    <span class="keyword">const</span> user = chatStore.<span class="title function_">appendMessage</span>(&#123; <span class="attr">role</span>: <span class="string">&#x27;user&#x27;</span>, <span class="attr">content</span>: text, modelCode &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 添加占位的 assistant 消息（空内容、streaming 状态）</span></span><br><span class="line">    <span class="keyword">const</span> assistant = chatStore.<span class="title function_">appendMessage</span>(&#123;</span><br><span class="line">      <span class="attr">role</span>: <span class="string">&#x27;assistant&#x27;</span>,</span><br><span class="line">      <span class="attr">content</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">      modelCode,</span><br><span class="line">      <span class="attr">status</span>: <span class="string">&#x27;streaming&#x27;</span>,</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 流式消费</span></span><br><span class="line">    <span class="keyword">let</span> buffer = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">let</span> reasoningBuffer = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">await</span> sseChat.<span class="title function_">stream</span>(</span><br><span class="line">        modelCode,</span><br><span class="line">        upstream,</span><br><span class="line">        <span class="function">(<span class="params">delta</span>) =&gt;</span> &#123;</span><br><span class="line">          buffer += delta</span><br><span class="line">          chatStore.<span class="title function_">updateConversationMessage</span>(</span><br><span class="line">            activeStreamConversationId.<span class="property">value</span>,</span><br><span class="line">            assistant.<span class="property">id</span>,</span><br><span class="line">            &#123; <span class="attr">content</span>: buffer, <span class="attr">status</span>: <span class="string">&#x27;streaming&#x27;</span> &#125;,</span><br><span class="line">          )</span><br><span class="line">          <span class="built_in">void</span> options.<span class="title function_">scrollToBottom</span>()</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">conversationUid</span>: chatStore.<span class="property">activeConversation</span>?.<span class="property">serverSynced</span></span><br><span class="line">            ? chatStore.<span class="property">activeConversation</span>.<span class="property">id</span> : <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">projectUid</span>: chatStore.<span class="property">activeProjectId</span> || <span class="literal">null</span>,</span><br><span class="line">          <span class="attr">clientMessageId</span>: user.<span class="property">id</span>,</span><br><span class="line">          <span class="attr">assistantClientMessageId</span>: assistant.<span class="property">id</span>,</span><br><span class="line">          <span class="attr">onMetadata</span>: <span class="function">(<span class="params">metadata</span>) =&gt;</span> &#123;</span><br><span class="line">            chatStore.<span class="title function_">applyServerMetadata</span>(&#123; ...metadata,</span><br><span class="line">              localConversationId, <span class="attr">localUserMessageId</span>: user.<span class="property">id</span>,</span><br><span class="line">              <span class="attr">localAssistantMessageId</span>: assistant.<span class="property">id</span> &#125;)</span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">onReasoningDelta</span>: <span class="function">(<span class="params">delta</span>) =&gt;</span> &#123;</span><br><span class="line">            reasoningBuffer += delta</span><br><span class="line">            chatStore.<span class="title function_">updateConversationMessage</span>(</span><br><span class="line">              activeStreamConversationId.<span class="property">value</span>,</span><br><span class="line">              assistant.<span class="property">id</span>,</span><br><span class="line">              &#123; <span class="attr">reasoningContent</span>: reasoningBuffer, <span class="attr">status</span>: <span class="string">&#x27;streaming&#x27;</span> &#125;)</span><br><span class="line">          &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">      )</span><br><span class="line">      <span class="comment">// 流结束，标记完成</span></span><br><span class="line">      chatStore.<span class="title function_">updateConversationMessage</span>(activeStreamConversationId.<span class="property">value</span>, assistant.<span class="property">id</span>, &#123;</span><br><span class="line">        <span class="attr">content</span>: buffer.<span class="title function_">trim</span>() ? buffer : <span class="string">&#x27;生成完成，但没有返回内容。&#x27;</span>,</span><br><span class="line">        <span class="attr">status</span>: <span class="string">&#x27;completed&#x27;</span>,</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">      <span class="keyword">if</span> (error <span class="keyword">instanceof</span> <span class="title class_">DOMException</span> &amp;&amp; error.<span class="property">name</span> === <span class="string">&#x27;AbortError&#x27;</span>) &#123;</span><br><span class="line">        <span class="comment">// 用户主动停止</span></span><br><span class="line">        <span class="keyword">await</span> chatStore.<span class="title function_">cancelServerMessage</span>(</span><br><span class="line">          activeStreamConversationId.<span class="property">value</span>, assistant.<span class="property">id</span>,</span><br><span class="line">          buffer, reasoningBuffer)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 异常失败</span></span><br><span class="line">        chatStore.<span class="title function_">updateConversationMessage</span>(activeStreamConversationId.<span class="property">value</span>, assistant.<span class="property">id</span>, &#123;</span><br><span class="line">          <span class="attr">content</span>: <span class="string">`请求失败：<span class="subst">$&#123;error <span class="keyword">instanceof</span> <span class="built_in">Error</span> ? error.message : <span class="string">&#x27;网络错误&#x27;</span>&#125;</span>`</span>,</span><br><span class="line">          <span class="attr">status</span>: <span class="string">&#x27;failed&#x27;</span>,</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      chatStore.<span class="title function_">setStreaming</span>(<span class="literal">false</span>)</span><br><span class="line">      <span class="built_in">void</span> options.<span class="title function_">scrollToBottom</span>()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="状态管理关键点"><a href="#状态管理关键点" class="headerlink" title="状态管理关键点"></a>状态管理关键点</h3><ul>
+<li><strong>两阶段写入策略</strong>：前端先写 user 消息和空 assistant 占位消息；流式过程中只更新 assistant 的内容；流结束&#x2F;失败&#x2F;取消时写终态状态</li>
+<li><strong>reasoning_content 独立处理</strong>：深度思考模型的推理文本走独立的 <code>onReasoningDelta</code> 回调，和正文 <code>content</code> 分离存储</li>
+<li><strong>AbortError 判断</strong>：<code>error instanceof DOMException &amp;&amp; error.name === &#39;AbortError&#39;</code> 区分”用户主动停止”和”网络异常”</li>
+</ul>
+<hr>
+<h2 id="三、后端优化要点"><a href="#三、后端优化要点" class="headerlink" title="三、后端优化要点"></a>三、后端优化要点</h2><h3 id="有界线程池"><a href="#有界线程池" class="headerlink" title="有界线程池"></a>有界线程池</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AsyncConfig.java</span></span><br><span class="line"><span class="comment">// chatStreamExecutor 使用有界线程池 + 零队列 + AbortPolicy</span></span><br><span class="line"><span class="comment">// 容量不足时返回 429 而不是让请求无限排队</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="客户端断开时传播取消"><a href="#客户端断开时传播取消" class="headerlink" title="客户端断开时传播取消"></a>客户端断开时传播取消</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 关键逻辑</span></span><br><span class="line"><span class="comment">// 客户端断开或超时 → 后端关闭上游 SSE 响应流</span></span><br><span class="line"><span class="comment">// → 中断工作线程 → 释放后端连接和上游资源</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="归一化上游-SSE-payload"><a href="#归一化上游-SSE-payload" class="headerlink" title="归一化上游 SSE payload"></a>归一化上游 SSE payload</h3><p>不同供应商（OpenAI、DeepSeek、通义、Kimi）的 SSE 格式不完全相同。后端统一归一化为格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">data: &#123;&quot;choices&quot;:[&#123;&quot;delta&quot;:&#123;&quot;content&quot;:&quot;xxx&quot;&#125;&#125;]&#125;</span><br><span class="line"></span><br><span class="line">event: metadata</span><br><span class="line">data: &#123;&quot;conversationUid&quot;:&quot;xxx&quot;,&quot;userMessageUid&quot;:&quot;xxx&quot;&#125;</span><br><span class="line"></span><br><span class="line">event: error</span><br><span class="line">data: 上游服务响应超时</span><br><span class="line"></span><br><span class="line">data: [DONE]</span><br></pre></td></tr></table></figure>
+
+<p>前端只需要处理一种格式。</p>
+<h3 id="会话落库策略"><a href="#会话落库策略" class="headerlink" title="会话落库策略"></a>会话落库策略</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ChatConversationService</span></span><br><span class="line"><span class="comment">// 写入策略：</span></span><br><span class="line"><span class="comment">// 请求开始时 → 写 user 占位消息 + assistant 占位消息</span></span><br><span class="line"><span class="comment">// 流式过程中 → 只在内存累积，不逐 token 写库</span></span><br><span class="line"><span class="comment">// 流结束/失败/取消/超时 → 一次性更新 assistant 消息的 content</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// 原因：逐 token 写库会显著放大数据库压力</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="reasoning-content-保存规则"><a href="#reasoning-content-保存规则" class="headerlink" title="reasoning_content 保存规则"></a>reasoning_content 保存规则</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 只保存模型显式返回且允许展示的 reasoning_content</span></span><br><span class="line"><span class="comment">// 不保存原始 chunk</span></span><br><span class="line"><span class="comment">// 不参与后续上下文拼接</span></span><br><span class="line"><span class="comment">// 最长保留 50000 字符（防止极长推理撑爆数据库）</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="上下文窗口裁剪"><a href="#上下文窗口裁剪" class="headerlink" title="上下文窗口裁剪"></a>上下文窗口裁剪</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每次构建上游请求时：</span></span><br><span class="line"><span class="comment">// - 有服务端会话的：取最近 40 条 user/assistant 消息</span></span><br><span class="line"><span class="comment">// - 新会话的：只取本次请求消息</span></span><br><span class="line"><span class="comment">// - 加上 system 消息</span></span><br><span class="line"><span class="comment">// 不能把全量历史都发给上游</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、不可破坏边界"><a href="#四、不可破坏边界" class="headerlink" title="四、不可破坏边界"></a>四、不可破坏边界</h2><ol>
+<li><strong>流式格式必须兼容现有前端</strong>。不能改 SSE payload 的 JSON 结构</li>
+<li><strong>用户主动断开时不能继续无意义消耗上游资源</strong>。后端必须关闭上游 SSE 流</li>
+<li><strong>token 计费仍按上游 usage 后扣费</strong>。缺少 usage 时不额外猜算</li>
+<li><strong>会话保存不能逐 token 写库</strong>。长文本输出下，逐 token 写库会放大 DB 压力</li>
+<li><strong>所有会话&#x2F;消息读写必须绑定 account_id</strong>。不能仅凭前端传入的 uid 操作</li>
+</ol>
+<p>当前主链路（前端 SSE 解析、后端流式代理、会话持久化）已线上验证通过，后续只做观察和小修，不做大改。</p>
+
+</article>
+    
+    
+
+</div>
+<div class="trm-post-next-prev row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/05/28/AI-SaaS-%E9%95%BF%E8%A7%86%E9%A2%91%E5%90%88%E6%88%90%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%AE%BE%E8%AE%A1/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/05/28/AI-SaaS-%E9%95%BF%E8%A7%86%E9%A2%91%E5%90%88%E6%88%90%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%AE%BE%E8%AE%A1/" class="trm-anima-link">
+                    AI SaaS 长视频合成工作流设计
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/05/28</li>
+                <li>11:11</li>
+                
+                    <li>1.8k</li>
+                
+                
+                    <li>7</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-footer-card trm-scroll-animation">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v8.1.2
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.2.7
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item blog-run-long"></div>
+     
+
+     
+</footer>
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            
+
+    <div id="post-toc" class="trm-post-toc">
+      <div class="trm-post-toc-header">
+        目录导航
+				<span id="post-toc-top">
+					置顶
+				</span>
+      </div>
+      <div class="trm-post-toc-content">
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-2" title="一、前端 SSE 解析"><a rel="nofollow" class="trm-toc-link" href="#一、前端-SSE-解析"><span class="trm-toc-text">一、前端 SSE 解析</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="设计要点"><a rel="nofollow" class="trm-toc-link" href="#设计要点"><span class="trm-toc-text">设计要点</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="二、聊天 Composable 编排"><a rel="nofollow" class="trm-toc-link" href="#二、聊天-Composable-编排"><span class="trm-toc-text">二、聊天 Composable 编排</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="状态管理关键点"><a rel="nofollow" class="trm-toc-link" href="#状态管理关键点"><span class="trm-toc-text">状态管理关键点</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="三、后端优化要点"><a rel="nofollow" class="trm-toc-link" href="#三、后端优化要点"><span class="trm-toc-text">三、后端优化要点</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="有界线程池"><a rel="nofollow" class="trm-toc-link" href="#有界线程池"><span class="trm-toc-text">有界线程池</span></a></li><li class="trm-toc-item trm-toc-level-3" title="客户端断开时传播取消"><a rel="nofollow" class="trm-toc-link" href="#客户端断开时传播取消"><span class="trm-toc-text">客户端断开时传播取消</span></a></li><li class="trm-toc-item trm-toc-level-3" title="归一化上游 SSE payload"><a rel="nofollow" class="trm-toc-link" href="#归一化上游-SSE-payload"><span class="trm-toc-text">归一化上游 SSE payload</span></a></li><li class="trm-toc-item trm-toc-level-3" title="会话落库策略"><a rel="nofollow" class="trm-toc-link" href="#会话落库策略"><span class="trm-toc-text">会话落库策略</span></a></li><li class="trm-toc-item trm-toc-level-3" title="reasoning_content 保存规则"><a rel="nofollow" class="trm-toc-link" href="#reasoning-content-保存规则"><span class="trm-toc-text">reasoning_content 保存规则</span></a></li><li class="trm-toc-item trm-toc-level-3" title="上下文窗口裁剪"><a rel="nofollow" class="trm-toc-link" href="#上下文窗口裁剪"><span class="trm-toc-text">上下文窗口裁剪</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="四、不可破坏边界"><a rel="nofollow" class="trm-toc-link" href="#四、不可破坏边界"><span class="trm-toc-text">四、不可破坏边界</span></a></li></ol>
+      </div>
+    </div>
+
+            
+<div class="trm-fixed-container">
+    
+        <div class="trm-fixed-btn post-toc-btn" data-title="目录">
+            <i class="iconfont fas fa-th-list"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn hidden-md" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.2.7"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+		
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.2.7"></script>
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+</body>
+
+</html>

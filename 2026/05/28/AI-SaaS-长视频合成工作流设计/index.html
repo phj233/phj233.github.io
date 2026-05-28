@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="一个 AI 创作平台的长视频功能：用户输入一个创意，后端自动完成意图分析 → 剧本生成 → 分镜拆分 → 视频生成 → 最终合成，全程通过 SSE 向用户推送进度。这里记录一下整体架构设计。 一、整体流程12345678910111213用户输入意图    ↓Phase 1: 意图识别 → 生成剧本大纲 + 时长规划    ↓   (文本模型，内部免费)Phase 2: 剧本生成 → 完整的分幕剧">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI SaaS 长视频合成工作流设计">
+<meta property="og:url" content="http://blog.phj233.info/2026/05/28/AI-SaaS-%E9%95%BF%E8%A7%86%E9%A2%91%E5%90%88%E6%88%90%E5%B7%A5%E4%BD%9C%E6%B5%81%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="一个 AI 创作平台的长视频功能：用户输入一个创意，后端自动完成意图分析 → 剧本生成 → 分镜拆分 → 视频生成 → 最终合成，全程通过 SSE 向用户推送进度。这里记录一下整体架构设计。 一、整体流程12345678910111213用户输入意图    ↓Phase 1: 意图识别 → 生成剧本大纲 + 时长规划    ↓   (文本模型，内部免费)Phase 2: 剧本生成 → 完整的分幕剧">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-05-28T11:11:00.000Z">
+<meta property="article:modified_time" content="2026-05-28T03:20:15.119Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="SSE">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="长视频">
+<meta name="twitter:card" content="summary">
+
+
+<title >AI SaaS 长视频合成工作流设计</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.7","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-05-28 03:20:15"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.7" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+
+ 
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" style="opacity: 0">
+            <!-- top bar -->
+            <header class="trm-top-bar">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            AI SaaS 长视频合成工作流设计
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2026
+                                    </span>
+                                </li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <span id="scroll-triger" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </span>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div class="trm-page-sidebar col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    <div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card"> 
+        <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+        <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+        <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+        
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div class="trm-page-content col-lg-8">
+                <div id="trm-content" class="trm-content">
+                    <div class="trm-post-info row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            05/28
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            11:11
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>一个 AI 创作平台的长视频功能：用户输入一个创意，后端自动完成意图分析 → 剧本生成 → 分镜拆分 → 视频生成 → 最终合成，全程通过 SSE 向用户推送进度。这里记录一下整体架构设计。</p>
+<h2 id="一、整体流程"><a href="#一、整体流程" class="headerlink" title="一、整体流程"></a>一、整体流程</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">用户输入意图</span><br><span class="line">    ↓</span><br><span class="line">Phase 1: 意图识别 → 生成剧本大纲 + 时长规划</span><br><span class="line">    ↓   (文本模型，内部免费)</span><br><span class="line">Phase 2: 剧本生成 → 完整的分幕剧情</span><br><span class="line">    ↓   (文本模型，内部免费)</span><br><span class="line">Phase 3: 分镜拆分 → 拆成 N 个镜头，每个镜头有画面描述 + 动作 + 对白 + 情绪 + 出图提示词</span><br><span class="line">    ↓   (文本模型，内部免费)</span><br><span class="line">Phase 4: 分镜渲染 → 每个镜头独立生成视频</span><br><span class="line">    ↓   (视频模型，每个镜头独立扣费，失败退款)</span><br><span class="line">Phase 5: 最终合成 → ffmpeg 本地合成所有已通过审核的分镜视频</span><br><span class="line">    ↓   (本地处理，不额外收费)</span><br><span class="line">输出: 封面 + 视频 → 进入作品列表</span><br></pre></td></tr></table></figure>
+
+<p>每个阶段之间通过 SSE 向用户推送进度，用户可以在任意阶段确认或修改后继续。</p>
+<h2 id="二、核心数据模型"><a href="#二、核心数据模型" class="headerlink" title="二、核心数据模型"></a>二、核心数据模型</h2><h3 id="项目主表"><a href="#项目主表" class="headerlink" title="项目主表"></a>项目主表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> long_video (</span><br><span class="line">  id <span class="type">BIGINT</span> <span class="keyword">PRIMARY</span> KEY AUTO_INCREMENT,</span><br><span class="line">  trace_id <span class="type">VARCHAR</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;项目追踪ID&#x27;</span>,</span><br><span class="line">  account_id <span class="type">BIGINT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,</span><br><span class="line"></span><br><span class="line">  title <span class="type">VARCHAR</span>(<span class="number">255</span>),</span><br><span class="line">  status <span class="type">VARCHAR</span>(<span class="number">32</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT</span><br><span class="line">    <span class="string">&#x27;draft/processing/waiting_user/rendering/completed/failed/cancelled&#x27;</span>,</span><br><span class="line">  current_stage <span class="type">VARCHAR</span>(<span class="number">64</span>) COMMENT</span><br><span class="line">    <span class="string">&#x27;intent/script/storyboard/render_plan/shot_render/compose/done&#x27;</span>,</span><br><span class="line"></span><br><span class="line">  video_model <span class="type">VARCHAR</span>(<span class="number">128</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;用户选择的生视频模型&#x27;</span>,</span><br><span class="line">  aspect_ratio <span class="type">VARCHAR</span>(<span class="number">32</span>) <span class="keyword">DEFAULT</span> <span class="string">&#x27;16:9&#x27;</span>,</span><br><span class="line">  duration <span class="type">INT</span> COMMENT <span class="string">&#x27;目标总时长&#x27;</span>,</span><br><span class="line"></span><br><span class="line">  stages JSON <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;完整阶段状态（意图、剧本、分镜、渲染记录）&#x27;</span>,</span><br><span class="line">  billing_summary JSON COMMENT <span class="string">&#x27;项目级费用汇总&#x27;</span>,</span><br><span class="line">  final_result_url TEXT COMMENT <span class="string">&#x27;最终成片地址&#x27;</span>,</span><br><span class="line">  cover_url TEXT COMMENT <span class="string">&#x27;封面地址&#x27;</span>,</span><br><span class="line"></span><br><span class="line">  version <span class="type">INT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="number">1</span> COMMENT <span class="string">&#x27;乐观锁版本&#x27;</span>,</span><br><span class="line">  <span class="keyword">UNIQUE</span> KEY uk_trace_id (trace_id),</span><br><span class="line">  KEY idx_account_status (account_id, status)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h3 id="项目与-AI-任务关系表"><a href="#项目与-AI-任务关系表" class="headerlink" title="项目与 AI 任务关系表"></a>项目与 AI 任务关系表</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> long_video_ai_task (</span><br><span class="line">  id <span class="type">BIGINT</span> <span class="keyword">PRIMARY</span> KEY AUTO_INCREMENT,</span><br><span class="line">  long_video_id <span class="type">BIGINT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,   <span class="comment">-- 关联项目</span></span><br><span class="line">  ai_task_id <span class="type">BIGINT</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,      <span class="comment">-- 关联 AI 任务</span></span><br><span class="line"></span><br><span class="line">  task_role <span class="type">VARCHAR</span>(<span class="number">32</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT</span><br><span class="line">    <span class="string">&#x27;shot_render|final_render|reference_frame|shot_reference_frame&#x27;</span>,</span><br><span class="line">  asset_scope <span class="type">VARCHAR</span>(<span class="number">32</span>) <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;project_asset&#x27;</span> COMMENT</span><br><span class="line">    <span class="string">&#x27;project_asset|final_work|hidden&#x27;</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">-- 分镜相关</span></span><br><span class="line">  shot_index <span class="type">INT</span>,</span><br><span class="line">  render_id <span class="type">VARCHAR</span>(<span class="number">64</span>),           <span class="comment">-- 渲染版本 ID: render_001_1</span></span><br><span class="line">  selected TINYINT <span class="keyword">DEFAULT</span> <span class="number">0</span>,     <span class="comment">-- 用户是否选择此版本</span></span><br><span class="line">  need_rerender TINYINT <span class="keyword">DEFAULT</span> <span class="number">0</span>,</span><br><span class="line">  billing_mode <span class="type">VARCHAR</span>(<span class="number">32</span>),       <span class="comment">-- per_req/per_sec</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">UNIQUE</span> KEY uk_render_id (long_video_id, render_id),</span><br><span class="line">  KEY idx_long_video_role (long_video_id, task_role)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>设计要点：</p>
+<ul>
+<li><strong>不复用 <code>ai_task.task_type</code> 表达业务角色</strong>。<code>task_type</code> 只保持 <code>image/video/3d</code> 的媒体类型语义，业务角色（shot_render、final_render 等）放在 <code>long_video_ai_task.task_role</code></li>
+<li><strong><code>asset_scope</code> 控制素材可见范围</strong>。<code>project_asset</code> &#x3D; 中间分镜素材不进入作品列表，<code>final_work</code> &#x3D; 最终成片进入作品列表</li>
+<li><strong>乐观锁 <code>version</code></strong>：所有对 <code>stages</code> 的写入都带版本条件</li>
+</ul>
+<h2 id="三、分镜渲染与断点续跑"><a href="#三、分镜渲染与断点续跑" class="headerlink" title="三、分镜渲染与断点续跑"></a>三、分镜渲染与断点续跑</h2><h3 id="批量提交"><a href="#批量提交" class="headerlink" title="批量提交"></a>批量提交</h3><p>用户确认分镜后，<code>render-all</code> 接口处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LongVideoService</span></span><br><span class="line"><span class="comment">// 批量渲染不是整体事务，每个分镜单独提交</span></span><br><span class="line"><span class="comment">// 串行模型（Seedance 1.5/2.0）→ 尾帧接力，前一个完成再提交下一个</span></span><br><span class="line"><span class="comment">// 非串行模型 → 后台批量模式，按 maxConcurrency 分批提交</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">renderAll</span><span class="params">(LongVideoDO project)</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 判断模型类型</span></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">serialMode</span> <span class="operator">=</span> isSerialModel(project.getVideoModel());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 写入每个 shot 的 shotRender 为 rendering 状态</span></span><br><span class="line">    <span class="comment">//    记录 batchActive=true 或 chainActive=true</span></span><br><span class="line">    writeShotRenderPending(project, serialMode);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 3. 串行模式：提交第一个分镜，上游完成后通过尾帧接力提交下一个</span></span><br><span class="line">    <span class="comment">//    批量模式：入队后快速返回，异步分批提交</span></span><br><span class="line">    <span class="keyword">if</span> (serialMode) &#123;</span><br><span class="line">        submitChainNext(project);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        submitBatchFirstChunk(project);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="分镜创建-AI-任务"><a href="#分镜创建-AI-任务" class="headerlink" title="分镜创建 AI 任务"></a>分镜创建 AI 任务</h3><p>每个分镜走独立的 AI 任务创建流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AiProxyService.createGenericTaskForLongVideo</span></span><br><span class="line"><span class="comment">// 内部专用入口：</span></span><br><span class="line"><span class="comment">// - 显式传入 accountId（不依赖当前请求上下文）</span></span><br><span class="line"><span class="comment">// - 显式传入 traceId（每个分镜独立）</span></span><br><span class="line"><span class="comment">// - 显示传入 dedupBizKey（按 long_video_id + shot_id + render_id 去重）</span></span><br><span class="line"><span class="comment">// - 先落库 → 扣费 → 调上游 → 失败退款</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 扣费成功后上游失败，通过 ai_task.trace_id 退款</span></span><br><span class="line"><span class="comment">// consumption.request_id == ai_task.trace_id</span></span><br><span class="line"><span class="comment">// balance_log.ref_id == ai_task.trace_id</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="断点续跑"><a href="#断点续跑" class="headerlink" title="断点续跑"></a>断点续跑</h3><p>后端重启或前端重新进入时，需要恢复未完成的任务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定时扫描 + SSE/详情主动补查</span></span><br><span class="line"><span class="comment">// 1. 扫描 long_video.status=rendering AND current_stage=shot_render</span></span><br><span class="line"><span class="comment">// 2. 基于 long_video_ai_task 关系表找到 pending/processing 的分镜</span></span><br><span class="line"><span class="comment">// 3. 补交前先去重：</span></span><br><span class="line"><span class="comment">//    按 long_video_id + shot_id 查活动中的 shot_render</span></span><br><span class="line"><span class="comment">//    按 long_video_id + render_id 查已有关系</span></span><br><span class="line"><span class="comment">// 4. 命中 → 只同步快照，不重复提交</span></span><br><span class="line"><span class="comment">// 5. 未命中 → 提交上游</span></span><br><span class="line"><span class="comment">// 6. 自动恢复不重试失败分镜（避免重复扣费）</span></span><br><span class="line"><span class="comment">// 7. 用户显式点击 render-all 时可以重试失败的仍需渲染的分镜</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、SSE-事件推送"><a href="#四、SSE-事件推送" class="headerlink" title="四、SSE 事件推送"></a>四、SSE 事件推送</h2><p>长视频使用 SSE 向前端实时推送进度。事件流设计：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LongVideoSseService</span></span><br><span class="line"><span class="comment">// 事件类型：</span></span><br><span class="line"><span class="comment">// - project_snapshot: 项目全量快照（核心事件）</span></span><br><span class="line"><span class="comment">// - heartbeat: 心跳保活</span></span><br><span class="line"><span class="comment">// - stage_updated: 阶段更新</span></span><br><span class="line"><span class="comment">// - shot_render_started: 分镜开始渲染</span></span><br><span class="line"><span class="comment">// - shot_render_updated: 分镜渲染进度更新</span></span><br><span class="line"><span class="comment">// - project_completed: 项目完成</span></span><br><span class="line"><span class="comment">// - project_failed: 项目失败</span></span><br><span class="line"><span class="comment">// - project_deleted: 项目已删除</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// payload 是 projectResponse 的完整项目快照</span></span><br><span class="line"><span class="comment">// 不再使用旧的增量事件包络</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// SSE 发送异常处理：</span></span><br><span class="line"><span class="comment">// 浏览器刷新/切换任务/网络断开 → Broken pipe → 清理连接，降级为 debug 日志</span></span><br><span class="line"><span class="comment">// 响应不可写时 → 不交给全局异常处理器写 JsonData</span></span><br></pre></td></tr></table></figure>
+
+<p>前端接收端处理：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// useSseChat 或长视频专用 SSE composable</span></span><br><span class="line"><span class="comment">// 1. 建立 EventSource 连接到 /api/v1/ai/long-video/events?traceId=xxx</span></span><br><span class="line"><span class="comment">// 2. 监听 project_snapshot 事件 → 更新本地项目快照</span></span><br><span class="line"><span class="comment">// 3. 监听 heartbeat → 仅保活，心跳间隔内无其他事件时不更新 UI</span></span><br><span class="line"><span class="comment">// 4. 连接断开 → 自动重连（带指数退避）</span></span><br><span class="line"><span class="comment">// 5. 页面不可见时 → 暂停重连，恢复后立即重连</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、最终合成"><a href="#五、最终合成" class="headerlink" title="五、最终合成"></a>五、最终合成</h2><p>所有分镜视频完成后，ffmpeg 本地合成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LongVideoFinalComposeService</span></span><br><span class="line"><span class="comment">// 1. 检查合成条件：</span></span><br><span class="line"><span class="comment">//    - 每个分镜 currentRenderId 对应 render 均为 completed</span></span><br><span class="line"><span class="comment">//    - 每个完成的分镜都有 resultUrl</span></span><br><span class="line"><span class="comment">// 2. 下载已选分镜视频到本地临时目录</span></span><br><span class="line"><span class="comment">// 3. ffmpeg concat 合成</span></span><br><span class="line"><span class="comment">// 4. 上传到 COS</span></span><br><span class="line"><span class="comment">// 5. 创建 final_render 的 ai_task 记录</span></span><br><span class="line"><span class="comment">//    写入 long_video_ai_task.task_role=final_render, asset_scope=final_work</span></span><br><span class="line"><span class="comment">// 6. 最终成片进入普通作品列表</span></span><br><span class="line"><span class="comment">// </span></span><br><span class="line"><span class="comment">// ffmpeg 本地合成不额外收费</span></span><br><span class="line"><span class="comment">// 后续 Vue 剪辑器如果允许用户剪辑单镜头并上传新镜头，剪辑后上传再单独计费</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="六、核心不可变规则"><a href="#六、核心不可变规则" class="headerlink" title="六、核心不可变规则"></a>六、核心不可变规则</h2><ol>
+<li><strong>每个分镜 render 必须有独立 <code>ai_task.trace_id</code></strong>。决不允许多个分镜共用同一个 traceId</li>
+<li><strong>先创建 <code>ai_task</code> → 再扣费 → 再调上游</strong>。扣费成功后上游失败，必须通过 <code>ai_task.trace_id</code> 退款</li>
+<li><strong><code>consumption.request_id</code> &#x3D;&#x3D; <code>ai_task.trace_id</code></strong>，<code>balance_log.ref_id</code> &#x3D;&#x3D; <code>ai_task.trace_id</code></li>
+<li><strong>中间分镜素材不进入普通作品列表</strong>（<code>asset_scope=project_asset</code>）</li>
+<li><strong>最终成片进入普通作品列表</strong>（<code>asset_scope=final_work</code>）</li>
+<li><strong>复刻 <code>long_video.stages</code> 必须带乐观锁版本</strong></li>
+<li><strong>SSE 只推送事务提交后的完整快照</strong>，不推增量包络</li>
+<li><strong>断点续跑必须基于 <code>long_video_ai_task</code> 关系表恢复</strong>，不能只依赖 <code>project.status/currentStage</code></li>
+<li><strong>文本阶段（意图&#x2F;剧本&#x2F;分镜）默认免费，调用 <code>TextCompletionService</code> 但不写消费流水</strong></li>
+</ol>
+<hr>
+<h2 id="七、并发安全"><a href="#七、并发安全" class="headerlink" title="七、并发安全"></a>七、并发安全</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. long_video.version 是乐观锁版本</span></span><br><span class="line"><span class="comment">// 2. 更新 stages 时带版本条件：</span></span><br><span class="line"><span class="comment">//    UPDATE long_video SET stages = ?, version = version+1</span></span><br><span class="line"><span class="comment">//    WHERE id = ? AND version = ?</span></span><br><span class="line"><span class="comment">// 3. 同步更新 long_video_ai_task 和 stages 时尽量在同一事务</span></span><br><span class="line"><span class="comment">// 4. 同一个 shot 选择不同 render 时，先取消旧 selected</span></span><br><span class="line"><span class="comment">// 5. 长视频详情和 SSE 建连都会对 pending/processing 分镜做限频补查</span></span><br><span class="line"><span class="comment">//    但复用 AiProxyService.queryGenericTask()</span></span><br><span class="line"><span class="comment">//    不绕过 ai_task、consumption、COS 转存和失败退款</span></span><br></pre></td></tr></table></figure>
+
+<p>这套方案从前端到后端经过了多轮迭代，当前已在线上稳定运行。</p>
+
+</article>
+    
+    
+
+</div>
+<div class="trm-post-next-prev row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/05/28/SSE-%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E5%9C%A8AI%E8%81%8A%E5%A4%A9%E4%B8%AD%E7%9A%84%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/05/28/SSE-%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E5%9C%A8AI%E8%81%8A%E5%A4%A9%E4%B8%AD%E7%9A%84%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5/" class="trm-anima-link">
+                    SSE 流式响应在 AI 聊天中的优化实践
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/05/28</li>
+                <li>12:00</li>
+                
+                    <li>1.9k</li>
+                
+                
+                    <li>9</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/05/28/Vue3-%E5%A4%A7%E5%9E%8B%E9%A1%B9%E7%9B%AELiquid-Glass%E4%B8%BB%E9%A2%98%E4%B8%8E%E7%BB%84%E4%BB%B6%E5%8C%96%E9%87%8D%E6%9E%84/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/05/28/Vue3-%E5%A4%A7%E5%9E%8B%E9%A1%B9%E7%9B%AELiquid-Glass%E4%B8%BB%E9%A2%98%E4%B8%8E%E7%BB%84%E4%BB%B6%E5%8C%96%E9%87%8D%E6%9E%84/" class="trm-anima-link">
+                    Vue3 大型项目 Liquid Glass 主题与组件化重构
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/05/28</li>
+                <li>11:00</li>
+                
+                    <li>2.8k</li>
+                
+                
+                    <li>14</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-footer-card trm-scroll-animation">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v8.1.2
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.2.7
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item blog-run-long"></div>
+     
+
+     
+</footer>
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            
+
+    <div id="post-toc" class="trm-post-toc">
+      <div class="trm-post-toc-header">
+        目录导航
+				<span id="post-toc-top">
+					置顶
+				</span>
+      </div>
+      <div class="trm-post-toc-content">
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-2" title="一、整体流程"><a rel="nofollow" class="trm-toc-link" href="#一、整体流程"><span class="trm-toc-text">一、整体流程</span></a></li><li class="trm-toc-item trm-toc-level-2" title="二、核心数据模型"><a rel="nofollow" class="trm-toc-link" href="#二、核心数据模型"><span class="trm-toc-text">二、核心数据模型</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="项目主表"><a rel="nofollow" class="trm-toc-link" href="#项目主表"><span class="trm-toc-text">项目主表</span></a></li><li class="trm-toc-item trm-toc-level-3" title="项目与 AI 任务关系表"><a rel="nofollow" class="trm-toc-link" href="#项目与-AI-任务关系表"><span class="trm-toc-text">项目与 AI 任务关系表</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="三、分镜渲染与断点续跑"><a rel="nofollow" class="trm-toc-link" href="#三、分镜渲染与断点续跑"><span class="trm-toc-text">三、分镜渲染与断点续跑</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="批量提交"><a rel="nofollow" class="trm-toc-link" href="#批量提交"><span class="trm-toc-text">批量提交</span></a></li><li class="trm-toc-item trm-toc-level-3" title="分镜创建 AI 任务"><a rel="nofollow" class="trm-toc-link" href="#分镜创建-AI-任务"><span class="trm-toc-text">分镜创建 AI 任务</span></a></li><li class="trm-toc-item trm-toc-level-3" title="断点续跑"><a rel="nofollow" class="trm-toc-link" href="#断点续跑"><span class="trm-toc-text">断点续跑</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="四、SSE 事件推送"><a rel="nofollow" class="trm-toc-link" href="#四、SSE-事件推送"><span class="trm-toc-text">四、SSE 事件推送</span></a></li><li class="trm-toc-item trm-toc-level-2" title="五、最终合成"><a rel="nofollow" class="trm-toc-link" href="#五、最终合成"><span class="trm-toc-text">五、最终合成</span></a></li><li class="trm-toc-item trm-toc-level-2" title="六、核心不可变规则"><a rel="nofollow" class="trm-toc-link" href="#六、核心不可变规则"><span class="trm-toc-text">六、核心不可变规则</span></a></li><li class="trm-toc-item trm-toc-level-2" title="七、并发安全"><a rel="nofollow" class="trm-toc-link" href="#七、并发安全"><span class="trm-toc-text">七、并发安全</span></a></li></ol>
+      </div>
+    </div>
+
+            
+<div class="trm-fixed-container">
+    
+        <div class="trm-fixed-btn post-toc-btn" data-title="目录">
+            <i class="iconfont fas fa-th-list"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn hidden-md" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.2.7"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+		
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.2.7"></script>
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+</body>
+
+</html>
