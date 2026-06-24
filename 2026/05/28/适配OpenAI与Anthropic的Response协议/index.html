@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="当你的应用需要同时接入 OpenAI 和 Anthropic 两家 AI 服务商时，你会立刻碰到一个现实问题：两家的请求格式不同、响应结构不同、流式协议不同、错误格式不同。如果每一处业务代码都直接写两家分支，很快会变成维护噩梦。 2026 年 6 月，我把网关里的 Responses 兼容层又补了一轮。补完以后再看这篇文章，发现原来的版本只讲了 OpenAI Chat Completions 和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="适配 OpenAI Responses 与 Anthropic Messages 协议">
+<meta property="og:url" content="http://blog.phj233.info/2026/05/28/%E9%80%82%E9%85%8DOpenAI%E4%B8%8EAnthropic%E7%9A%84Response%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="当你的应用需要同时接入 OpenAI 和 Anthropic 两家 AI 服务商时，你会立刻碰到一个现实问题：两家的请求格式不同、响应结构不同、流式协议不同、错误格式不同。如果每一处业务代码都直接写两家分支，很快会变成维护噩梦。 2026 年 6 月，我把网关里的 Responses 兼容层又补了一轮。补完以后再看这篇文章，发现原来的版本只讲了 OpenAI Chat Completions 和">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-05-28T14:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-24T15:30:00.000Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="API">
+<meta property="article:tag" content="Anthropic">
+<meta property="article:tag" content="OpenAI">
+<meta property="article:tag" content="Responses">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+
+
+<title >适配 OpenAI Responses 与 Anthropic Messages 协议</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.7","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-06-24 15:30:00"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.7" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+
+ 
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" style="opacity: 0">
+            <!-- top bar -->
+            <header class="trm-top-bar">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            适配 OpenAI Responses 与 Anthropic Messages 协议
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2026
+                                    </span>
+                                </li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <span id="scroll-triger" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </span>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div class="trm-page-sidebar col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    <div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card"> 
+        <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+        <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+        <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+        
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div class="trm-page-content col-lg-8">
+                <div id="trm-content" class="trm-content">
+                    <div class="trm-post-info row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            05/28
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            14:00
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>当你的应用需要同时接入 OpenAI 和 Anthropic 两家 AI 服务商时，你会立刻碰到一个现实问题：两家的<strong>请求格式不同</strong>、<strong>响应结构不同</strong>、<strong>流式协议不同</strong>、<strong>错误格式不同</strong>。如果每一处业务代码都直接写两家分支，很快会变成维护噩梦。</p>
+<p>2026 年 6 月，我把网关里的 Responses 兼容层又补了一轮。补完以后再看这篇文章，发现原来的版本只讲了 OpenAI Chat Completions 和 Anthropic Messages，漏掉了现在越来越常见的 <code>/v1/responses</code>。它不是 Chat Completions 的别名，而是一套新的输入、输出和上下文协议。</p>
+<p>这篇文章梳理三类协议的差异，并给出一个统一的适配层设计。前半部分仍然从 OpenAI Chat 与 Anthropic Messages 讲起，后面会单独展开 Responses API，以及它在真实网关里最容易踩坑的地方。</p>
+<h2 id="一、协议的核心差异"><a href="#一、协议的核心差异" class="headerlink" title="一、协议的核心差异"></a>一、协议的核心差异</h2><h3 id="1-1-请求格式"><a href="#1-1-请求格式" class="headerlink" title="1.1 请求格式"></a>1.1 请求格式</h3><p><strong>OpenAI Chat Completions：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;gpt-4o&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;messages&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span> <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;system&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;You are a helpful assistant.&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span> <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Hello&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stream&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;temperature&quot;</span><span class="punctuation">:</span> <span class="number">0.7</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;max_tokens&quot;</span><span class="punctuation">:</span> <span class="number">4096</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Anthropic Messages：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;claude-sonnet-4-20250514&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;system&quot;</span><span class="punctuation">:</span> <span class="string">&quot;You are a helpful assistant.&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;messages&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span> <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Hello&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stream&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;temperature&quot;</span><span class="punctuation">:</span> <span class="number">0.7</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;max_tokens&quot;</span><span class="punctuation">:</span> <span class="number">4096</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>差异：</p>
+<ul>
+<li>OpenAI 把 <code>system</code> 放在 <code>messages</code> 数组里（<code>role: &quot;system&quot;</code>）</li>
+<li>Anthropic 把 <code>system</code> 作为<strong>顶层字段</strong>，且值可以是 <code>string</code> 或 <code>array</code></li>
+<li>Anthropic 不支持 <code>developer</code> 角色（OpenAI o 系列用）</li>
+<li>Anthropic 的参数命名是 <code>max_tokens</code>（snake_case），OpenAI 也是 <code>max_tokens</code></li>
+</ul>
+<h3 id="1-2-响应格式（非流式）"><a href="#1-2-响应格式（非流式）" class="headerlink" title="1.2 响应格式（非流式）"></a>1.2 响应格式（非流式）</h3><p><strong>OpenAI：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;chatcmpl-xxx&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;chat.completion&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;created&quot;</span><span class="punctuation">:</span> <span class="number">1710000000</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;gpt-4o&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;usage&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;prompt_tokens&quot;</span><span class="punctuation">:</span> <span class="number">10</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;completion_tokens&quot;</span><span class="punctuation">:</span> <span class="number">50</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;total_tokens&quot;</span><span class="punctuation">:</span> <span class="number">60</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;choices&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;index&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;message&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assistant&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Hello! How can I help you today?&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;finish_reason&quot;</span><span class="punctuation">:</span> <span class="string">&quot;stop&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Anthropic：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;msg_xxx&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;message&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assistant&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;claude-sonnet-4-20250514&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;text&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Hello! How can I help you today?&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stop_reason&quot;</span><span class="punctuation">:</span> <span class="string">&quot;end_turn&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stop_sequence&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;usage&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;input_tokens&quot;</span><span class="punctuation">:</span> <span class="number">10</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;output_tokens&quot;</span><span class="punctuation">:</span> <span class="number">50</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>核心差异：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>OpenAI</th>
+<th>Anthropic</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>顶层结构</td>
+<td><code>choices[0].message.content</code></td>
+<td><code>content[0].text</code></td>
+</tr>
+<tr>
+<td>content 类型</td>
+<td>纯字符串</td>
+<td><strong>数组</strong>（<code>[{type: &quot;text&quot;, text: &quot;...&quot;}]</code>）</td>
+</tr>
+<tr>
+<td>finish 原因</td>
+<td><code>choices[0].finish_reason</code>（<code>stop</code>&#x2F;<code>length</code>&#x2F;<code>tool_calls</code>&#x2F;<code>content_filter</code>）</td>
+<td><code>stop_reason</code>（<code>end_turn</code>&#x2F;<code>max_tokens</code>&#x2F;<code>stop_sequence</code>&#x2F;<code>tool_use</code>）</td>
+</tr>
+<tr>
+<td>usage 字段名</td>
+<td><code>prompt_tokens</code> &#x2F; <code>completion_tokens</code></td>
+<td><code>input_tokens</code> &#x2F; <code>output_tokens</code></td>
+</tr>
+<tr>
+<td>usage 包含</td>
+<td>含 <code>total_tokens</code></td>
+<td><strong>不含</strong> <code>total_tokens</code>（需自己算）</td>
+</tr>
+<tr>
+<td>顶层 role</td>
+<td>嵌套在 <code>message.role</code> 里</td>
+<td>顶层 <code>role</code> 字段</td>
+</tr>
+</tbody></table>
+<h3 id="1-3-流式-SSE-格式"><a href="#1-3-流式-SSE-格式" class="headerlink" title="1.3 流式 SSE 格式"></a>1.3 流式 SSE 格式</h3><p><strong>OpenAI SSE：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">data: &#123;&quot;id&quot;:&quot;chatcmpl-xxx&quot;,&quot;object&quot;:&quot;chat.completion.chunk&quot;,&quot;choices&quot;:[&#123;&quot;index&quot;:0,&quot;delta&quot;:&#123;&quot;content&quot;:&quot;Hello&quot;&#125;,&quot;finish_reason&quot;:null&#125;]&#125;</span><br><span class="line"></span><br><span class="line">data: &#123;&quot;id&quot;:&quot;chatcmpl-xxx&quot;,&quot;object&quot;:&quot;chat.completion.chunk&quot;,&quot;choices&quot;:[&#123;&quot;index&quot;:0,&quot;delta&quot;:&#123;&quot;content&quot;:&quot;!&quot;&#125;,&quot;finish_reason&quot;:null&#125;]&#125;</span><br><span class="line"></span><br><span class="line">data: &#123;&quot;id&quot;:&quot;chatcmpl-xxx&quot;,&quot;object&quot;:&quot;chat.completion.chunk&quot;,&quot;choices&quot;:[&#123;&quot;index&quot;:0,&quot;delta&quot;:&#123;&#125;,&quot;finish_reason&quot;:&quot;stop&quot;&#125;]&#125;</span><br><span class="line"></span><br><span class="line">data: [DONE]</span><br></pre></td></tr></table></figure>
+
+<p><strong>Anthropic SSE：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">event: message_start</span><br><span class="line">data: &#123;&quot;type&quot;:&quot;message_start&quot;,&quot;message&quot;:&#123;&quot;id&quot;:&quot;msg_xxx&quot;,...&#125;&#125;</span><br><span class="line"></span><br><span class="line">event: content_block_start</span><br><span class="line">data: &#123;&quot;type&quot;:&quot;content_block_start&quot;,&quot;index&quot;:0,&quot;content_block&quot;:&#123;&quot;type&quot;:&quot;text&quot;,&quot;text&quot;:&quot;&quot;&#125;&#125;</span><br><span class="line"></span><br><span class="line">event: content_block_delta</span><br><span class="line">data: &#123;&quot;type&quot;:&quot;content_block_delta&quot;,&quot;index&quot;:0,&quot;delta&quot;:&#123;&quot;type&quot;:&quot;text_delta&quot;,&quot;text&quot;:&quot;Hello&quot;&#125;&#125;</span><br><span class="line"></span><br><span class="line">event: content_block_delta</span><br><span class="line">data: &#123;&quot;type&quot;:&quot;content_block_delta&quot;,&quot;index&quot;:0,&quot;delta&quot;:&#123;&quot;type&quot;:&quot;text_delta&quot;,&quot;text&quot;:&quot;!&quot;&#125;&#125;</span><br><span class="line"></span><br><span class="line">event: content_block_stop</span><br><span class="line">data: &#123;&quot;type&quot;:&quot;content_block_stop&quot;,&quot;index&quot;:0&#125;</span><br><span class="line"></span><br><span class="line">event: message_delta</span><br><span class="line">data: &#123;&quot;type&quot;:&quot;message_delta&quot;,&quot;delta&quot;:&#123;&quot;stop_reason&quot;:&quot;end_turn&quot;&#125;,&quot;usage&quot;:&#123;&quot;output_tokens&quot;:50&#125;&#125;</span><br><span class="line"></span><br><span class="line">event: message_stop</span><br><span class="line">data: &#123;&quot;type&quot;:&quot;message_stop&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>核心差异：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>OpenAI</th>
+<th>Anthropic</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>事件粒度</td>
+<td>只有 <code>data:</code> 行（隐式 <code>message</code> 事件）</td>
+<td>多种结构化事件（<code>message_start</code>&#x2F;<code>content_block_start</code>&#x2F;<code>content_block_delta</code>&#x2F;<code>message_delta</code>&#x2F;<code>message_stop</code>）</td>
+</tr>
+<tr>
+<td>delta 路径</td>
+<td><code>choices[0].delta.content</code></td>
+<td><code>delta.text</code>（在 <code>content_block_delta</code> 事件中）</td>
+</tr>
+<tr>
+<td>usage 传递</td>
+<td>在最后一个 chunk 中返回</td>
+<td>在 <code>message_delta</code> 事件中返回</td>
+</tr>
+<tr>
+<td>结束标记</td>
+<td><code>[DONE]</code></td>
+<td><code>message_stop</code> 事件</td>
+</tr>
+<tr>
+<td>content_block</td>
+<td>不需要（只有一种内容）</td>
+<td>支持多种 content_block（text &#x2F; tool_use &#x2F; tool_result）</td>
+</tr>
+</tbody></table>
+<h3 id="1-4-多模态（图片）Content-格式"><a href="#1-4-多模态（图片）Content-格式" class="headerlink" title="1.4 多模态（图片）Content 格式"></a>1.4 多模态（图片）Content 格式</h3><p><strong>OpenAI Vision：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;text&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;What&#x27;s in this image?&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;image_url&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;image_url&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;url&quot;</span><span class="punctuation">:</span> <span class="string">&quot;data:image/jpeg;base64,/9j/4AAQ...&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Anthropic Vision：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;text&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;What&#x27;s in this image?&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;image&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;source&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;base64&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;media_type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;image/jpeg&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;data&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/9j/4AAQ...&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>差异：</p>
+<ul>
+<li>OpenAI 用 <code>{&quot;type&quot;: &quot;image_url&quot;, &quot;image_url&quot;: {&quot;url&quot;: &quot;...&quot;}}</code>，Anthropic 用 <code>{&quot;type&quot;: &quot;image&quot;, &quot;source&quot;: {&quot;type&quot;: &quot;base64&quot;, &quot;media_type&quot;: &quot;...&quot;, &quot;data&quot;: &quot;...&quot;}}</code></li>
+<li>Anthropic 明确标注 <code>media_type</code>，OpenAI 从 data URI 自动推断</li>
+</ul>
+<h3 id="1-5-错误格式"><a href="#1-5-错误格式" class="headerlink" title="1.5 错误格式"></a>1.5 错误格式</h3><p><strong>OpenAI：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;error&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;message&quot;</span><span class="punctuation">:</span> <span class="string">&quot;You exceeded your current quota&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;insufficient_quota&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="string">&quot;insufficient_quota&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Anthropic：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;error&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;error&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;rate_limit_error&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;message&quot;</span><span class="punctuation">:</span> <span class="string">&quot;This request has been rate limited&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>差异：</p>
+<ul>
+<li>OpenAI 错误在 <code>error.message</code>，Anthropic 在 <code>error.error.message</code></li>
+<li>OpenAI 的 <code>error.type</code> 和 Anthropic 的 <code>error.error.type</code> 错误类型名不同</li>
+<li>Anthropic 多了一层 <code>&quot;type&quot;: &quot;error&quot;</code> 的外层标识</li>
+</ul>
+<h3 id="1-6-OpenAI-Responses-API：第三种请求形状"><a href="#1-6-OpenAI-Responses-API：第三种请求形状" class="headerlink" title="1.6 OpenAI Responses API：第三种请求形状"></a>1.6 OpenAI Responses API：第三种请求形状</h3><p>如果只看 Chat Completions 和 Anthropic Messages，会误以为适配层就是两套消息数组互转。Responses API 加进来后，模型网关会变成三角形：Chat、Responses、Anthropic Messages 各有自己的语义。</p>
+<p>一个典型的 Responses 请求可能长这样：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;gpt-4.1&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;input_text&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Summarize this document.&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;tools&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;function&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;lookup_order&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;parameters&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;object&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;properties&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;order_id&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;string&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;reasoning&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;effort&quot;</span><span class="punctuation">:</span> <span class="string">&quot;medium&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;format&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;json_object&quot;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;previous_response_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;resp_abc123&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;include&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;reasoning.encrypted_content&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stream&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>响应也不是 <code>choices[0].message</code>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;resp_abc123&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;response&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;gpt-4.1&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;output&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;message&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assistant&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;output_text&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Here is the summary...&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;usage&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;input_tokens&quot;</span><span class="punctuation">:</span> <span class="number">1200</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;output_tokens&quot;</span><span class="punctuation">:</span> <span class="number">300</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;total_tokens&quot;</span><span class="punctuation">:</span> <span class="number">1500</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里有几个细节很容易写错：</p>
+<ul>
+<li><code>input</code> 可以是字符串，也可以是数组；数组里的 <code>content</code> 又可以继续拆成 <code>input_text</code>、<code>input_image</code>、<code>function_call_output</code> 等块。</li>
+<li><code>output</code> 是一个事件&#x2F;块数组，不是 Chat 的单个 assistant message。</li>
+<li><code>previous_response_id</code> 不是普通历史消息，它要求网关知道上一次响应真实走的是哪个上游、哪个模型、哪把密钥。</li>
+<li><code>text</code>、<code>reasoning</code>、<code>include</code> 是 Responses 自己的顶层能力。把它们直接塞进 Chat Completions 请求，很多上游会报无意义的 400。</li>
+<li>工具调用历史里，<code>function_call</code> 和 <code>function_call_output</code> 的顺序要保持完整。桥接到 Chat 模型时，这一点尤其重要。</li>
+</ul>
+<hr>
+<h2 id="二、统一适配层设计"><a href="#二、统一适配层设计" class="headerlink" title="二、统一适配层设计"></a>二、统一适配层设计</h2><p>我们的目标是：<strong>上层业务代码只跟一个统一接口打交道，不用关心底层是哪家供应商</strong>。</p>
+<h3 id="2-1-统一请求模型"><a href="#2-1-统一请求模型" class="headerlink" title="2.1 统一请求模型"></a>2.1 统一请求模型</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 统一的消息格式</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UnifiedMessage</span> &#123;</span><br><span class="line">  <span class="attr">role</span>: <span class="string">&#x27;system&#x27;</span> | <span class="string">&#x27;user&#x27;</span> | <span class="string">&#x27;assistant&#x27;</span></span><br><span class="line">  <span class="attr">content</span>: <span class="built_in">string</span> | <span class="title class_">UnifiedContentPart</span>[]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UnifiedContentPart</span> &#123;</span><br><span class="line">  <span class="attr">type</span>: <span class="string">&#x27;text&#x27;</span> | <span class="string">&#x27;image&#x27;</span></span><br><span class="line">  text?: <span class="built_in">string</span></span><br><span class="line">  imageUrl?: <span class="built_in">string</span>           <span class="comment">// base64 data URI 或 HTTPS URL</span></span><br><span class="line">  imageMediaType?: <span class="built_in">string</span>     <span class="comment">// image/jpeg, image/png ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 统一的请求参数</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UnifiedChatRequest</span> &#123;</span><br><span class="line">  <span class="attr">model</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">messages</span>: <span class="title class_">UnifiedMessage</span>[]</span><br><span class="line">  stream?: <span class="built_in">boolean</span></span><br><span class="line">  temperature?: <span class="built_in">number</span></span><br><span class="line">  maxTokens?: <span class="built_in">number</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 统一的响应</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UnifiedChatResponse</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">model</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">content</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">finishReason</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">usage</span>: &#123;</span><br><span class="line">    <span class="attr">inputTokens</span>: <span class="built_in">number</span></span><br><span class="line">    <span class="attr">outputTokens</span>: <span class="built_in">number</span></span><br><span class="line">    <span class="attr">totalTokens</span>: <span class="built_in">number</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-请求转换层"><a href="#2-2-请求转换层" class="headerlink" title="2.2 请求转换层"></a>2.2 请求转换层</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">OpenAIAdapter</span> &#123;</span><br><span class="line">  <span class="title function_">buildRequest</span>(<span class="attr">req</span>: <span class="title class_">UnifiedChatRequest</span>): <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> messages = req.<span class="property">messages</span>.<span class="title function_">map</span>(<span class="function"><span class="params">msg</span> =&gt;</span> (&#123;</span><br><span class="line">      <span class="attr">role</span>: msg.<span class="property">role</span>,</span><br><span class="line">      <span class="attr">content</span>: <span class="keyword">typeof</span> msg.<span class="property">content</span> === <span class="string">&#x27;string&#x27;</span></span><br><span class="line">        ? msg.<span class="property">content</span></span><br><span class="line">        : msg.<span class="property">content</span>.<span class="title function_">map</span>(<span class="function"><span class="params">part</span> =&gt;</span></span><br><span class="line">            part.<span class="property">type</span> === <span class="string">&#x27;text&#x27;</span></span><br><span class="line">              ? &#123; <span class="attr">type</span>: <span class="string">&#x27;text&#x27;</span>, <span class="attr">text</span>: part.<span class="property">text</span> &#125;</span><br><span class="line">              : &#123; <span class="attr">type</span>: <span class="string">&#x27;image_url&#x27;</span>,</span><br><span class="line">                  <span class="attr">image_url</span>: &#123; <span class="attr">url</span>: part.<span class="property">imageUrl</span>, <span class="attr">detail</span>: <span class="string">&#x27;auto&#x27;</span> &#125;</span><br><span class="line">                &#125;</span><br><span class="line">          ),</span><br><span class="line">    &#125;))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">model</span>: req.<span class="property">model</span>,</span><br><span class="line">      messages,</span><br><span class="line">      <span class="attr">stream</span>: req.<span class="property">stream</span> ?? <span class="literal">false</span>,</span><br><span class="line">      ...(req.<span class="property">temperature</span> !== <span class="literal">undefined</span> &amp;&amp; &#123; <span class="attr">temperature</span>: req.<span class="property">temperature</span> &#125;),</span><br><span class="line">      ...(req.<span class="property">maxTokens</span> !== <span class="literal">undefined</span> &amp;&amp; &#123; <span class="attr">max_tokens</span>: req.<span class="property">maxTokens</span> &#125;),</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">parseResponse</span>(<span class="attr">body</span>: <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;): <span class="title class_">UnifiedChatResponse</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> choice = (body.<span class="property">choices</span> <span class="keyword">as</span> <span class="title class_">Array</span>&lt;<span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;&gt;)?.[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">const</span> message = choice?.<span class="property">message</span> <span class="keyword">as</span> <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;</span><br><span class="line">    <span class="keyword">const</span> usage = body.<span class="property">usage</span> <span class="keyword">as</span> <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">number</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">id</span>: body.<span class="property">id</span> <span class="keyword">as</span> <span class="built_in">string</span>,</span><br><span class="line">      <span class="attr">model</span>: body.<span class="property">model</span> <span class="keyword">as</span> <span class="built_in">string</span>,</span><br><span class="line">      <span class="attr">content</span>: (message?.<span class="property">content</span> <span class="keyword">as</span> <span class="built_in">string</span>) || <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">      <span class="attr">finishReason</span>: (choice?.<span class="property">finish_reason</span> <span class="keyword">as</span> <span class="built_in">string</span>) || <span class="string">&#x27;unknown&#x27;</span>,</span><br><span class="line">      <span class="attr">usage</span>: &#123;</span><br><span class="line">        <span class="attr">inputTokens</span>: usage?.<span class="property">prompt_tokens</span> || <span class="number">0</span>,</span><br><span class="line">        <span class="attr">outputTokens</span>: usage?.<span class="property">completion_tokens</span> || <span class="number">0</span>,</span><br><span class="line">        <span class="attr">totalTokens</span>: usage?.<span class="property">total_tokens</span> || <span class="number">0</span>,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">parseError</span>(<span class="attr">body</span>: <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> error = body.<span class="property">error</span> <span class="keyword">as</span> <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;</span><br><span class="line">    <span class="keyword">return</span> error?.<span class="property">message</span> || <span class="string">&#x27;OpenAI API error&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AnthropicAdapter</span> &#123;</span><br><span class="line">  <span class="title function_">buildRequest</span>(<span class="attr">req</span>: <span class="title class_">UnifiedChatRequest</span>): <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt; &#123;</span><br><span class="line">    <span class="comment">// 提取 system 消息</span></span><br><span class="line">    <span class="keyword">const</span> systemMessages = req.<span class="property">messages</span>.<span class="title function_">filter</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">role</span> === <span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">    <span class="keyword">const</span> system = systemMessages.<span class="property">length</span></span><br><span class="line">      ? systemMessages.<span class="title function_">map</span>(<span class="function"><span class="params">m</span> =&gt;</span></span><br><span class="line">          <span class="keyword">typeof</span> m.<span class="property">content</span> === <span class="string">&#x27;string&#x27;</span> ? m.<span class="property">content</span> : <span class="string">&#x27;&#x27;</span></span><br><span class="line">        ).<span class="title function_">join</span>(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">      : <span class="literal">undefined</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 其他消息放在 messages 数组中</span></span><br><span class="line">    <span class="keyword">const</span> messages = req.<span class="property">messages</span></span><br><span class="line">      .<span class="title function_">filter</span>(<span class="function"><span class="params">m</span> =&gt;</span> m.<span class="property">role</span> !== <span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">      .<span class="title function_">map</span>(<span class="function"><span class="params">msg</span> =&gt;</span> (&#123;</span><br><span class="line">        <span class="attr">role</span>: msg.<span class="property">role</span>,</span><br><span class="line">        <span class="attr">content</span>: <span class="keyword">typeof</span> msg.<span class="property">content</span> === <span class="string">&#x27;string&#x27;</span></span><br><span class="line">          ? msg.<span class="property">content</span></span><br><span class="line">          : msg.<span class="property">content</span>.<span class="title function_">map</span>(<span class="function"><span class="params">part</span> =&gt;</span></span><br><span class="line">              part.<span class="property">type</span> === <span class="string">&#x27;text&#x27;</span></span><br><span class="line">                ? &#123; <span class="attr">type</span>: <span class="string">&#x27;text&#x27;</span>, <span class="attr">text</span>: part.<span class="property">text</span> &#125;</span><br><span class="line">                : &#123;</span><br><span class="line">                    <span class="attr">type</span>: <span class="string">&#x27;image&#x27;</span>,</span><br><span class="line">                    <span class="attr">source</span>: &#123;</span><br><span class="line">                      <span class="attr">type</span>: <span class="string">&#x27;base64&#x27;</span>,</span><br><span class="line">                      <span class="attr">media_type</span>: part.<span class="property">imageMediaType</span> || <span class="string">&#x27;image/jpeg&#x27;</span>,</span><br><span class="line">                      <span class="attr">data</span>: part.<span class="property">imageUrl</span>?.<span class="title function_">startsWith</span>(<span class="string">&#x27;data:&#x27;</span>)</span><br><span class="line">                        ? part.<span class="property">imageUrl</span>.<span class="title function_">split</span>(<span class="string">&#x27;,&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">                        : part.<span class="property">imageUrl</span>,</span><br><span class="line">                    &#125;,</span><br><span class="line">                  &#125;</span><br><span class="line">            ),</span><br><span class="line">      &#125;))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="attr">body</span>: <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt; = &#123;</span><br><span class="line">      <span class="attr">model</span>: req.<span class="property">model</span>,</span><br><span class="line">      messages,</span><br><span class="line">      <span class="attr">stream</span>: req.<span class="property">stream</span> ?? <span class="literal">false</span>,</span><br><span class="line">      <span class="attr">max_tokens</span>: req.<span class="property">maxTokens</span> || <span class="number">4096</span>,    <span class="comment">// Anthropic 必填</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (system) body.<span class="property">system</span> = system</span><br><span class="line">    <span class="keyword">if</span> (req.<span class="property">temperature</span> !== <span class="literal">undefined</span>) body.<span class="property">temperature</span> = req.<span class="property">temperature</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> body</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">parseResponse</span>(<span class="attr">body</span>: <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;): <span class="title class_">UnifiedChatResponse</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> content = body.<span class="property">content</span> <span class="keyword">as</span> <span class="title class_">Array</span>&lt;<span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;&gt;</span><br><span class="line">    <span class="keyword">const</span> text = content</span><br><span class="line">      ?.<span class="title function_">filter</span>(<span class="function">(<span class="params">block: Record&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;</span>) =&gt;</span> block.<span class="property">type</span> === <span class="string">&#x27;text&#x27;</span>)</span><br><span class="line">      .<span class="title function_">map</span>(<span class="function">(<span class="params">block: Record&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;</span>) =&gt;</span> block.<span class="property">text</span> <span class="keyword">as</span> <span class="built_in">string</span>)</span><br><span class="line">      .<span class="title function_">join</span>(<span class="string">&#x27;&#x27;</span>) || <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> usage = body.<span class="property">usage</span> <span class="keyword">as</span> <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">number</span>&gt;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      <span class="attr">id</span>: body.<span class="property">id</span> <span class="keyword">as</span> <span class="built_in">string</span>,</span><br><span class="line">      <span class="attr">model</span>: body.<span class="property">model</span> <span class="keyword">as</span> <span class="built_in">string</span>,</span><br><span class="line">      <span class="attr">content</span>: text,</span><br><span class="line">      <span class="attr">finishReason</span>: body.<span class="property">stop_reason</span> <span class="keyword">as</span> <span class="built_in">string</span>,</span><br><span class="line">      <span class="attr">usage</span>: &#123;</span><br><span class="line">        <span class="attr">inputTokens</span>: usage?.<span class="property">input_tokens</span> || <span class="number">0</span>,</span><br><span class="line">        <span class="attr">outputTokens</span>: usage?.<span class="property">output_tokens</span> || <span class="number">0</span>,</span><br><span class="line">        <span class="attr">totalTokens</span>: (usage?.<span class="property">input_tokens</span> || <span class="number">0</span>) + (usage?.<span class="property">output_tokens</span> || <span class="number">0</span>),</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">parseError</span>(<span class="attr">body</span>: <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">unknown</span>&gt;): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> error = body.<span class="property">error</span> <span class="keyword">as</span> <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="title class_">Record</span>&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;&gt;</span><br><span class="line">    <span class="keyword">return</span> error?.<span class="property">error</span>?.<span class="property">message</span> || <span class="string">&#x27;Anthropic API error&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-流式适配层"><a href="#2-3-流式适配层" class="headerlink" title="2.3 流式适配层"></a>2.3 流式适配层</h3><p>流式适配是最复杂的部分——两家的 SSE 事件模型完全不同：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">StreamCallbacks</span> &#123;</span><br><span class="line">  <span class="attr">onContent</span>: <span class="function">(<span class="params">delta: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">void</span></span><br><span class="line">  onReasoning?: <span class="function">(<span class="params">delta: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">void</span></span><br><span class="line">  onToolUse?: <span class="function">(<span class="params">name: <span class="built_in">string</span>, input: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">void</span></span><br><span class="line">  <span class="attr">onComplete</span>: <span class="function">(<span class="params">usage: &#123; inputTokens: <span class="built_in">number</span>; outputTokens: <span class="built_in">number</span> &#125;</span>) =&gt;</span> <span class="built_in">void</span></span><br><span class="line">  <span class="attr">onError</span>: <span class="function">(<span class="params">error: <span class="built_in">string</span></span>) =&gt;</span> <span class="built_in">void</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OpenAIStreamParser</span> &#123;</span><br><span class="line">  <span class="title function_">parseLine</span>(<span class="attr">line</span>: <span class="built_in">string</span>, <span class="attr">callbacks</span>: <span class="title class_">StreamCallbacks</span>): <span class="built_in">boolean</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!line.<span class="title function_">startsWith</span>(<span class="string">&#x27;data:&#x27;</span>)) <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    <span class="keyword">const</span> data = line.<span class="title function_">slice</span>(<span class="string">&#x27;data:&#x27;</span>.<span class="property">length</span>).<span class="title function_">trim</span>()</span><br><span class="line">    <span class="keyword">if</span> (!data || data === <span class="string">&#x27;[DONE]&#x27;</span>) &#123;</span><br><span class="line">      callbacks.<span class="title function_">onComplete</span>(&#123; <span class="attr">inputTokens</span>: <span class="number">0</span>, <span class="attr">outputTokens</span>: <span class="number">0</span> &#125;)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> chunk = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(data)</span><br><span class="line">    <span class="keyword">const</span> choice = chunk.<span class="property">choices</span>?.[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">const</span> delta = choice?.<span class="property">delta</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (delta?.<span class="property">content</span>) &#123;</span><br><span class="line">      callbacks.<span class="title function_">onContent</span>(delta.<span class="property">content</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (delta?.<span class="property">reasoning_content</span>) &#123;</span><br><span class="line">      callbacks.<span class="property">onReasoning</span>?.(delta.<span class="property">reasoning_content</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (delta?.<span class="property">tool_calls</span>) &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">const</span> tc <span class="keyword">of</span> delta.<span class="property">tool_calls</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> fn = tc.<span class="property">function</span></span><br><span class="line">        <span class="keyword">if</span> (fn?.<span class="property">name</span>) callbacks.<span class="property">onToolUse</span>?.(fn.<span class="property">name</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> (fn?.<span class="property">arguments</span>) callbacks.<span class="property">onToolUse</span>?.(tc.<span class="property">id</span> || fn.<span class="property">name</span>, fn.<span class="property">arguments</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// usage 在流式模式下通常出现在最后一个非 [DONE] 的 chunk</span></span><br><span class="line">    <span class="keyword">if</span> (chunk.<span class="property">usage</span>) &#123;</span><br><span class="line">      callbacks.<span class="title function_">onComplete</span>(&#123;</span><br><span class="line">        <span class="attr">inputTokens</span>: chunk.<span class="property">usage</span>.<span class="property">prompt_tokens</span>,</span><br><span class="line">        <span class="attr">outputTokens</span>: chunk.<span class="property">usage</span>.<span class="property">completion_tokens</span>,</span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AnthropicStreamParser</span> &#123;</span><br><span class="line">  <span class="keyword">private</span> currentEvent = <span class="string">&#x27;&#x27;</span></span><br><span class="line">  <span class="keyword">private</span> textBuffer = <span class="string">&#x27;&#x27;</span></span><br><span class="line">  <span class="keyword">private</span> <span class="attr">usageBuffer</span>: &#123; <span class="attr">inputTokens</span>: <span class="built_in">number</span>; <span class="attr">outputTokens</span>: <span class="built_in">number</span> &#125; = &#123;</span><br><span class="line">    <span class="attr">inputTokens</span>: <span class="number">0</span>, <span class="attr">outputTokens</span>: <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">parseLine</span>(<span class="attr">raw</span>: <span class="built_in">string</span>, <span class="attr">callbacks</span>: <span class="title class_">StreamCallbacks</span>): <span class="built_in">boolean</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> line = raw.<span class="title function_">trim</span>()</span><br><span class="line">    <span class="keyword">if</span> (!line) &#123; <span class="variable language_">this</span>.<span class="property">currentEvent</span> = <span class="string">&#x27;&#x27;</span>; <span class="keyword">return</span> <span class="literal">true</span> &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (line.<span class="title function_">startsWith</span>(<span class="string">&#x27;event:&#x27;</span>)) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">currentEvent</span> = line.<span class="title function_">slice</span>(<span class="string">&#x27;event:&#x27;</span>.<span class="property">length</span>).<span class="title function_">trim</span>()</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!line.<span class="title function_">startsWith</span>(<span class="string">&#x27;data:&#x27;</span>)) <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    <span class="keyword">const</span> data = line.<span class="title function_">slice</span>(<span class="string">&#x27;data:&#x27;</span>.<span class="property">length</span>).<span class="title function_">trim</span>()</span><br><span class="line">    <span class="keyword">if</span> (!data) <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> payload = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">switch</span> (<span class="variable language_">this</span>.<span class="property">currentEvent</span>) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;content_block_delta&#x27;</span>: &#123;</span><br><span class="line">        <span class="keyword">const</span> delta = payload.<span class="property">delta</span></span><br><span class="line">        <span class="keyword">if</span> (delta?.<span class="property">type</span> === <span class="string">&#x27;text_delta&#x27;</span>) &#123;</span><br><span class="line">          <span class="variable language_">this</span>.<span class="property">textBuffer</span> += delta.<span class="property">text</span></span><br><span class="line">          callbacks.<span class="title function_">onContent</span>(delta.<span class="property">text</span>)</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (delta?.<span class="property">type</span> === <span class="string">&#x27;input_json_delta&#x27;</span>) &#123;</span><br><span class="line">          callbacks.<span class="property">onToolUse</span>?.(payload.<span class="property">index</span>?.<span class="title function_">toString</span>() || <span class="string">&#x27;&#x27;</span>, delta.<span class="property">partial_json</span>)</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (delta?.<span class="property">type</span> === <span class="string">&#x27;thinking_delta&#x27;</span>) &#123;</span><br><span class="line">          callbacks.<span class="property">onReasoning</span>?.(delta.<span class="property">thinking</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;message_start&#x27;</span>:</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">usageBuffer</span>.<span class="property">inputTokens</span> = payload.<span class="property">message</span>?.<span class="property">usage</span>?.<span class="property">input_tokens</span> || <span class="number">0</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;message_delta&#x27;</span>:</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">usageBuffer</span>.<span class="property">outputTokens</span> = payload.<span class="property">usage</span>?.<span class="property">output_tokens</span> || <span class="number">0</span></span><br><span class="line">        <span class="comment">// stop_reason 出现，准备结束</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;message_stop&#x27;</span>:</span><br><span class="line">        callbacks.<span class="title function_">onComplete</span>(<span class="variable language_">this</span>.<span class="property">usageBuffer</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> <span class="string">&#x27;error&#x27;</span>:</span><br><span class="line">        callbacks.<span class="title function_">onError</span>(payload.<span class="property">error</span>?.<span class="property">message</span> || <span class="string">&#x27;Anthropic stream error&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-统一流式调用入口"><a href="#2-4-统一流式调用入口" class="headerlink" title="2.4 统一流式调用入口"></a>2.4 统一流式调用入口</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span>* <span class="title function_">streamChat</span>(</span><br><span class="line">  <span class="attr">adapter</span>: <span class="string">&#x27;openai&#x27;</span> | <span class="string">&#x27;anthropic&#x27;</span>,</span><br><span class="line">  <span class="attr">req</span>: <span class="title class_">UnifiedChatRequest</span>,</span><br><span class="line">  <span class="attr">apiKey</span>: <span class="built_in">string</span>,</span><br><span class="line">): <span class="title class_">AsyncGenerator</span>&lt;&#123;</span><br><span class="line">  <span class="attr">type</span>: <span class="string">&#x27;content&#x27;</span> | <span class="string">&#x27;reasoning&#x27;</span> | <span class="string">&#x27;tool&#x27;</span> | <span class="string">&#x27;complete&#x27;</span> | <span class="string">&#x27;error&#x27;</span></span><br><span class="line">  <span class="attr">data</span>: <span class="built_in">string</span> | &#123; <span class="attr">inputTokens</span>: <span class="built_in">number</span>; <span class="attr">outputTokens</span>: <span class="built_in">number</span> &#125;</span><br><span class="line">&#125;&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> adapterInstance = adapter === <span class="string">&#x27;openai&#x27;</span></span><br><span class="line">    ? <span class="keyword">new</span> <span class="title class_">OpenAIAdapter</span>()</span><br><span class="line">    : <span class="keyword">new</span> <span class="title class_">AnthropicAdapter</span>()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> endpoint = adapter === <span class="string">&#x27;openai&#x27;</span></span><br><span class="line">    ? <span class="string">&#x27;https://api.openai.com/v1/chat/completions&#x27;</span></span><br><span class="line">    : <span class="string">&#x27;https://api.anthropic.com/v1/messages&#x27;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> body = adapterInstance.<span class="title function_">buildRequest</span>(req)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(endpoint, &#123;</span><br><span class="line">    <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">    <span class="attr">headers</span>: &#123;</span><br><span class="line">      <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;x-api-key&#x27;</span>: apiKey,         <span class="comment">// Anthropic 用 x-api-key</span></span><br><span class="line">      <span class="string">&#x27;Authorization&#x27;</span>: <span class="string">`Bearer <span class="subst">$&#123;apiKey&#125;</span>`</span>, <span class="comment">// OpenAI 用 Bearer</span></span><br><span class="line">      <span class="string">&#x27;anthropic-version&#x27;</span>: adapter === <span class="string">&#x27;anthropic&#x27;</span></span><br><span class="line">        ? <span class="string">&#x27;2023-06-01&#x27;</span> : <span class="literal">undefined</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(body),</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!response.<span class="property">ok</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> errBody = <span class="keyword">await</span> response.<span class="title function_">json</span>()</span><br><span class="line">    <span class="keyword">yield</span> &#123; <span class="attr">type</span>: <span class="string">&#x27;error&#x27;</span>, <span class="attr">data</span>: adapterInstance.<span class="title function_">parseError</span>(errBody) &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!response.<span class="property">body</span>) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Streaming not supported&#x27;</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> parser = adapter === <span class="string">&#x27;openai&#x27;</span></span><br><span class="line">    ? <span class="keyword">new</span> <span class="title class_">OpenAIStreamParser</span>()</span><br><span class="line">    : <span class="keyword">new</span> <span class="title class_">AnthropicStreamParser</span>()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> reader = response.<span class="property">body</span>.<span class="title function_">getReader</span>()</span><br><span class="line">  <span class="keyword">const</span> decoder = <span class="keyword">new</span> <span class="title class_">TextDecoder</span>()</span><br><span class="line">  <span class="keyword">let</span> remainder = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; value, done &#125; = <span class="keyword">await</span> reader.<span class="title function_">read</span>()</span><br><span class="line">    <span class="keyword">if</span> (done) <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    remainder += decoder.<span class="title function_">decode</span>(value, &#123; <span class="attr">stream</span>: <span class="literal">true</span> &#125;)</span><br><span class="line">    <span class="keyword">const</span> lines = remainder.<span class="title function_">split</span>(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    remainder = lines.<span class="title function_">pop</span>() || <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> line <span class="keyword">of</span> lines) &#123;</span><br><span class="line">      parser.<span class="title function_">parseLine</span>(line, &#123;</span><br><span class="line">        <span class="attr">onContent</span>: <span class="function">(<span class="params">delta</span>) =&gt;</span> &#123; <span class="comment">/* yield &#123; type: &#x27;content&#x27;, data: delta &#125; */</span> &#125;,</span><br><span class="line">        <span class="attr">onReasoning</span>: <span class="function">(<span class="params">delta</span>) =&gt;</span> &#123; <span class="comment">/* yield &#123; type: &#x27;reasoning&#x27;, data: delta &#125; */</span> &#125;,</span><br><span class="line">        <span class="attr">onComplete</span>: <span class="function">(<span class="params">usage</span>) =&gt;</span> &#123; <span class="comment">/* yield &#123; type: &#x27;complete&#x27;, data: usage &#125; */</span> &#125;,</span><br><span class="line">        <span class="attr">onError</span>: <span class="function">(<span class="params">err</span>) =&gt;</span> &#123; <span class="comment">/* yield &#123; type: &#x27;error&#x27;, data: err &#125; */</span> &#125;,</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-Responses-兼容层：不要把它伪装成-Chat"><a href="#2-5-Responses-兼容层：不要把它伪装成-Chat" class="headerlink" title="2.5 Responses 兼容层：不要把它伪装成 Chat"></a>2.5 Responses 兼容层：不要把它伪装成 Chat</h3><p>在网关里做 Responses 兼容时，我现在会把它当成独立入口处理，而不是在 Chat adapter 里随手加几个字段。</p>
+<p>第一件事是识别请求形状。很多 SDK 或客户端会把 Responses 形状误发到 <code>/v1/chat/completions</code>，比如带着 <code>input</code>、<code>text</code>、<code>reasoning</code>、<code>previous_response_id</code>、<code>include</code>，但没有 <code>messages</code>。这种请求继续走 Chat 校验只会得到“messages is required”之类的错误。更好的做法是复用已经读出的 body，把请求转到 Responses create 链路。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> responsesPayloadSignalFieldsForChat = []<span class="type">string</span>&#123;</span><br><span class="line">  <span class="string">&quot;input&quot;</span>,</span><br><span class="line">  <span class="string">&quot;text&quot;</span>,</span><br><span class="line">  <span class="string">&quot;reasoning&quot;</span>,</span><br><span class="line">  <span class="string">&quot;previous_response_id&quot;</span>,</span><br><span class="line">  <span class="string">&quot;include&quot;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个判断要保守。如果请求里已经有 <code>messages</code>，就让它继续走 Chat 规则。否则一个同时带 <code>messages</code> 和 <code>text</code> 的客户端扩展字段，会被误判成 Responses。</p>
+<p>第二件事是路由能力。不是每个上游都支持原生 Responses，也不是每个 Responses endpoint 都能桥接成 Chat。一个实用的模型是给每条路由标出模式：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">ResponsesRouteMode</span> =</span><br><span class="line">  | <span class="string">&#x27;native&#x27;</span>       <span class="comment">// 直接转发 /v1/responses</span></span><br><span class="line">  | <span class="string">&#x27;chat_bridge&#x27;</span>  <span class="comment">// 把 Responses input 压成 Chat messages</span></span><br><span class="line">  | <span class="string">&#x27;disabled&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>/v1/responses</code>、<code>/v1/responses/{id}/compact</code>、<code>/v1/responses/input_tokens</code> 的能力也要分开。<code>compact</code> 可以在 Chat bridge 里变成一段可读历史，<code>input_tokens</code> 更像计数接口，失败时不应该触发和生成请求一样的重试策略。</p>
+<p>第三件事是上下文。<code>previous_response_id</code> 看起来只是一个字符串，但网关不能盲目转发：</p>
+<ul>
+<li>如果上一次走的是原生 OpenAI Responses，需要把公网 id 映射回上游 id。</li>
+<li>如果上一次走的是 Chat bridge，需要保存压缩后的可读上下文，下次再还原成 Chat messages。</li>
+<li>如果响应包含 <code>encrypted_content</code>，后续请求最好回到同一路由或同一类路由；找不到 affinity 时要 fail closed，不能猜。</li>
+<li><code>previous_response_id</code> 必须绑定 API key 和模型，不能让 A 用户拿 B 用户的上下文继续跑。</li>
+</ul>
+<p>这也是为什么失败请求也值得归档。只要已经生成了 response id 或可诊断的上游错误，后续恢复、排查和计费都需要它。</p>
+<p>第四件事是工具调用校验。Responses 的 <code>function_call</code> &#x2F; <code>function_call_output</code> 历史桥接到 Chat 后，需要变成 assistant tool_calls 和 tool messages。这里不能只做字段改名，还要检查顺序：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function_call(call_1)</span><br><span class="line">function_call_output(call_1)</span><br><span class="line">user(...)</span><br></pre></td></tr></table></figure>
+
+<p>如果缺了 output，或者 output 跟 call id 对不上，最好在网关层返回清楚的错误。把坏历史透传给上游，得到的通常是更难懂的 400。</p>
+<p>最后是长非流式请求。Responses 很容易遇到“用户没有开 stream，但模型会跑很久”的场景。网关可以内部用流式聚合保护连接，但计费和预扣不能一刀切：</p>
+<ul>
+<li>普通 <code>safe_non_stream</code> 聚合只是在内部保护连接，不应该放大预扣。</li>
+<li><code>large_input</code>、<code>large_output</code>、<code>reasoning</code>、JSON 输出、模型白名单这类真正长请求，才使用更高的输出 token 预扣预算。</li>
+<li>如果最终费用超过预扣，只能在有交付证据时追扣，比如最终响应已经送达、长非流式已经生成，或客户端取消前已有可计费输出。</li>
+</ul>
+<p>这类规则看着像计费细节，其实是协议适配的一部分。协议层如果不知道“这个响应到底有没有交付”，钱包层最后只能猜。</p>
+<hr>
+<h2 id="三、Tool-Use-差异"><a href="#三、Tool-Use-差异" class="headerlink" title="三、Tool Use 差异"></a>三、Tool Use 差异</h2><p>两家都支持 function calling，但实现上有重要差异：</p>
+<p><strong>OpenAI：</strong></p>
+<ul>
+<li>请求中声明 <code>tools</code> 数组</li>
+<li>模型返回 <code>delta.tool_calls</code> 增量 JSON</li>
+<li>必须收集拼接完整的 <code>function.arguments</code> 再解析</li>
+<li><code>tool_choice</code> 支持 <code>auto</code> &#x2F; <code>none</code> &#x2F; <code>required</code> &#x2F; 指定工具</li>
+</ul>
+<p><strong>Anthropic：</strong></p>
+<ul>
+<li>请求中声明 <code>tools</code> 数组（结构类似但字段略有不同）</li>
+<li>模型返回独立的 <code>content_block</code>（<code>type: tool_use</code>）</li>
+<li>在 <code>content_block_start</code> 事件中拿到 <code>tool_use.name</code>，在 <code>content_block_delta</code> 中拿到 <code>input_json_delta</code></li>
+<li><strong>需要前端&#x2F;中间层缓存 tool_use id</strong>，因为工具结果必须以 <code>tool_result</code> content_block 形式传回</li>
+<li>Anthropic 要求 tool_use 和 tool_result 必须交替出现，不能连续两个 tool_use</li>
+</ul>
+<p>Responses 的工具调用又多一层。它会把工具调用放进 <code>output</code> 或流式事件里，历史恢复时再通过 <code>function_call_output</code> 传回结果。桥接到 Chat 模型时，适配层要把这组历史压成 Chat 能理解的相邻 tool turn。这里最怕“半截历史”：模型上次发了两个 tool call，客户端只回了一个 tool output，然后继续发新问题。严格模型会拒绝这段历史，宽松模型可能给出不可预测的结果。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Anthropic tool_use 处理</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">&#x27;content_block_start&#x27;</span>: &#123;</span><br><span class="line">  <span class="keyword">if</span> (payload.<span class="property">content_block</span>?.<span class="property">type</span> === <span class="string">&#x27;tool_use&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">activeToolName</span> = payload.<span class="property">content_block</span>.<span class="property">name</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">activeToolId</span> = payload.<span class="property">content_block</span>.<span class="property">id</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">break</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="string">&#x27;content_block_delta&#x27;</span>: &#123;</span><br><span class="line">  <span class="keyword">if</span> (payload.<span class="property">delta</span>?.<span class="property">type</span> === <span class="string">&#x27;input_json_delta&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">toolInputBuffer</span> += payload.<span class="property">delta</span>.<span class="property">partial_json</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">break</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="string">&#x27;content_block_stop&#x27;</span>: &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">activeToolId</span>) &#123;</span><br><span class="line">    callbacks.<span class="property">onToolUse</span>?.(<span class="variable language_">this</span>.<span class="property">activeToolName</span>, <span class="variable language_">this</span>.<span class="property">toolInputBuffer</span>)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">activeToolName</span> = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">activeToolId</span> = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">toolInputBuffer</span> = <span class="string">&#x27;&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">break</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、适配层的设计原则"><a href="#四、适配层的设计原则" class="headerlink" title="四、适配层的设计原则"></a>四、适配层的设计原则</h2><ol>
+<li><p><strong>外部协议向内收敛</strong>。上层业务代码永远操作 <code>UnifiedMessage</code> &#x2F; <code>UnifiedChatResponse</code>，不出现 <code>choices[0].delta.content</code> 或 <code>content_block_delta</code> 这种供应商特有字段。</p>
+</li>
+<li><p><strong>请求和响应分开适配</strong>。<code>buildRequest</code> 和 <code>parseResponse</code> 是两个独立方向，不要混在一个方法里。</p>
+</li>
+<li><p><strong>错误格式独立解析</strong>。两家的错误嵌套深度不同（OpenAI 的 <code>error.message</code> vs Anthropic 的 <code>error.error.message</code>），各自在 <code>parseError</code> 中处理，返回统一错误字符串。</p>
+</li>
+<li><p><strong>流式解析器保持无状态</strong>（或最小状态）。Anthropic 的 SSE 需要维护事件名状态，但这个状态只在解析器内部，不污染外层。</p>
+</li>
+<li><p><strong>不要试图统一所有细节</strong>。<code>max_tokens</code> 在 OpenAI 不是必填但在 Anthropic 是必填，<code>system</code> 消息的结构也不同——适配层处理这些差异，不要强行抹平到毫无区别。</p>
+</li>
+<li><p><strong>usage 归一化</strong>。OpenAI 有 <code>total_tokens</code>、Anthropic 没有——适配层统一计算。</p>
+</li>
+<li><p><strong>Responses 不要假装成 Chat。</strong> <code>input</code>、<code>output</code>、<code>previous_response_id</code>、<code>reasoning</code>、<code>text.format</code> 都有自己的语义。能原生转发就原生转发，不能原生转发再走 Chat bridge。</p>
+</li>
+<li><p><strong>上下文 id 要有归属。</strong> <code>previous_response_id</code> 至少要绑定用户、API key、模型和上游路由。只存一个字符串，后面一定会在多路由场景里出事。</p>
+</li>
+<li><p><strong>桥接前先校验历史。</strong> 工具调用、工具结果、加密上下文、图片块都要在网关层先过一遍。适配层的错误应该比上游错误更清楚。</p>
+</li>
+<li><p><strong>计费跟协议交付挂钩。</strong> 流式、非流式、内部聚合、客户端取消，对用户来说不是同一种交付状态。结算逻辑要看交付证据，不能只看上游有没有返回 usage。</p>
+</li>
+</ol>
+<hr>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><table>
+<thead>
+<tr>
+<th>层面</th>
+<th>主要工作量</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>请求转换</td>
+<td>system 消息位置的差异（顶层 vs messages 数组内）、max_tokens 必填 vs 可选</td>
+</tr>
+<tr>
+<td>响应解析</td>
+<td>content 从 <code>choices[0].message.content</code>（string）到 <code>content[0].text</code>（array of blocks）的映射</td>
+</tr>
+<tr>
+<td>流式解析</td>
+<td>SSE 事件模型的根本性差异——OpenAI 只有 data 行，Anthropic 有多事件类型的复杂状态机</td>
+</tr>
+<tr>
+<td>多模态</td>
+<td><code>image_url</code> vs <code>source</code> 字段差异、<code>detail</code> 参数有无</td>
+</tr>
+<tr>
+<td>Tool Use</td>
+<td>Anthropic 需要缓存 tool_use id 用于 tool_result 回传，OpenAI 的 tool_calls 是增量 JSON</td>
+</tr>
+<tr>
+<td>错误处理</td>
+<td>错误对象在 JSON 中的嵌套深度不同</td>
+</tr>
+<tr>
+<td>Responses API</td>
+<td><code>input</code> &#x2F; <code>output</code> &#x2F; <code>previous_response_id</code> 独立于 Chat，需要单独的路由能力和上下文恢复</td>
+</tr>
+<tr>
+<td>Chat bridge</td>
+<td>原生不支持 Responses 的模型可以桥接到 Chat，但要压缩上下文并校验工具历史</td>
+</tr>
+<tr>
+<td>计费边界</td>
+<td>长非流式、内部聚合、客户端取消要按交付证据结算</td>
+</tr>
+</tbody></table>
+<p>接入两家之后你会意识到，协议差异不是最头疼的。更麻烦的是业务代码总在想：“这段逻辑 OpenAI 支持，Anthropic 支不支持？Responses 能不能桥接？上次的上下文还能不能恢复？”</p>
+<p>统一适配层的价值就在这里。上层代码先写统一逻辑，底层的“不支持”由适配层报错、降级或换路由。适配层越清楚，业务层越少猜。</p>
+
+</article>
+    
+    
+
+</div>
+<div class="trm-post-next-prev row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/06/24/%E6%A8%A1%E5%9E%8B%E4%B8%8D%E6%94%AF%E6%8C%81Responses%E6%97%B6%E5%A6%82%E4%BD%95%E7%94%A8Chat-Bridge%E5%85%BC%E5%AE%B9/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/06/24/%E6%A8%A1%E5%9E%8B%E4%B8%8D%E6%94%AF%E6%8C%81Responses%E6%97%B6%E5%A6%82%E4%BD%95%E7%94%A8Chat-Bridge%E5%85%BC%E5%AE%B9/" class="trm-anima-link">
+                    模型不支持 Responses 时如何用 Chat Bridge 兼容
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/06/24</li>
+                <li>16:20</li>
+                
+                    <li>4.4k</li>
+                
+                
+                    <li>18</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/05/28/SSE-%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E5%9C%A8AI%E8%81%8A%E5%A4%A9%E4%B8%AD%E7%9A%84%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/05/28/SSE-%E6%B5%81%E5%BC%8F%E5%93%8D%E5%BA%94%E5%9C%A8AI%E8%81%8A%E5%A4%A9%E4%B8%AD%E7%9A%84%E4%BC%98%E5%8C%96%E5%AE%9E%E8%B7%B5/" class="trm-anima-link">
+                    SSE 流式响应在 AI 聊天中的优化实践
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/05/28</li>
+                <li>12:00</li>
+                
+                    <li>1.9k</li>
+                
+                
+                    <li>9</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-footer-card trm-scroll-animation">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v8.1.2
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.2.7
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item blog-run-long"></div>
+     
+
+     
+</footer>
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            
+
+    <div id="post-toc" class="trm-post-toc">
+      <div class="trm-post-toc-header">
+        目录导航
+				<span id="post-toc-top">
+					置顶
+				</span>
+      </div>
+      <div class="trm-post-toc-content">
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-2" title="一、协议的核心差异"><a rel="nofollow" class="trm-toc-link" href="#一、协议的核心差异"><span class="trm-toc-text">一、协议的核心差异</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="1.1 请求格式"><a rel="nofollow" class="trm-toc-link" href="#1-1-请求格式"><span class="trm-toc-text">1.1 请求格式</span></a></li><li class="trm-toc-item trm-toc-level-3" title="1.2 响应格式（非流式）"><a rel="nofollow" class="trm-toc-link" href="#1-2-响应格式（非流式）"><span class="trm-toc-text">1.2 响应格式（非流式）</span></a></li><li class="trm-toc-item trm-toc-level-3" title="1.3 流式 SSE 格式"><a rel="nofollow" class="trm-toc-link" href="#1-3-流式-SSE-格式"><span class="trm-toc-text">1.3 流式 SSE 格式</span></a></li><li class="trm-toc-item trm-toc-level-3" title="1.4 多模态（图片）Content 格式"><a rel="nofollow" class="trm-toc-link" href="#1-4-多模态（图片）Content-格式"><span class="trm-toc-text">1.4 多模态（图片）Content 格式</span></a></li><li class="trm-toc-item trm-toc-level-3" title="1.5 错误格式"><a rel="nofollow" class="trm-toc-link" href="#1-5-错误格式"><span class="trm-toc-text">1.5 错误格式</span></a></li><li class="trm-toc-item trm-toc-level-3" title="1.6 OpenAI Responses API：第三种请求形状"><a rel="nofollow" class="trm-toc-link" href="#1-6-OpenAI-Responses-API：第三种请求形状"><span class="trm-toc-text">1.6 OpenAI Responses API：第三种请求形状</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="二、统一适配层设计"><a rel="nofollow" class="trm-toc-link" href="#二、统一适配层设计"><span class="trm-toc-text">二、统一适配层设计</span></a><ol class="trm-toc-child"><li class="trm-toc-item trm-toc-level-3" title="2.1 统一请求模型"><a rel="nofollow" class="trm-toc-link" href="#2-1-统一请求模型"><span class="trm-toc-text">2.1 统一请求模型</span></a></li><li class="trm-toc-item trm-toc-level-3" title="2.2 请求转换层"><a rel="nofollow" class="trm-toc-link" href="#2-2-请求转换层"><span class="trm-toc-text">2.2 请求转换层</span></a></li><li class="trm-toc-item trm-toc-level-3" title="2.3 流式适配层"><a rel="nofollow" class="trm-toc-link" href="#2-3-流式适配层"><span class="trm-toc-text">2.3 流式适配层</span></a></li><li class="trm-toc-item trm-toc-level-3" title="2.4 统一流式调用入口"><a rel="nofollow" class="trm-toc-link" href="#2-4-统一流式调用入口"><span class="trm-toc-text">2.4 统一流式调用入口</span></a></li><li class="trm-toc-item trm-toc-level-3" title="2.5 Responses 兼容层：不要把它伪装成 Chat"><a rel="nofollow" class="trm-toc-link" href="#2-5-Responses-兼容层：不要把它伪装成-Chat"><span class="trm-toc-text">2.5 Responses 兼容层：不要把它伪装成 Chat</span></a></li></ol></li><li class="trm-toc-item trm-toc-level-2" title="三、Tool Use 差异"><a rel="nofollow" class="trm-toc-link" href="#三、Tool-Use-差异"><span class="trm-toc-text">三、Tool Use 差异</span></a></li><li class="trm-toc-item trm-toc-level-2" title="四、适配层的设计原则"><a rel="nofollow" class="trm-toc-link" href="#四、适配层的设计原则"><span class="trm-toc-text">四、适配层的设计原则</span></a></li><li class="trm-toc-item trm-toc-level-2" title="五、总结"><a rel="nofollow" class="trm-toc-link" href="#五、总结"><span class="trm-toc-text">五、总结</span></a></li></ol>
+      </div>
+    </div>
+
+            
+<div class="trm-fixed-container">
+    
+        <div class="trm-fixed-btn post-toc-btn" data-title="目录">
+            <i class="iconfont fas fa-th-list"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn hidden-md" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.2.7"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+		
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.2.7"></script>
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+</body>
+
+</html>

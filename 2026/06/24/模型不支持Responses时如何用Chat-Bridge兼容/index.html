@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="最近在网关里补了一轮 Responses 兼容。最麻烦的点不是接一个原生 &#x2F;v1&#x2F;responses，而是另一类更现实的问题：模型本身只有 Chat Completions 或 Anthropic Messages 能力，但客户端已经按 OpenAI Responses API 发请求。 如果直接回一句“不支持 Responses”，用户体验很差。很多模型明明可以完成任务，只是上游没有实现 Res">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模型不支持 Responses 时如何用 Chat Bridge 兼容">
+<meta property="og:url" content="http://blog.phj233.info/2026/06/24/%E6%A8%A1%E5%9E%8B%E4%B8%8D%E6%94%AF%E6%8C%81Responses%E6%97%B6%E5%A6%82%E4%BD%95%E7%94%A8Chat-Bridge%E5%85%BC%E5%AE%B9/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="最近在网关里补了一轮 Responses 兼容。最麻烦的点不是接一个原生 &#x2F;v1&#x2F;responses，而是另一类更现实的问题：模型本身只有 Chat Completions 或 Anthropic Messages 能力，但客户端已经按 OpenAI Responses API 发请求。 如果直接回一句“不支持 Responses”，用户体验很差。很多模型明明可以完成任务，只是上游没有实现 Res">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-06-24T16:20:00.000Z">
+<meta property="article:modified_time" content="2026-06-24T15:40:12.123Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="Chat">
+<meta property="article:tag" content="OpenAI">
+<meta property="article:tag" content="Responses">
+<meta property="article:tag" content="后端">
+<meta property="article:tag" content="架构">
+<meta name="twitter:card" content="summary">
+
+
+<title >模型不支持 Responses 时如何用 Chat Bridge 兼容</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.7","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-06-24 15:40:12"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.7" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+
+ 
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" style="opacity: 0">
+            <!-- top bar -->
+            <header class="trm-top-bar">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            模型不支持 Responses 时如何用 Chat Bridge 兼容
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2026
+                                    </span>
+                                </li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <span id="scroll-triger" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </span>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div class="trm-page-sidebar col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    <div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card"> 
+        <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+        <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+        <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+        
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div class="trm-page-content col-lg-8">
+                <div id="trm-content" class="trm-content">
+                    <div class="trm-post-info row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            06/24
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            16:20
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>最近在网关里补了一轮 Responses 兼容。最麻烦的点不是接一个原生 <code>/v1/responses</code>，而是另一类更现实的问题：模型本身只有 Chat Completions 或 Anthropic Messages 能力，但客户端已经按 OpenAI Responses API 发请求。</p>
+<p>如果直接回一句“不支持 Responses”，用户体验很差。很多模型明明可以完成任务，只是上游没有实现 Responses 这层协议。如果把 Responses 请求硬塞到 Chat endpoint，又会遇到 <code>input</code>、<code>previous_response_id</code>、<code>function_call_output</code>、<code>text.format</code>、<code>reasoning</code> 这些字段都对不上的问题。</p>
+<p>所以这次做的是 Chat Bridge：对外仍然接受 Responses 请求，对内按路由能力把它转成 Chat 请求，上游返回后再包回 Responses 形状。听起来像字段转换，实际更像一层小型协议网关。</p>
+<h2 id="一、为什么需要-Chat-Bridge"><a href="#一、为什么需要-Chat-Bridge" class="headerlink" title="一、为什么需要 Chat Bridge"></a>一、为什么需要 Chat Bridge</h2><p>OpenAI Responses API 的形状和 Chat Completions 不一样：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;deepseek-v4-pro&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;input_text&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;分析这段日志&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;reasoning&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;effort&quot;</span><span class="punctuation">:</span> <span class="string">&quot;medium&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;format&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;json_object&quot;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;previous_response_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;resp_tm_xxx&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stream&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>Chat Completions 要的是：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;deepseek-v4-pro-202606&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;messages&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span> <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;分析这段日志&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;reasoning_effort&quot;</span><span class="punctuation">:</span> <span class="string">&quot;medium&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;response_format&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;json_object&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stream&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里有几个不能偷懒的地方：</p>
+<ul>
+<li><code>input</code> 要拆成 <code>messages</code>，不同 content block 要分别处理。</li>
+<li><code>max_output_tokens</code> 要映射成 Chat 侧可用的 <code>max_completion_tokens</code>。</li>
+<li><code>reasoning.effort</code> 可能要转成 <code>reasoning_effort</code>，也可能因为工具调用被策略删除。</li>
+<li><code>text.format</code> 要转成 <code>response_format</code>。</li>
+<li><code>tools</code> 和 <code>tool_choice</code> 要转成 Chat 可识别的函数调用格式。</li>
+<li><code>previous_response_id</code> 要恢复上一轮上下文，不能原样转发。</li>
+<li>上游返回 Chat 结构后，还要重新包装成 Responses 的 <code>output</code> 数组。</li>
+</ul>
+<p>这不是简单兼容字段。它要保证客户端看到的是 Responses，供应商看到的是 Chat，中间还不能丢上下文、不能乱扣费、不能把坏历史送到上游。</p>
+<h2 id="二、先把路由能力显式化"><a href="#二、先把路由能力显式化" class="headerlink" title="二、先把路由能力显式化"></a>二、先把路由能力显式化</h2><p>第一个决定是：不要靠 <code>protocol</code> 猜一切。</p>
+<p>有的路由是 OpenAI 原生 Responses，有的路由是 Azure Responses，有的路由只是 OpenAI-compatible Chat，还有的路由只能本地估算 token。后来我加了 <code>model_routes.endpoint_capabilities</code>，用 JSON 给每条路由标能力。</p>
+<p>一个典型配置长这样：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;responses&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;create&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bridge_chat&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;compact&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bridge_chat&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;input_tokens&quot;</span><span class="punctuation">:</span> <span class="string">&quot;local_estimate&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;chat&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;params&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;drop_when_tools&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;reasoning_effort&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;drop_disabled&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;thinking&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;rewrite&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;reasoning.effort&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;minimal&quot;</span><span class="punctuation">:</span> <span class="string">&quot;low&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;reason&quot;</span><span class="punctuation">:</span> <span class="string">&quot;upstream_chat_compat&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里把 Responses 的三个 endpoint 分开看：</p>
+<table>
+<thead>
+<tr>
+<th>endpoint</th>
+<th>含义</th>
+<th>可选模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>create</code></td>
+<td><code>/v1/responses</code>，真正生成内容</td>
+<td><code>native</code> &#x2F; <code>bridge_chat</code> &#x2F; <code>disabled</code></td>
+</tr>
+<tr>
+<td><code>compact</code></td>
+<td><code>/v1/responses/compact</code>，压缩上下文</td>
+<td><code>native</code> &#x2F; <code>bridge_chat</code> &#x2F; <code>disabled</code></td>
+</tr>
+<tr>
+<td><code>input_tokens</code></td>
+<td><code>/v1/responses/input_tokens</code>，计数</td>
+<td><code>native</code> &#x2F; <code>local_estimate</code> &#x2F; <code>disabled</code></td>
+</tr>
+</tbody></table>
+<p>为什么 <code>input_tokens</code> 不允许 <code>bridge_chat</code>？因为它不是生成请求。把计数请求桥接到 Chat 生成没有意义，最多只能调用供应商计数接口，或者本地估算。</p>
+<p>代码里的模式大概是这几个：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> (</span><br><span class="line">  responsesRouteModeInherit       responsesRouteMode = <span class="string">&quot;inherit&quot;</span></span><br><span class="line">  responsesRouteModeDisabled      responsesRouteMode = <span class="string">&quot;disabled&quot;</span></span><br><span class="line">  responsesRouteModeNative        responsesRouteMode = <span class="string">&quot;native&quot;</span></span><br><span class="line">  responsesRouteModeBridgeChat    responsesRouteMode = <span class="string">&quot;bridge_chat&quot;</span></span><br><span class="line">  responsesRouteModeLocalEstimate responsesRouteMode = <span class="string">&quot;local_estimate&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>默认规则也要保守：</p>
+<ul>
+<li>OpenAI &#x2F; Azure Responses 走 <code>native</code>。</li>
+<li>Anthropic Messages 的 <code>create</code> 可以默认 <code>bridge_chat</code>，<code>input_tokens</code> 可以走原生 count tokens，<code>compact</code> 暂时禁用。</li>
+<li>TokenHub、Vertex Gemini、DeepSeek 这类 OpenAI-compatible Chat 路由，不默认开启 Responses，必须显式配置 <code>bridge_chat</code>。</li>
+<li>图片、视频、音频等非 Chat 协议不能配置 <code>bridge_chat</code>。</li>
+</ul>
+<p>这个设计救了很多后续问题。路由过滤时只看能力，不在转发阶段临时猜“这个上游应该能不能接”。</p>
+<h2 id="三、Chat-入口也要识别-Responses-形状"><a href="#三、Chat-入口也要识别-Responses-形状" class="headerlink" title="三、Chat 入口也要识别 Responses 形状"></a>三、Chat 入口也要识别 Responses 形状</h2><p>现实里还有一种情况：客户端把 Responses 请求发到了 <code>/v1/chat/completions</code>。</p>
+<p>如果 body 里有 <code>input</code>、<code>text</code>、<code>reasoning</code>、<code>previous_response_id</code>、<code>include</code>，但没有 <code>messages</code>，继续走 Chat 校验只会报“messages 不能为空”。这对用户没帮助，因为他其实发的是 Responses 形状。</p>
+<p>所以网关加了一个保守识别：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> responsesPayloadSignalFieldsForChat = []<span class="type">string</span>&#123;</span><br><span class="line">  <span class="string">&quot;input&quot;</span>,</span><br><span class="line">  <span class="string">&quot;text&quot;</span>,</span><br><span class="line">  <span class="string">&quot;reasoning&quot;</span>,</span><br><span class="line">  <span class="string">&quot;previous_response_id&quot;</span>,</span><br><span class="line">  <span class="string">&quot;include&quot;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>命中后复用已经读取的 body，转到 Responses create 链路。注意这里不能二次读取请求体，也不能重复幂等检查，否则中间件和日志会乱。对应本地提交是 <code>fix(gateway): 兼容 Chat 入口 Responses 请求形状</code>。</p>
+<p>有一个边界必须守住：如果 body 已经有 <code>messages</code>，就仍然按 Chat 请求处理。否则某些客户端扩展字段里带了 <code>text</code>，会被误判成 Responses。</p>
+<h2 id="四、Responses-input-到-Chat-messages"><a href="#四、Responses-input-到-Chat-messages" class="headerlink" title="四、Responses input 到 Chat messages"></a>四、Responses input 到 Chat messages</h2><p>Chat Bridge 的第一步是构造 Chat 请求体。</p>
+<p>核心逻辑可以概括成：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">chat := <span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">interface</span>&#123;&#125;&#123;</span><br><span class="line">  <span class="string">&quot;model&quot;</span>:    upstreamModel,</span><br><span class="line">  <span class="string">&quot;messages&quot;</span>: responsesChatMessagesFromInput(data),</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">copyResponsesChatParam(chat, data, <span class="string">&quot;temperature&quot;</span>, <span class="string">&quot;temperature&quot;</span>)</span><br><span class="line">copyResponsesChatParam(chat, data, <span class="string">&quot;top_p&quot;</span>, <span class="string">&quot;top_p&quot;</span>)</span><br><span class="line">copyResponsesChatParam(chat, data, <span class="string">&quot;stream&quot;</span>, <span class="string">&quot;stream&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> v, ok := data[<span class="string">&quot;max_output_tokens&quot;</span>]; ok &#123;</span><br><span class="line">  chat[<span class="string">&quot;max_completion_tokens&quot;</span>] = v</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> effort := responsesReasoningEffort(data[<span class="string">&quot;reasoning&quot;</span>]); effort != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">  chat[<span class="string">&quot;reasoning_effort&quot;</span>] = effort</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> responseFormat, ok := responsesResponseFormatForChat(data); ok &#123;</span><br><span class="line">  chat[<span class="string">&quot;response_format&quot;</span>] = responseFormat</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>input</code> 的转换最关键。Responses 里可能出现这些形状：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hello&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;input_text&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;看图回答&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;input_image&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;image_url&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://example.com/a.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span> <span class="string">&quot;high&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>桥接到 OpenAI-compatible Chat 后要变成：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;messages&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span> <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;text&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;看图回答&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;image_url&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;image_url&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;url&quot;</span><span class="punctuation">:</span> <span class="string">&quot;https://example.com/a.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;detail&quot;</span><span class="punctuation">:</span> <span class="string">&quot;high&quot;</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个图片桥接后来单独修过一次，对应提交是 <code>fix(responses): 修复图片消息桥接格式</code>。问题很小，但影响很大：Responses 的 <code>input_image</code> 不能直接塞给 Chat，OpenAI-compatible Chat 需要 <code>image_url</code>。</p>
+<h2 id="五、工具调用历史必须先校验"><a href="#五、工具调用历史必须先校验" class="headerlink" title="五、工具调用历史必须先校验"></a>五、工具调用历史必须先校验</h2><p>Responses 的工具调用历史长这样：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;function_call&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;call_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;call_lookup&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;lookup_order&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;arguments&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;\&quot;order_id\&quot;:\&quot;123\&quot;&#125;&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;function_call_output&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;call_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;call_lookup&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;output&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span> <span class="string">&quot;paid&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;继续分析&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>桥接成 Chat 时，要变成 assistant tool_calls 加 tool message：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;messages&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assistant&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;tool_calls&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;call_lookup&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;function&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;function&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;lookup_order&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;arguments&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;\&quot;order_id\&quot;:\&quot;123\&quot;&#125;&quot;</span></span><br><span class="line">          <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;tool&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;tool_call_id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;call_lookup&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;\&quot;status\&quot;:\&quot;paid\&quot;&#125;&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;user&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;继续分析&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里不能只做转换，还要做校验。</p>
+<p>如果有 <code>function_call</code> 却没有对应的 <code>function_call_output</code>，严格模型会报错。更糟的是，错误来自上游，用户看到的会是一段供应商内部文案。后来我在桥接前加了校验：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">validateResponsesChatBridgeToolHistory</span><span class="params">(body []<span class="type">byte</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> err := validateOpenAIToolResponseOrdering(payload.Messages); err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> newValidationError(</span><br><span class="line">      param,</span><br><span class="line">      <span class="string">&quot;missing tool response for Responses Chat bridge&quot;</span>,</span><br><span class="line">      <span class="string">&quot;When using Responses with tools on a Chat-bridged model, every function_call must be immediately followed by its matching function_call_output. Pass the original previous_response_id with complete tool outputs, or start a new response.&quot;</span>,</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这对应 <code>fix(gateway): 校验 Responses 桥接工具调用</code>。后来又补了不完整 tool turn 的清理：如果历史里残留半截工具调用，且后面已经是新的用户请求，就把那段不完整工具 turn 丢掉，避免无效历史拖垮新请求。</p>
+<h2 id="六、previous-response-id-不能只存一个字符串"><a href="#六、previous-response-id-不能只存一个字符串" class="headerlink" title="六、previous_response_id 不能只存一个字符串"></a>六、<code>previous_response_id</code> 不能只存一个字符串</h2><p>Responses 的上下文恢复比 Chat 麻烦。</p>
+<p>Chat 请求通常由客户端带完整 <code>messages</code>。Responses 则允许客户端只带 <code>previous_response_id</code>。这要求网关知道这个 id 对应的上游响应、路由、模型、用户和桥接上下文。</p>
+<p>本地结构里保存了这些字段：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> responsesIDMapping <span class="keyword">struct</span> &#123;</span><br><span class="line">  PublicID           <span class="type">string</span></span><br><span class="line">  UpstreamID         <span class="type">string</span></span><br><span class="line">  UserID             <span class="type">uint</span></span><br><span class="line">  ModelID            <span class="type">string</span></span><br><span class="line">  RequestedModel     <span class="type">string</span></span><br><span class="line">  ChannelID          <span class="type">uint</span></span><br><span class="line">  UpstreamModel      <span class="type">string</span></span><br><span class="line">  Protocol           <span class="type">string</span></span><br><span class="line">  PoolKeyID          <span class="type">uint</span></span><br><span class="line">  LastRequestID      <span class="type">string</span></span><br><span class="line">  OriginalResponseID <span class="type">string</span></span><br><span class="line">  BridgeMessages     []<span class="type">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果是原生 Responses，重点是把对外 id 映射回上游 id。比如用户看到 <code>resp_tm_xxx</code>，下一次请求进来时要替换成真实上游 id。</p>
+<p>如果是 Chat Bridge，就没有上游 Responses 上下文可用。网关必须把已转换出的 Chat messages 存下来。下一次带 <code>previous_response_id</code> 时，先恢复 <code>BridgeMessages</code>，再把当前 input 追加到后面。</p>
+<p>这个恢复还有几个校验：</p>
+<ul>
+<li><code>previous_response_id</code> 必须属于当前 API key 对应的用户。</li>
+<li>模型必须一致，不能拿 A 模型的上下文继续跑 B 模型。</li>
+<li>路由要匹配上一次的 channel、protocol、upstream model。</li>
+<li>找不到上下文时要给明确错误，不能静默退化成空上下文。</li>
+</ul>
+<p>这部分对应 <code>feat(gateway): 归档失败请求并校验 Responses 上下文</code> 和 <code>fix(gateway): 优化 Responses 上下文恢复与失败提示</code>。其中“失败请求也归档”很重要。生成过程中失败，不代表没有产生 response id、usage 或可诊断的上游错误。调试和恢复都需要这些信息。</p>
+<h2 id="七、compact-也能桥接，但要承认它只是摘要"><a href="#七、compact-也能桥接，但要承认它只是摘要" class="headerlink" title="七、compact 也能桥接，但要承认它只是摘要"></a>七、compact 也能桥接，但要承认它只是摘要</h2><p>Responses 有 <code>/v1/responses/compact</code>，用于压缩上下文。原生支持时可以直接调用上游。模型不支持 Responses 时，只能用 Chat 生成摘要。</p>
+<p>桥接时我没有假装它是原生 compact，而是把它当成“上下文摘要任务”：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">You are compacting conversation context for a future model request.</span><br><span class="line"></span><br><span class="line">Write a concise but complete continuation summary. Do not answer the user&#x27;s task.</span><br><span class="line"></span><br><span class="line">Preserve:</span><br><span class="line">- the user&#x27;s current goal and hard constraints</span><br><span class="line">- decisions already made</span><br><span class="line">- unfinished tasks and next steps</span><br><span class="line">- important files, request IDs, error messages, tool results, validation results, and billing or safety constraints</span><br><span class="line">- any opaque or encrypted context only as an explicit note that it exists</span><br></pre></td></tr></table></figure>
+
+<p>输入由两部分组成：</p>
+<ul>
+<li><code>previous_bridge_context</code>：上一次保存的桥接上下文。</li>
+<li><code>current_compact_input</code>：本次 compact 请求里新的 input。</li>
+</ul>
+<p>如果上下文太长，就按字节上限裁剪旧消息。生成出来的 summary 再存成一条 system message：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">[</span></span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;system&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Prior conversation compact summary:\n...&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">]</span></span><br></pre></td></tr></table></figure>
+
+<p>这不是完美模拟。它丢掉了原生 Responses 可能保留的结构化状态，但比直接拒绝好很多。文章里我要强调这一点：Chat Bridge 的 compact 是“可继续工作的摘要”，不是原生状态迁移。</p>
+<h2 id="八、encrypted-content-要-fail-closed"><a href="#八、encrypted-content-要-fail-closed" class="headerlink" title="八、encrypted_content 要 fail closed"></a>八、encrypted_content 要 fail closed</h2><p>Responses 里可能出现 <code>encrypted_content</code>，通常是 reasoning 或上下文里的不透明状态。</p>
+<p>Chat 模型读不懂它。网关也不能解密它。那怎么办？</p>
+<p>当前策略是：</p>
+<ul>
+<li>如果请求里既有可读 input，又有未映射的 <code>encrypted_content</code>，可以把不可读部分剥掉，并记录 metadata。</li>
+<li>如果请求只有 <code>encrypted_content</code>，没有任何可读上下文，就不能桥接。否则模型会在没有真实上下文的情况下乱答。</li>
+<li>如果之前存过 <code>encrypted_content</code> 的路由 affinity，后续请求要尽量回到同一路由。</li>
+<li>找不到 affinity 时 fail closed，返回可诊断错误。</li>
+</ul>
+<p>这部分看着保守，但很必要。加密上下文是典型的“看起来像字符串，实际上是协议状态”。把它当普通文本会产生假连续性。</p>
+<h2 id="九、Chat-响应要重新包装成-Responses"><a href="#九、Chat-响应要重新包装成-Responses" class="headerlink" title="九、Chat 响应要重新包装成 Responses"></a>九、Chat 响应要重新包装成 Responses</h2><p>上游 Chat 返回：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;chatcmpl_xxx&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;choices&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;message&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assistant&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="string">&quot;分析结果如下&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;finish_reason&quot;</span><span class="punctuation">:</span> <span class="string">&quot;stop&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;usage&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;prompt_tokens&quot;</span><span class="punctuation">:</span> <span class="number">100</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;completion_tokens&quot;</span><span class="punctuation">:</span> <span class="number">20</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;total_tokens&quot;</span><span class="punctuation">:</span> <span class="number">120</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>对外要包装成 Responses：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;resp_tm_xxx&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;response&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span> <span class="string">&quot;completed&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;model&quot;</span><span class="punctuation">:</span> <span class="string">&quot;deepseek-v4-pro&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;output&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;message&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;status&quot;</span><span class="punctuation">:</span> <span class="string">&quot;completed&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;role&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assistant&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;content&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;output_text&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;分析结果如下&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;usage&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;input_tokens&quot;</span><span class="punctuation">:</span> <span class="number">100</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;output_tokens&quot;</span><span class="punctuation">:</span> <span class="number">20</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;total_tokens&quot;</span><span class="punctuation">:</span> <span class="number">120</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果 Chat 返回 tool_calls，还要变成 Responses 的 <code>function_call</code> output item。流式也一样，不能把 Chat chunk 原样吐给客户端。对外 Response ID 要重写，避免暴露上游 id，也方便下一轮 <code>previous_response_id</code> 找回上下文。</p>
+<p>这个地方有一个容易忽略的点：usage 的来源要标记清楚。</p>
+<ul>
+<li>上游给了准确 usage，就用 provider exact。</li>
+<li>桥接过程中只有文本内容，就用 content estimate。</li>
+<li>compact bridge 可以用本地估算作为预扣来源。</li>
+<li><code>input_tokens</code> endpoint 如果所有路由不可用，可以返回 local estimate，但 metadata 要写明这是估算，不是上游计数。</li>
+</ul>
+<p>不标来源，后面排查账单会很痛苦。</p>
+<h2 id="十、长非流式和计费边界"><a href="#十、长非流式和计费边界" class="headerlink" title="十、长非流式和计费边界"></a>十、长非流式和计费边界</h2><p>Responses 很容易被客户端非流式调用，尤其是一些 SDK 默认 <code>stream=false</code>。如果用户让模型生成很长内容，边缘层、客户端、网关都有超时风险。</p>
+<p>网关内部可以把非流式请求转成流式聚合，保持对上游的长连接，再把最终结果一次性返回。这里分两类：</p>
+<ul>
+<li><code>safe_non_stream</code>：普通请求的内部保护，不应该提高预扣。</li>
+<li><code>large_input</code>、<code>large_output</code>、<code>reasoning</code>、JSON 输出、模型白名单：真正长请求，可以使用更高的输出 token 预扣预算。</li>
+</ul>
+<p>最近的提交 <code>fix(gateway): 调整长非流式预扣与追扣策略</code> 加了一个热配置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gateway_long_non_stream_prededuct_output_tokens = 32768</span><br></pre></td></tr></table></figure>
+
+<p>它只用于真正长非流式场景。普通 <code>safe_non_stream</code> 仍然走常规预扣，避免低余额用户被内部兼容策略误伤。</p>
+<p>超过预扣后的追扣也收紧了。只有这些情况才允许追扣：</p>
+<ul>
+<li>最终响应已交付给客户端。</li>
+<li>长非流式已经生成并有可计费内容。</li>
+<li>客户端取消前，已经有可计费输出写出。</li>
+</ul>
+<p>如果只是上游返回了成本、但没有交付证据，不应该向用户追扣。协议层必须把交付证据写进 metadata，钱包层才能做正确判断。</p>
+<h2 id="十一、这套桥接链路的请求流程"><a href="#十一、这套桥接链路的请求流程" class="headerlink" title="十一、这套桥接链路的请求流程"></a>十一、这套桥接链路的请求流程</h2><p>整个链路可以画成这样：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">client</span><br><span class="line">  |</span><br><span class="line">  | POST /v1/responses</span><br><span class="line">  v</span><br><span class="line">parse Responses request</span><br><span class="line">  |</span><br><span class="line">resolve model and routes</span><br><span class="line">  |</span><br><span class="line">filter route by endpoint_capabilities</span><br><span class="line">  |</span><br><span class="line">  +-- native ------&gt; upstream /v1/responses</span><br><span class="line">  |</span><br><span class="line">  +-- bridge_chat -&gt; build Chat body</span><br><span class="line">                     normalize tools</span><br><span class="line">                     restore previous bridge messages</span><br><span class="line">                     apply chat param policy</span><br><span class="line">                     upstream /chat/completions or /messages</span><br><span class="line">                     wrap Chat response as Responses</span><br><span class="line">                     store public response id mapping</span><br><span class="line">  |</span><br><span class="line">  +-- local_estimate -&gt; input_tokens only</span><br></pre></td></tr></table></figure>
+
+<p>失败分支也要写日志：</p>
+<ul>
+<li>路由不支持 endpoint，要记录 unsupported &#x2F; disabled &#x2F; invalid_config。</li>
+<li><code>previous_response_id</code> 路由不匹配，要记录 mismatch。</li>
+<li>encrypted affinity 找不到，要记录 fail closed。</li>
+<li>工具调用历史不完整，要返回可读的 400。</li>
+<li>compact 缺少可读上下文，要明确告诉用户缺 <code>previous_response_id</code> 或只有 opaque context。</li>
+</ul>
+<p>这些日志不是给好看用的。桥接层的问题很容易表现成“模型不可用”或“上游 400”，没有 metadata 就很难定位。</p>
+<h2 id="十二、测试应该覆盖哪些坑"><a href="#十二、测试应该覆盖哪些坑" class="headerlink" title="十二、测试应该覆盖哪些坑"></a>十二、测试应该覆盖哪些坑</h2><p>这次本地测试主要补了这些场景：</p>
+<ul>
+<li>Chat 入口识别 Responses 请求形状，但 <code>messages</code> 优先级更高。</li>
+<li><code>create</code> &#x2F; <code>compact</code> &#x2F; <code>input_tokens</code> 的 route mode 解析。</li>
+<li>非原生路由默认 disabled，显式配置后才允许 <code>bridge_chat</code>。</li>
+<li>Responses input 转 Chat messages，包括文本、图片、工具调用。</li>
+<li><code>function_call_output</code> 缺失时提前报错。</li>
+<li>不完整 tool turn 可以清理，避免污染新请求。</li>
+<li><code>previous_response_id</code> 能恢复桥接上下文，模型和路由不匹配时拒绝。</li>
+<li>compact bridge 生成摘要，只保存 summary，不把整段旧历史无限膨胀。</li>
+<li>encrypted_content 只能作为 opaque context 处理。</li>
+<li>Chat bridge 输出能包装回 Responses，并保留 usage。</li>
+<li><code>input_tokens</code> 原生不可用时返回 local estimate。</li>
+<li>长非流式只在真实长请求时放大预扣，普通 safe_non_stream 不放大。</li>
+<li>超过预扣追扣必须依赖交付证据。</li>
+</ul>
+<p>这些用例看起来多，但每个都对应生产里会出现的一种怪请求。</p>
+<h2 id="十三、几个设计教训"><a href="#十三、几个设计教训" class="headerlink" title="十三、几个设计教训"></a>十三、几个设计教训</h2><p>第一，桥接不是“降级版 Responses”。对外要尽量像 Responses，对内要诚实承认自己在用 Chat。metadata 里要写 <code>responses_route_mode=bridge_chat</code>，否则后面调账、排障都会混。</p>
+<p>第二，route capability 必须落在数据层。写死“某协议支持 Responses”很快会失控。同一个协议下，不同供应商、不同模型、不同 endpoint 的能力都可能不同。</p>
+<p>第三，<code>previous_response_id</code> 是状态，不是字符串。它要绑定用户、模型、路由、上游 id、桥接消息和密钥池信息。</p>
+<p>第四，工具历史先验错比上游报错更好。自己能判断的 400，就不要让上游替你判断。</p>
+<p>第五，计费要跟交付事实绑定。协议桥接层最清楚哪些内容真的发给了用户，所以交付证据要从这里产生。</p>
+<p>最后，Chat Bridge 的目标不是让所有模型“真正支持 Responses”。它只是给不支持 Responses 的模型补一条可用路径。能原生就原生，不能原生再桥接，桥接不了就明确失败。这个顺序不能反。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>模型不支持 Responses，不代表它完全不能服务 Responses 客户端。只要模型能稳定完成 Chat 请求，就可以通过 Chat Bridge 支持一部分 Responses 能力。</p>
+<p>但这层桥接必须足够谨慎。请求形状、路由能力、上下文恢复、工具调用、多模态、响应包装、usage、长非流式和计费边界都要一起考虑。少任何一块，问题都可能变成“偶发 400”“上下文丢失”“重复扣费”或者“模型看起来不稳定”。</p>
+<p>我现在更倾向于把它当成一个明确的协议适配层，而不是兼容补丁。补丁会越补越乱，协议层至少知道自己在保护什么。</p>
+
+</article>
+    
+    
+
+</div>
+<div class="trm-post-next-prev row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/06/24/Git-%E6%8F%90%E4%BA%A4%E5%90%88%E5%B9%B6%E4%B8%8E%E5%A4%A7%E6%96%87%E4%BB%B6%E5%8E%86%E5%8F%B2%E6%B8%85%E7%90%86/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/06/24/Git-%E6%8F%90%E4%BA%A4%E5%90%88%E5%B9%B6%E4%B8%8E%E5%A4%A7%E6%96%87%E4%BB%B6%E5%8E%86%E5%8F%B2%E6%B8%85%E7%90%86/" class="trm-anima-link">
+                    Git 提交合并与大文件历史清理记录
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/06/24</li>
+                <li>23:30</li>
+                
+                    <li>1.8k</li>
+                
+                
+                    <li>7</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/05/28/%E9%80%82%E9%85%8DOpenAI%E4%B8%8EAnthropic%E7%9A%84Response%E5%8D%8F%E8%AE%AE/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/05/28/%E9%80%82%E9%85%8DOpenAI%E4%B8%8EAnthropic%E7%9A%84Response%E5%8D%8F%E8%AE%AE/" class="trm-anima-link">
+                    适配 OpenAI Responses 与 Anthropic Messages 协议
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/05/28</li>
+                <li>14:00</li>
+                
+                    <li>5.3k</li>
+                
+                
+                    <li>25</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-footer-card trm-scroll-animation">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v8.1.2
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.2.7
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item blog-run-long"></div>
+     
+
+     
+</footer>
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            
+
+    <div id="post-toc" class="trm-post-toc">
+      <div class="trm-post-toc-header">
+        目录导航
+				<span id="post-toc-top">
+					置顶
+				</span>
+      </div>
+      <div class="trm-post-toc-content">
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-2" title="一、为什么需要 Chat Bridge"><a rel="nofollow" class="trm-toc-link" href="#一、为什么需要-Chat-Bridge"><span class="trm-toc-text">一、为什么需要 Chat Bridge</span></a></li><li class="trm-toc-item trm-toc-level-2" title="二、先把路由能力显式化"><a rel="nofollow" class="trm-toc-link" href="#二、先把路由能力显式化"><span class="trm-toc-text">二、先把路由能力显式化</span></a></li><li class="trm-toc-item trm-toc-level-2" title="三、Chat 入口也要识别 Responses 形状"><a rel="nofollow" class="trm-toc-link" href="#三、Chat-入口也要识别-Responses-形状"><span class="trm-toc-text">三、Chat 入口也要识别 Responses 形状</span></a></li><li class="trm-toc-item trm-toc-level-2" title="四、Responses input 到 Chat messages"><a rel="nofollow" class="trm-toc-link" href="#四、Responses-input-到-Chat-messages"><span class="trm-toc-text">四、Responses input 到 Chat messages</span></a></li><li class="trm-toc-item trm-toc-level-2" title="五、工具调用历史必须先校验"><a rel="nofollow" class="trm-toc-link" href="#五、工具调用历史必须先校验"><span class="trm-toc-text">五、工具调用历史必须先校验</span></a></li><li class="trm-toc-item trm-toc-level-2" title="六、previous_response_id 不能只存一个字符串"><a rel="nofollow" class="trm-toc-link" href="#六、previous-response-id-不能只存一个字符串"><span class="trm-toc-text">六、previous_response_id 不能只存一个字符串</span></a></li><li class="trm-toc-item trm-toc-level-2" title="七、compact 也能桥接，但要承认它只是摘要"><a rel="nofollow" class="trm-toc-link" href="#七、compact-也能桥接，但要承认它只是摘要"><span class="trm-toc-text">七、compact 也能桥接，但要承认它只是摘要</span></a></li><li class="trm-toc-item trm-toc-level-2" title="八、encrypted_content 要 fail closed"><a rel="nofollow" class="trm-toc-link" href="#八、encrypted-content-要-fail-closed"><span class="trm-toc-text">八、encrypted_content 要 fail closed</span></a></li><li class="trm-toc-item trm-toc-level-2" title="九、Chat 响应要重新包装成 Responses"><a rel="nofollow" class="trm-toc-link" href="#九、Chat-响应要重新包装成-Responses"><span class="trm-toc-text">九、Chat 响应要重新包装成 Responses</span></a></li><li class="trm-toc-item trm-toc-level-2" title="十、长非流式和计费边界"><a rel="nofollow" class="trm-toc-link" href="#十、长非流式和计费边界"><span class="trm-toc-text">十、长非流式和计费边界</span></a></li><li class="trm-toc-item trm-toc-level-2" title="十一、这套桥接链路的请求流程"><a rel="nofollow" class="trm-toc-link" href="#十一、这套桥接链路的请求流程"><span class="trm-toc-text">十一、这套桥接链路的请求流程</span></a></li><li class="trm-toc-item trm-toc-level-2" title="十二、测试应该覆盖哪些坑"><a rel="nofollow" class="trm-toc-link" href="#十二、测试应该覆盖哪些坑"><span class="trm-toc-text">十二、测试应该覆盖哪些坑</span></a></li><li class="trm-toc-item trm-toc-level-2" title="十三、几个设计教训"><a rel="nofollow" class="trm-toc-link" href="#十三、几个设计教训"><span class="trm-toc-text">十三、几个设计教训</span></a></li><li class="trm-toc-item trm-toc-level-2" title="总结"><a rel="nofollow" class="trm-toc-link" href="#总结"><span class="trm-toc-text">总结</span></a></li></ol>
+      </div>
+    </div>
+
+            
+<div class="trm-fixed-container">
+    
+        <div class="trm-fixed-btn post-toc-btn" data-title="目录">
+            <i class="iconfont fas fa-th-list"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn hidden-md" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.2.7"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+		
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.2.7"></script>
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+</body>
+
+</html>

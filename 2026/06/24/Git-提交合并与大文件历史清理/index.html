@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="x5-fullscreen" content="true">
+<meta name="full-screen" content="yes">
+<meta name="theme-color" content="#317EFB" />
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=0" name="viewport">
+<meta name="description" content="最近在一个前端项目里做了一次 Git 提交整理：本来已经按文档、构建、素材、功能拆了几次 commit，但后来发现素材提交里有一个问题——早期提交进来了一批 PNG 大图，后续又改成 WebP 并删除了旧 PNG。虽然最终工作区里已经没有旧图了，但只要这些 PNG 曾经出现在可达历史里，第一次 push 仍然可能把它们一起传上去。 所以这次不是普通的“改 commit message”，而是做了一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git 提交合并与大文件历史清理记录">
+<meta property="og:url" content="http://blog.phj233.info/2026/06/24/Git-%E6%8F%90%E4%BA%A4%E5%90%88%E5%B9%B6%E4%B8%8E%E5%A4%A7%E6%96%87%E4%BB%B6%E5%8E%86%E5%8F%B2%E6%B8%85%E7%90%86/index.html">
+<meta property="og:site_name" content="PHJ233のBlog">
+<meta property="og:description" content="最近在一个前端项目里做了一次 Git 提交整理：本来已经按文档、构建、素材、功能拆了几次 commit，但后来发现素材提交里有一个问题——早期提交进来了一批 PNG 大图，后续又改成 WebP 并删除了旧 PNG。虽然最终工作区里已经没有旧图了，但只要这些 PNG 曾经出现在可达历史里，第一次 push 仍然可能把它们一起传上去。 所以这次不是普通的“改 commit message”，而是做了一">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-06-24T23:30:00.000Z">
+<meta property="article:modified_time" content="2026-06-24T15:40:12.123Z">
+<meta property="article:author" content="phj233">
+<meta property="article:tag" content="git">
+<meta property="article:tag" content="工程化">
+<meta property="article:tag" content="笔记">
+<meta name="twitter:card" content="summary">
+
+
+<title >Git 提交合并与大文件历史清理记录</title>
+
+<!-- Favicon -->
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='16x16' ></link>
+
+
+    <link href='/img/favicon.svg?v=2.2.7' rel='icon' type='image/png' sizes='32x32' ></link>
+
+
+
+
+<!-- Plugin -->
+
+
+
+
+    
+<link rel="stylesheet" href="/css/plugins/bootstrap.row.css">
+
+    
+<link rel="stylesheet" href="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.css">
+
+    
+    
+
+
+
+
+<!-- Icon -->
+
+    
+<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+
+
+
+
+<!-- Variable -->
+<script>window.ASYNC_CONFIG = {"hostname":"blog.phj233.info","author":"phj233","root":"/","typed_text":["Developer"],"theme_version":"2.2.7","theme":{"switch":true,"default":"style-light"},"favicon":{"logo":"/img/favicon.svg","icon16":"/img/favicon.svg","icon32":"/img/favicon.svg","apple_touch_icon":null,"webmanifest":null,"visibilitychange":false,"hidden":"/failure.ico","show_text":"(/≧▽≦/)咦！又好了！","hide_text":"(●—●)喔哟，崩溃啦！"},"i18n":{"placeholder":"搜索文章...","empty":"找不到您查询的内容: ${query}","hits":"找到 ${hits} 条结果","hits_time":"找到 ${hits} 条结果（用时 ${time} 毫秒）","author":"本文作者：","copyright_link":"本文链接：","copyright_license_title":"版权声明：","copyright_license_content":"本博客所有文章除特别声明外，均默认采用 undefined 许可协议。","copy_success":"复制成功","copy_failure":"复制失败","open_read_mode":"进入阅读模式","exit_read_mode":"退出阅读模式","notice_outdate_message":"距离上次更新已经 undefined 天了, 文章内容可能已经过时。","sticky":"置顶","just":"刚刚","min":"分钟前","hour":"小时前","day":"天前","month":"个月前"},"swup":false,"plugin":{"flickr_justified_gallery":"https://unpkg.com/flickr-justified-gallery@latest/dist/fjGallery.min.js"},"icons":{"sun":"far fa-sun","moon":"far fa-moon","play":"fas fa-play","email":"far fa-envelope","next":"fas fa-arrow-right","calendar":"far fa-calendar-alt","clock":"far fa-clock","user":"far fa-user","back_top":"fas fa-arrow-up","close":"fas fa-times","search":"fas fa-search","reward":"fas fa-hand-holding-usd","toc_tag":"fas fa-th-list","read":"fas fa-book-reader","arrows":"fas fa-arrows-alt-h","double_arrows":"fas fa-angle-double-down","copy":"fas fa-copy"},"icontype":"font","highlight":{"plugin":"highlighjs","theme":true,"copy":true,"lang":true,"title":"default","height_limit":300},"toc":{"post_title":true},"live_time":{"start_time":"01/17/2023 17:00:00","prefix":"博客已萌萌哒运行 undefined 天"},"danmu":{"enable":false,"el":".trm-banner"}};</script>
+<script id="async-page-config">window.PAGE_CONFIG = {"isPost":true,"isHome":false,"postUpdate":"2026-06-24 15:40:12"};</script>
+
+<!-- Theme mode css -->
+<link data-swup-theme rel="stylesheet" href="/css/index.css?v=2.2.7" id="trm-switch-style">
+<script>
+    let defaultMode = ASYNC_CONFIG.theme.default !=='auto' ?  ASYNC_CONFIG.theme.default : (window.matchMedia("(prefers-color-scheme: light)").matches ? 'style-light' : 'style-dark')
+    let catchMode = localStorage.getItem('theme-mode') || defaultMode;
+    let type = catchMode === 'style-dark' ? 'add' : 'remove';
+    document.documentElement.classList[type]('dark')
+</script>
+
+<!-- CDN -->
+
+
+    
+    
+
+
+
+<!-- Site Analytics -->
+
+ 
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body>
+
+  <!-- app wrapper -->
+  <div class="trm-app-frame">
+
+    <!-- page preloader -->
+    <div class="trm-preloader">
+    <div class="trm-holder">
+        <div class="preloader">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+</div>
+    <!-- page preloader end -->
+
+    <!-- change mode preloader -->
+    <div class="trm-mode-swich-animation-frame">
+    <div class="trm-mode-swich-animation">
+        <i class="i-sun"><i class="iconfont far fa-sun"></i></i>
+        <div class="trm-horizon"></div>
+        <i class="i-moon"><i class="iconfont far fa-moon"></i></i>
+    </div>
+</div>
+    <!-- change mode preloader end -->
+
+      <!-- scroll container -->
+      <div id="trm-dynamic-content" class="trm-swup-animation">
+        <div id="trm-scroll-container" class="trm-scroll-container" style="opacity: 0">
+            <!-- top bar -->
+            <header class="trm-top-bar">
+	<div class="container">
+		<div class="trm-left-side">
+			<!-- logo -->
+<a href="/" class="trm-logo-frame trm-anima-link">
+    
+        <img alt="logo" src="/img/favicon.svg">
+    
+    
+        <div class="trm-logo-text">
+            phj<span>233</span>
+        </div>
+    
+</a>
+<!-- logo end -->
+		</div>
+		<div class="trm-right-side">
+			<!-- menu -->
+<div class="trm-menu">
+    <nav>
+        <ul>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/" target="">
+                    首页
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/archives/" target="">
+                    归档
+                </a>
+                
+            </li>
+            
+            <li class="menu-item-has-children ">
+                <a  href="/about/" target="">
+                    关于
+                </a>
+                
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+<!-- menu end -->
+			
+    <!-- mode switcher place -->
+    <div class="trm-mode-switcher-place">
+        <div class="trm-mode-switcher">
+            <i class="iconfont far fa-sun"></i>
+            <input class="tgl tgl-light" id="trm-swich" type="checkbox">
+            <label class="trm-swich" for="trm-swich"></label>
+            <i class="iconfont far fa-moon"></i>
+        </div>
+    </div>
+    <!-- mode switcher place end -->
+
+			
+		</div>
+		<div class="trm-menu-btn">
+			<span></span>
+		</div>
+	</div>
+</header>
+            <!-- top bar end -->
+
+            <!-- body -->
+            
+<div class="trm-content-start">
+    <!-- banner -->
+    <div class="trm-banner">
+    
+    <!-- banner cover -->
+    <img style="object-position:top;object-fit:cover;" alt="banner" class="trm-banner-cover" src="/img/banner.png">
+    <!-- banner cover end -->
+    
+
+    <!-- banner content -->
+    <div class="trm-banner-content trm-overlay">
+        <div class="container">
+            <div class="row">
+                
+                <div class="col-lg-4"></div>
+                
+                <div class="col-lg-8">
+
+                    <!-- banner title -->
+                    <div class="trm-banner-text ">
+                        <div class="trm-label trm-mb-20">
+                            NEWS LETTER
+                        </div>
+                        <h1 class="trm-mb-30 trm-hsmb-font">
+                            Git 提交合并与大文件历史清理记录
+                        </h1>
+
+                        
+                            <ul class="trm-breadcrumbs trm-label">
+                                <li>
+                                    <a href="/" class="trm-anima-link">Home</a>
+                                </li>
+                                <li>
+                                    <span>
+                                        2026
+                                    </span>
+                                </li>
+                            </ul>
+                        
+                    </div>
+                    <!-- banner title end -->
+
+                    <!-- scroll hint -->
+                    <span id="scroll-triger" class="trm-scroll-hint-frame">
+                        <div class="trm-scroll-hint"></div>
+                        <span class="trm-label">Scroll down</span>
+                    </span>
+                    <!-- scroll hint end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- banner content end -->
+</div>
+    <!-- banner end -->
+    <div class="container">
+        <div class="row">
+            
+                <div class="trm-page-sidebar col-lg-4 hidden-sm">
+                    <!-- main card -->
+                    <div class="trm-main-card-frame trm-sidebar">
+    <div class="trm-main-card"> 
+        <!-- card header -->
+<div class="trm-mc-header">
+    <div class="trm-avatar-frame trm-mb-20">
+        <img alt="Avatar" class="trm-avatar" src="https://thirdqq.qlogo.cn/g?b=sdk&k=9VfPePzMwJrBhhaYuzMcIg&kti=ZBR5dwAAAAI&s=140&t=1635427886">
+    </div>
+    <h5 class="trm-name trm-mb-15">
+        phj233
+    </h5>
+    
+        <div class="trm-label">
+            I`m
+            <span class="trm-typed-text">
+                <!-- Words for theme.user.typedText -->
+            </span>
+        </div>
+    
+</div>
+<!-- card header end -->
+        <!-- sidebar social -->
+
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<div class="trm-social">
+    
+        <a href="https://github.com/phj233" title="Github" rel="nofollow" target="_blank">
+            <i class="iconfont fab fa-github"></i>
+        </a>
+    
+</div>
+
+<!-- sidebar social end -->
+        <!-- info -->
+<div class="trm-divider trm-mb-40 trm-mt-40"></div>
+<ul class="trm-table trm-mb-20">
+    
+        <li>
+            <div class="trm-label">
+                Residence:
+            </div>
+            <div class="trm-label trm-label-light">
+                Earth
+            </div>
+        </li>
+    
+</ul>
+<!-- info end -->
+
+        
+    <div class="trm-divider trm-mb-40 trm-mt-40"></div>
+    <!-- action button -->
+    <div class="text-center">
+        <a href="mailto:2780990934@qq.com" class="trm-btn">
+            联系我
+            <i class="iconfont far fa-envelope"></i>
+        </a>
+    </div>
+    <!-- action button end -->
+
+    </div>
+</div>
+                    <!-- main card end -->
+                </div>
+            
+            <div class="trm-page-content col-lg-8">
+                <div id="trm-content" class="trm-content">
+                    <div class="trm-post-info row hidden-sm">
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-calendar-alt trm-icon"></i><br>
+            06/24
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-clock trm-icon"></i><br>
+            23:30
+        </div>
+    </div>
+    <div class="col-sm-4">
+        <div id="post-author" class="trm-card trm-label trm-label-light text-center">
+            <i class="iconfont far fa-user trm-icon"></i><br>
+            phj233
+        </div>
+    </div>
+</div>
+<div class="trm-card ">
+    <article id="article-container" class="trm-publication">
+    <p>最近在一个前端项目里做了一次 Git 提交整理：本来已经按文档、构建、素材、功能拆了几次 commit，但后来发现素材提交里有一个问题——早期提交进来了一批 PNG 大图，后续又改成 WebP 并删除了旧 PNG。虽然最终工作区里已经没有旧图了，但只要这些 PNG 曾经出现在可达历史里，第一次 push 仍然可能把它们一起传上去。</p>
+<p>所以这次不是普通的“改 commit message”，而是做了一次本地历史重写：把最终文件树重新整理成几条干净提交，让 <code>main</code> 历史里只保留当前真正需要的文件。</p>
+<h2 id="一、先看问题"><a href="#一、先看问题" class="headerlink" title="一、先看问题"></a>一、先看问题</h2><p>开始前先看工作区和提交历史：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git status --short --branch</span><br><span class="line">git <span class="built_in">log</span> --oneline --reverse</span><br><span class="line">git count-objects -vH</span><br></pre></td></tr></table></figure>
+
+<p>当时历史大概是这样：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docs(project): 初始化协作与产品设计文档</span><br><span class="line">chore(build): 初始化前端构建配置</span><br><span class="line">chore(assets): 添加修仙游戏视觉资源</span><br><span class="line">feat(frontend): 搭建修仙 Roguelike 可玩界面</span><br><span class="line">chore(assets): 添加 RPG WebP 视觉素材</span><br><span class="line">feat(rpg): 重构单局系统与战斗表现</span><br><span class="line">chore(assets): 清理旧 PNG 素材并更新索引</span><br><span class="line">docs(project): 更新 RPG 系统与架构说明</span><br></pre></td></tr></table></figure>
+
+<p>表面上看已经有一个 <code>chore(assets): 清理旧 PNG 素材并更新索引</code>，最终文件也干净。但 Git 的问题在于：<strong>删除文件只是让最新提交不再引用它，不代表历史里没有它。</strong></p>
+<p>如果这些提交还没有 push，最省事的处理方式就是在本地重写历史。</p>
+<h2 id="二、确认-dist-和-node-modules-没入库"><a href="#二、确认-dist-和-node-modules-没入库" class="headerlink" title="二、确认 dist 和 node_modules 没入库"></a>二、确认 dist 和 node_modules 没入库</h2><p>大文件处理前，先确认构建产物和依赖目录没有被提交：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git ls-files <span class="string">&#x27;frontend/dist&#x27;</span> <span class="string">&#x27;frontend/node_modules&#x27;</span> <span class="string">&#x27;dist&#x27;</span> <span class="string">&#x27;node_modules&#x27;</span></span><br><span class="line">git status --short --ignored</span><br></pre></td></tr></table></figure>
+
+<p><code>git ls-files</code> 没有输出，说明这些路径不是 tracked 文件。</p>
+<p><code>git status --ignored</code> 里看到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">!! frontend/dist/</span><br><span class="line">!! frontend/node_modules/</span><br></pre></td></tr></table></figure>
+
+<p>这表示它们只是被 <code>.gitignore</code> 忽略了，没有进 Git。后面又补了一条：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.vite</span><br></pre></td></tr></table></figure>
+
+<p>避免 Vite 缓存目录也冒出来。</p>
+<h2 id="三、为什么不是简单-squash"><a href="#三、为什么不是简单-squash" class="headerlink" title="三、为什么不是简单 squash"></a>三、为什么不是简单 squash</h2><p>如果只是把相邻的几个资产 commit squash 到一起，有时确实能解决问题。但这里有两个容易混淆的点：</p>
+<ol>
+<li><strong>合并提交信息</strong>不等于清理历史对象。</li>
+<li>如果最终合并后的 commit 仍然能从历史路径访问到旧文件，大文件还是会被 push。</li>
+</ol>
+<p>这次仓库还没有正式推送这些提交，所以直接选择更干净的方式：用 orphan 分支按最终工作树重新建一条历史。</p>
+<p>这种方式适合：</p>
+<ul>
+<li>本地提交还没 push。</li>
+<li>想把初始历史重新整理得更干净。</li>
+<li>不想在交互式 rebase 里一条条处理大量素材提交。</li>
+</ul>
+<p>如果提交已经被别人拉取过，就要谨慎了。重写公共分支需要 force push，会影响协作者。</p>
+<h2 id="四、用-orphan-分支重建历史"><a href="#四、用-orphan-分支重建历史" class="headerlink" title="四、用 orphan 分支重建历史"></a>四、用 orphan 分支重建历史</h2><p>核心命令是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git switch --orphan codex/rewrite-assets-history</span><br></pre></td></tr></table></figure>
+
+<p><code>--orphan</code> 会创建一个没有父提交的新分支。它适合用来“保留当前文件结果，但重新安排提交历史”。</p>
+<p>切 orphan 分支后，如果工作区文件出现变化，不要慌。可以从旧 <code>main</code> 把最终文件树检出来：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout main -- .</span><br></pre></td></tr></table></figure>
+
+<p>然后先清空索引，只保留工作区文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">rm</span> --cached -r .</span><br></pre></td></tr></table></figure>
+
+<p>这一步不会删除真实文件，只是把暂存区清掉，方便重新分组提交。</p>
+<h2 id="五、重新按模块提交"><a href="#五、重新按模块提交" class="headerlink" title="五、重新按模块提交"></a>五、重新按模块提交</h2><p>接下来按模块重新 <code>git add</code>。</p>
+<p>第一组：文档和架构说明。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git add .impeccable/design.json \</span><br><span class="line">  AGENTS.md CLAUDE.md DESIGN.md PRODUCT.md README.md \</span><br><span class="line">  backend/README.md frontend/README.md frontend/src/README.md \</span><br><span class="line">  frontend/src/features/rpg/ARCHITECTURE.md</span><br><span class="line"></span><br><span class="line">git commit -m <span class="string">&quot;docs(project): 初始化项目与 RPG 架构文档&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>第二组：构建配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git add .gitignore .vscode/extensions.json \</span><br><span class="line">  frontend/index.html frontend/package-lock.json frontend/package.json \</span><br><span class="line">  frontend/public/favicon.svg \</span><br><span class="line">  frontend/tsconfig.app.json frontend/tsconfig.json frontend/tsconfig.node.json \</span><br><span class="line">  frontend/vite.config.ts</span><br><span class="line"></span><br><span class="line">git commit -m <span class="string">&quot;chore(build): 初始化前端构建配置&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>第三组：当前真正需要的素材。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add frontend/src/assets</span><br><span class="line">git commit -m <span class="string">&quot;chore(assets): 添加 RPG 当前视觉素材&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这一步的重点是“当前”。旧的 PNG 不再经历“先添加、再删除”的历史链路，最终 <code>main</code> 里只保留当前要用的 WebP、少量 PNG 源素材和资产说明。</p>
+<p>第四组：前端 RPG 源码。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add frontend/src <span class="string">&#x27;:!frontend/src/assets&#x27;</span></span><br><span class="line">git commit -m <span class="string">&quot;feat(rpg): 搭建修仙 Roguelike 单局系统&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后补一条 Vite 缓存忽略：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git add .gitignore</span><br><span class="line">git commit -m <span class="string">&quot;chore(build): 忽略 Vite 缓存目录&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>最终历史变成：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">067f597 docs(project): 初始化项目与 RPG 架构文档</span><br><span class="line">4a26153 chore(build): 初始化前端构建配置</span><br><span class="line">d036f9d chore(assets): 添加 RPG 当前视觉素材</span><br><span class="line">cb76c14 feat(rpg): 搭建修仙 Roguelike 单局系统</span><br><span class="line">894e24c chore(build): 忽略 Vite 缓存目录</span><br></pre></td></tr></table></figure>
+
+<h2 id="六、替换本地-main"><a href="#六、替换本地-main" class="headerlink" title="六、替换本地 main"></a>六、替换本地 main</h2><p>orphan 分支确认没问题后，把它切回 <code>main</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git branch -D main</span><br><span class="line">git branch -m main</span><br></pre></td></tr></table></figure>
+
+<p>这里删除的是本地旧 <code>main</code> 引用，不是删除工作区文件。新 <code>main</code> 指向刚刚整理好的干净历史。</p>
+<p>如果后续要推远端，并且远端已经有旧历史，需要：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push --force-with-lease origin main</span><br></pre></td></tr></table></figure>
+
+<p>如果远端还是空的，普通 push 就行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin main</span><br></pre></td></tr></table></figure>
+
+<p><code>--force-with-lease</code> 比 <code>--force</code> 稍微安全一点，它会检查远端分支是否被别人更新过。</p>
+<h2 id="七、检查旧大文件是否还在-main-历史"><a href="#七、检查旧大文件是否还在-main-历史" class="headerlink" title="七、检查旧大文件是否还在 main 历史"></a>七、检查旧大文件是否还在 main 历史</h2><p>重写后不要只看 <code>git status</code>，还要查可达历史：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-list --objects main | rg <span class="string">&#x27;frontend/src/assets/(dao-battle-spirits|dao-event-atlas|dao-rpg-atlas)\.png&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>没有输出，说明这些旧 PNG 路径不在 <code>main</code> 可达历史里。</p>
+<p>如果使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-list --objects --all</span><br></pre></td></tr></table></figure>
+
+<p>可能仍然会看到旧文件。这不一定代表 <code>main</code> 有问题，因为本地工具可能会保留一些内部 ref，比如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">refs/codex/turn-diffs/...</span><br></pre></td></tr></table></figure>
+
+<p>这些不是业务分支，正常 <code>git push origin main</code> 不会推它们。判断要 push 的内容时，应优先看 <code>main</code> 或目标分支的可达历史，而不是盲目看 <code>--all</code>。</p>
+<h2 id="八、最终验证"><a href="#八、最终验证" class="headerlink" title="八、最终验证"></a>八、最终验证</h2><p>最后跑构建和状态检查：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> frontend</span><br><span class="line">npm run build</span><br></pre></td></tr></table></figure>
+
+<p>再回到仓库根目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git status --short --branch --ignored</span><br><span class="line">git <span class="built_in">log</span> --oneline --reverse</span><br></pre></td></tr></table></figure>
+
+<p>状态里只剩 ignored 文件：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">!! frontend/.vite/</span><br><span class="line">!! frontend/dist/</span><br><span class="line">!! frontend/node_modules/</span><br></pre></td></tr></table></figure>
+
+<p>这就说明依赖、缓存和构建产物都没有进 Git。</p>
+<h2 id="九、小结"><a href="#九、小结" class="headerlink" title="九、小结"></a>九、小结</h2><p>这次操作可以总结成一句话：</p>
+<blockquote>
+<p>如果大文件只是被删除了，但曾经出现在提交历史里，push 时仍然可能被上传；在未发布的本地分支上，可以通过重写历史把最终文件树整理成干净提交。</p>
+</blockquote>
+<p>常用判断：</p>
+<ul>
+<li>只是改最近一条提交信息：<code>git commit --amend</code></li>
+<li>合并最近几条普通提交：<code>git rebase -i</code></li>
+<li>初始历史混乱且还没 push：<code>git switch --orphan</code> 重建历史</li>
+<li>已经 push 且有协作者：先沟通，再考虑 <code>--force-with-lease</code></li>
+</ul>
+<p>Git 的提交合并不是为了“看起来少几条 commit”，更重要的是让历史表达真实意图：文档是文档，构建是构建，资产是当前资产，源码是源码。这样以后 review、回滚、push 都轻松很多。</p>
+
+</article>
+    
+    
+
+</div>
+<div class="trm-post-next-prev row">
+    <div class="col-lg-12">
+        <!-- title -->
+        <h5 class="trm-title-with-divider">
+            其他文章
+            <span data-number="02"></span>
+        </h5>
+    </div>
+    
+    
+        <div class="col-lg-6">
+    <div class="trm-blog-card trm-scroll-animation">
+        <a href="/2026/06/24/%E6%A8%A1%E5%9E%8B%E4%B8%8D%E6%94%AF%E6%8C%81Responses%E6%97%B6%E5%A6%82%E4%BD%95%E7%94%A8Chat-Bridge%E5%85%BC%E5%AE%B9/" class="trm-cover-frame trm-anima-link">
+            
+            
+                <img alt="cover" class="no-fancybox" src="/img/block.jpg">
+            
+        </a>
+        
+        <div class="trm-card-descr">
+            <div class="trm-label trm-category trm-mb-20">
+                <a href=" /categories/Program/">
+                    Program
+                </a>
+            </div>
+            <h5>
+                <a href="/2026/06/24/%E6%A8%A1%E5%9E%8B%E4%B8%8D%E6%94%AF%E6%8C%81Responses%E6%97%B6%E5%A6%82%E4%BD%95%E7%94%A8Chat-Bridge%E5%85%BC%E5%AE%B9/" class="trm-anima-link">
+                    模型不支持 Responses 时如何用 Chat Bridge 兼容
+                </a>
+            </h5>
+            <div class="trm-divider trm-mb-20 trm-mt-20"></div>
+            <ul class="trm-card-data trm-label">
+                <li>26/06/24</li>
+                <li>16:20</li>
+                
+                    <li>4.4k</li>
+                
+                
+                    <li>18</li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+    
+</div>
+
+    
+
+
+
+                    <div class="trm-divider footer-divider"></div>
+
+                    <!-- footer -->
+                    <footer class="trm-footer-card trm-scroll-animation">
+
+    
+
+    
+
+    
+        <div class="trm-footer-item">
+            <span>
+                由 <a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 驱动 v8.1.2
+            </span>
+            <span class="footer-separator" data-separator=" | "></span>
+            <span> 
+                主题 - 
+                <a rel="noopener" href='https://github.com/MaLuns/hexo-theme-async' target='_blank'>Async</a>
+                v2.2.7
+            </span>
+        </div>
+      
+
+    
+        <div class="trm-footer-item blog-run-long"></div>
+     
+
+     
+</footer>
+                    <!-- footer end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            <!-- body end -->
+
+            
+
+    <div id="post-toc" class="trm-post-toc">
+      <div class="trm-post-toc-header">
+        目录导航
+				<span id="post-toc-top">
+					置顶
+				</span>
+      </div>
+      <div class="trm-post-toc-content">
+        <ol class="trm-toc"><li class="trm-toc-item trm-toc-level-2" title="一、先看问题"><a rel="nofollow" class="trm-toc-link" href="#一、先看问题"><span class="trm-toc-text">一、先看问题</span></a></li><li class="trm-toc-item trm-toc-level-2" title="二、确认 dist 和 node_modules 没入库"><a rel="nofollow" class="trm-toc-link" href="#二、确认-dist-和-node-modules-没入库"><span class="trm-toc-text">二、确认 dist 和 node_modules 没入库</span></a></li><li class="trm-toc-item trm-toc-level-2" title="三、为什么不是简单 squash"><a rel="nofollow" class="trm-toc-link" href="#三、为什么不是简单-squash"><span class="trm-toc-text">三、为什么不是简单 squash</span></a></li><li class="trm-toc-item trm-toc-level-2" title="四、用 orphan 分支重建历史"><a rel="nofollow" class="trm-toc-link" href="#四、用-orphan-分支重建历史"><span class="trm-toc-text">四、用 orphan 分支重建历史</span></a></li><li class="trm-toc-item trm-toc-level-2" title="五、重新按模块提交"><a rel="nofollow" class="trm-toc-link" href="#五、重新按模块提交"><span class="trm-toc-text">五、重新按模块提交</span></a></li><li class="trm-toc-item trm-toc-level-2" title="六、替换本地 main"><a rel="nofollow" class="trm-toc-link" href="#六、替换本地-main"><span class="trm-toc-text">六、替换本地 main</span></a></li><li class="trm-toc-item trm-toc-level-2" title="七、检查旧大文件是否还在 main 历史"><a rel="nofollow" class="trm-toc-link" href="#七、检查旧大文件是否还在-main-历史"><span class="trm-toc-text">七、检查旧大文件是否还在 main 历史</span></a></li><li class="trm-toc-item trm-toc-level-2" title="八、最终验证"><a rel="nofollow" class="trm-toc-link" href="#八、最终验证"><span class="trm-toc-text">八、最终验证</span></a></li><li class="trm-toc-item trm-toc-level-2" title="九、小结"><a rel="nofollow" class="trm-toc-link" href="#九、小结"><span class="trm-toc-text">九、小结</span></a></li></ol>
+      </div>
+    </div>
+
+            
+<div class="trm-fixed-container">
+    
+        <div class="trm-fixed-btn post-toc-btn" data-title="目录">
+            <i class="iconfont fas fa-th-list"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn" data-title="阅读模式" onclick="asyncFun.switchReadMode()">
+            <i class="iconfont fas fa-book-reader"></i>
+        </div>
+    
+    
+        <div class="trm-fixed-btn hidden-md" data-title="单栏和双栏切换" onclick="asyncFun.switchSingleColumn()">
+            <i class="iconfont fas fa-arrows-alt-h"></i>
+        </div>
+    
+    <div id="trm-back-top" class="trm-fixed-btn" data-title="回到顶部">
+        <i class="iconfont fas fa-arrow-up"></i>
+    </div>
+</div>
+        </div>
+      </div>
+      <!-- scroll container end -->
+  </div>
+  <!-- app wrapper end -->
+
+  
+  <!-- Plugin -->
+
+
+
+
+    
+    
+<script src="https://unpkg.com/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+    
+
+    
+        <script src="/js/plugins/typing.js?v=2.2.7"></script>
+    
+
+    
+
+    <!-- 数学公式 -->
+    
+
+    <!-- 评论插件 -->
+    
+        
+
+        
+    
+
+		
+
+
+
+
+    <!-- Service Worker -->
+    
+    <!-- baidu push -->
+    
+
+
+<script id="async-script" src="/js/main.js?v=2.2.7"></script>
+
+<!-- CDN -->
+
+
+    
+
+    
+
+    
+
+
+
+</body>
+
+</html>
